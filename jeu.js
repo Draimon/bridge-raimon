@@ -1,6 +1,14 @@
 // Système Raimon — jeu de la carte : tu joues le déclarant (sa main + le mort), Est et Ouest sont des robots.
 // Les robots ne voient que leur main, le mort et les cartes déjà jouées.
 
+// Cartes à jouer dessinées (partagées avec index.html). s : 0 ♠, 1 ♥, 2 ♦, 3 ♣ ; label : 'A', 'R', '10'…
+const CARD_SYM = ['♠', '♥', '♦', '♣'];
+const DISPLAY_SUITS = [0, 1, 3, 2];          // ♠ ♥ ♣ ♦ : on alterne noir / rouge, comme sur une vraie table
+function cardHtml(s, label, cls, attrs) {
+  return `<div class="pcard ${s === 1 || s === 2 ? 'red' : ''} ${cls || ''}" ${attrs || ''}><span class="rk">${label}</span><span class="st">${CARD_SYM[s]}</span><span class="big">${CARD_SYM[s]}</span></div>`;
+}
+function backHtml(cls) { return `<div class="pcard back ${cls || ''}"></div>`; }
+
 function createPlay(env) {
   'use strict';
   const { app, fmt, topbar, on, go, getProgress, save, exit } = env;
@@ -243,21 +251,39 @@ function createPlay(env) {
     finish();
   }
 
-  // ───── Affichage
-  function handRows(seat, clickable) {
+  // ───── Affichage : tapis vert, vraies cartes
+  const cardAttrs = (seat, c, ok) => (ok ? `data-play="${seat}:${c.s}:${c.r}"` : '');
+  // Main en éventail (le déclarant, en bas)
+  function fanHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
-    return G.hands[seat].map((rs, s) => `<div class="hrow"><span class="hs ${red(s) ? 'red' : ''}">${SYM[s]}</span>${rs.length ? rs.map(r => {
-      const ok = l.some(c => c.s === s && c.r === r);
-      return `<button class="cd ${red(s) ? 'red' : ''}" data-play="${seat}:${s}:${r}" ${ok ? '' : 'disabled'}>${RLAB[r]}</button>`;
-    }).join('') : '<span class="muted">—</span>'}</div>`).join('');
+    const cards = DISPLAY_SUITS.flatMap(s => G.hands[seat][s].map(r => ({ s, r })));
+    return `<div class="fan">${cards.map(c => {
+      const ok = l.some(x => x.s === c.s && x.r === c.r);
+      return cardHtml(c.s, RLAB[c.r], clickable ? (ok ? 'play' : 'dim') : '', cardAttrs(seat, c, ok));
+    }).join('')}</div>`;
   }
-
-  // pos : place à l'écran (N = en haut, S = en bas, O = à gauche, E = à droite)
-  function trickCell(seat, pos) {
-    const t = G.trick.find(x => x.seat === seat);
+  // Le mort étalé en colonnes par couleur
+  function dummyHtml(seat, clickable) {
+    const l = clickable ? legal(seat) : [];
+    return `<div class="dummy">${DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol">${G.hands[seat][s].map(r => {
+      const ok = l.some(x => x.s === s && x.r === r);
+      return cardHtml(s, RLAB[r], clickable ? (ok ? 'play' : 'dim') : '', cardAttrs(seat, { s, r }, ok));
+    }).join('')}</div>`).join('')}</div>`;
+  }
+  const isTurn = seat => !G.busy && !G.done && G.turn === seat && !G.trick.some(t => t.seat === seat);
+  // Défenseur sur le côté : dos de cartes + nombre de cartes
+  function sideHtml(seat) {
+    const n = G.hands[seat].reduce((t, x) => t + x.length, 0);
+    return `<div class="side ${isTurn(seat) ? 'turn' : ''}"><div class="sname">${NAMES[seat]}</div><div class="backs">${n ? backHtml() + (n > 1 ? backHtml() : '') : ''}</div><div class="cnt">${n} carte${n > 1 ? 's' : ''}</div></div>`;
+  }
+  // Levée au centre : pos = haut / gauche / droite / bas
+  function trickHtml(M, L, R, D) {
     const w = G.trick.length === 4 ? winnerOf(G.trick) : null;
-    const turn = !G.busy && G.turn === seat && !t;
-    return `<div class="tc t${pos} ${turn ? 'turn' : ''}"><div class="tn">${NAMES[seat]}</div>${t ? `<div class="pc ${w && w.seat === seat ? 'win' : ''}">${lab(t.c)}</div>` : '<div class="pc empty"></div>'}</div>`;
+    const slot = (seat, pos) => {
+      const t = G.trick.find(x => x.seat === seat);
+      return `<div class="slot ${pos}">${t ? cardHtml(t.c.s, RLAB[t.c.r], w && w.seat === seat ? 'win' : '') : ''}</div>`;
+    };
+    return `<div class="trick">${slot(M, 'top')}${slot(L, 'left')}${slot(R, 'right')}${slot(D, 'bottom')}</div>`;
   }
 
   function actionsHtml() {
@@ -283,13 +309,15 @@ function createPlay(env) {
     const D = G.decl, M = G.dummy, L = next(D), R = next(M);
     const who = s => (s === 'S' ? 'Sud, ta main' : 'Nord, ton partenaire');
     app.innerHTML = topbar(`Jeu · donne n° ${G.deal.n}`, 'Quitter') + `
-      <div class="card playbar">
-        <div><b>${c.l}${fmt(c.s)}</b> par ${G.decl === 'S' ? 'toi' : 'ton partenaire'} · il faut ${G.need} levées</div>
-        <div class="muted">Levées : <b>vous ${G.tricks.NS}</b> · eux ${G.tricks.EO} · objectif ${G.deal.dd}</div>
+      <div class="playbar"><div><b>${c.l}${fmt(c.s)}</b> par ${G.decl === 'S' ? 'toi' : 'ton partenaire'} · il faut ${G.need}</div>
+        <div class="score"><span>Vous <b>${G.tricks.NS}</b></span><span>Eux <b>${G.tricks.EO}</b></span></div></div>
+      <div class="felt play">
+        <div class="sname center ${isTurn(M) ? 'turn' : ''}">Mort · ${who(M)}</div>
+        ${G.dummyShown ? dummyHtml(M, toPlay === M) : '<p class="feltnote">Le mort sera étalé après l’entame</p>'}
+        <div class="midrow">${sideHtml(L)}${trickHtml(M, L, R, D)}${sideHtml(R)}</div>
+        <div class="sname center ${isTurn(D) ? 'turn' : ''}">Tu joues · déclarant (${who(D)})</div>
       </div>
-      <div class="card hand ${toPlay === M ? 'active' : ''}"><div class="hl">Mort · ${who(M)}</div>${G.dummyShown ? handRows(M, toPlay === M) : '<p class="muted">Le mort sera étalé après l’entame.</p>'}</div>
-      <div class="table3">${trickCell(M, 'N')}${trickCell(L, 'O')}${trickCell(R, 'E')}${trickCell(D, 'S')}</div>
-      <div class="card hand ${toPlay === D ? 'active' : ''}"><div class="hl">Tu joues · déclarant (${who(D)})</div>${handRows(D, toPlay === D)}</div>
+      ${fanHtml(D, toPlay === D)}
       ${G.msg ? `<div class="feedback ko" style="margin-bottom:10px"><p style="margin:0">${G.msg}</p></div>` : ''}
       ${actionsHtml()}
       ${G.last ? `<p class="muted center" style="font-size:13px">Levée précédente : ${G.last.map(t => NAMES[t.seat][0] + ' ' + lab(t.c)).join(' · ')}</p>` : ''}`;
