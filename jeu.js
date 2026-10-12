@@ -1,0 +1,290 @@
+// Système Raimon — jeu de la carte : tu joues le déclarant (sa main + le mort), Est et Ouest sont des robots.
+// Les robots ne voient que leur main, le mort et les cartes déjà jouées.
+
+function createPlay(env) {
+  'use strict';
+  const { app, fmt, topbar, on, go, getProgress, save, exit } = env;
+  const ORDER = ['N', 'E', 'S', 'O'];
+  const NAMES = { N: 'Nord', E: 'Est', S: 'Sud', O: 'Ouest' };
+  const SYM = ['♠', '♥', '♦', '♣'];
+  const RCH = 'AKQJT98765432';
+  const RLAB = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'V', 'D', 'R', 'A'];
+  const next = s => ORDER[(ORDER.indexOf(s) + 1) % 4];
+  const partner = s => ORDER[(ORDER.indexOf(s) + 2) % 4];
+  const side = s => (s === 'N' || s === 'S' ? 'NS' : 'EO');
+  const red = s => s === 1 || s === 2;
+  const lab = c => `<span class="${red(c.s) ? 'red' : ''}">${SYM[c.s]}</span>${RLAB[c.r]}`;
+
+  let G = null;
+
+  function parseHand(h) {
+    return h.split('.').map(p => (p === '-' ? [] : p.split('').map(ch => 12 - RCH.indexOf(ch)).sort((a, b) => b - a)));
+  }
+
+  function start(deal) {
+    const c = deal.c;
+    G = {
+      deal, decl: c.by, dummy: partner(c.by),
+      trump: c.s === 'SA' ? -1 : SYM.indexOf(c.s),
+      need: c.l + 6,
+      hands: Object.fromEntries(ORDER.map(s => [s, parseHand(deal.h[s])])),
+      turn: next(c.by), trick: [], tricks: { NS: 0, EO: 0 }, last: null,
+      played: [], void: Object.fromEntries(ORDER.map(s => [s, [false, false, false, false]])),
+      firstLead: {}, busy: false, done: false, dummyShown: false,
+    };
+    go(view);
+    schedule();
+  }
+
+  // ───── Règles
+  const has = (s, suit) => G.hands[s][suit].length > 0;
+  function legal(seat) {
+    const h = G.hands[seat];
+    if (!G.trick.length) return h.flatMap((rs, s) => rs.map(r => ({ s, r })));
+    const led = G.trick[0].c.s;
+    if (h[led].length) return h[led].map(r => ({ s: led, r }));
+    return h.flatMap((rs, s) => rs.map(r => ({ s, r })));
+  }
+  function winnerOf(trick) {
+    let w = trick[0];
+    for (const t of trick.slice(1)) {
+      if (t.c.s === w.c.s ? t.c.r > w.c.r : t.c.s === G.trump) w = t;
+    }
+    return w;
+  }
+  const beats = (c, w) => (c.s === w.c.s ? c.r > w.c.r : c.s === G.trump);
+  const userSeat = s => s === G.decl || s === G.dummy;
+
+  function playCard(seat, c) {
+    if (!legal(seat).some(x => x.s === c.s && x.r === c.r)) throw new Error('carte illégale ' + seat + ' ' + c.s + ':' + c.r);
+    const h = G.hands[seat][c.s];
+    h.splice(h.indexOf(c.r), 1);
+    if (G.trick.length && c.s !== G.trick[0].c.s) G.void[seat][G.trick[0].c.s] = true;
+    if (!G.trick.length && side(seat) === 'EO' && G.firstLead[seat] === undefined) G.firstLead[seat] = c.s;
+    G.trick.push({ seat, c });
+    G.played.push({ seat, c });
+    G.dummyShown = true;
+    if (G.trick.length === 4) {
+      const w = winnerOf(G.trick);
+      G.tricks[side(w.seat)]++;
+      G.busy = true;
+      go(view);
+      setTimeout(() => {
+        G.last = G.trick; G.trick = []; G.turn = w.seat; G.busy = false;
+        if (G.tricks.NS + G.tricks.EO === 13) { G.done = true; finish(); return; }
+        go(view); schedule();
+      }, 1100);
+      return;
+    }
+    G.turn = next(seat);
+    go(view);
+    schedule();
+  }
+
+  function schedule() {
+    if (G.done || G.busy) return;
+    const seat = G.turn;
+    if (!userSeat(seat)) { G.busy = true; setTimeout(() => { G.busy = false; playCard(seat, bot(seat)); }, 550); return; }
+    const l = legal(seat);
+    if (l.length === 1) { G.busy = true; setTimeout(() => { G.busy = false; playCard(seat, l[0]); }, 400); }
+  }
+
+  // ───── Robot de défense
+  // Cartes encore « dehors » pour ce défenseur : ni jouées, ni dans sa main, ni au mort.
+  function unseenHigher(seat, c) {
+    let n = 0;
+    for (let r = c.r + 1; r <= 12; r++) {
+      const gone = G.played.some(p => p.c.s === c.s && p.c.r === r);
+      const mine = G.hands[seat][c.s].includes(r);
+      const dummy = G.hands[G.dummy][c.s].includes(r);
+      if (!gone && !mine && !dummy) n++;
+    }
+    return n;
+  }
+  const lowest = list => list.reduce((a, b) => (b.r < a.r ? b : a));
+  const highest = list => list.reduce((a, b) => (b.r > a.r ? b : a));
+
+  function bot(seat) {
+    const l = legal(seat);
+    if (!G.trick.length) return G.played.length === 0 ? openingLead(seat) : laterLead(seat, l);
+    return follow(seat, l);
+  }
+
+  function openingLead(seat) {
+    const h = G.hands[seat], nt = G.trump < 0;
+    const trumps = nt ? 0 : h[G.trump].length;
+    let best = null;
+    for (let s = 0; s < 4; s++) {
+      const cs = h[s];
+      if (!cs.length || (s === G.trump && h.some((x, k) => k !== s && x.length))) continue;
+      let score = 0, card = cs[cs.length - 1];
+      const top = cs[0];
+      const seq = cs.length >= 2 && top >= 9 && cs[1] === top - 1 && (top >= 10 || cs[2] === top - 2);
+      if (top === 12 && cs[1] === 11) { score = nt ? 6 : 8; card = 12; }
+      else if (seq) { score = 6; card = top; }
+      else if (nt) {
+        score = cs.length * 2 + (top >= 9 ? 1 : 0);
+        card = cs.length >= 4 ? cs[3] : top >= 9 ? cs[cs.length - 1] : top;
+      } else {
+        if (cs.length === 1 && trumps >= 1 && top < 9) { score = 5; card = top; }
+        else if (cs[0] === 12) { score = -5; card = 12; }
+        else if (top < 9) { score = cs.length === 2 ? 2 : 3; card = top; }
+        else if (top === 11) { score = -2; card = cs[cs.length - 1]; }
+        else { score = 1; card = cs.length >= 4 ? cs[3] : cs[cs.length - 1]; }
+      }
+      score += cs.length * 0.1;
+      if (!best || score > best.score) best = { score, c: { s, r: card } };
+    }
+    return best ? best.c : lowest(legal(seat));
+  }
+
+  function laterLead(seat, l) {
+    const h = G.hands[seat], dummyH = G.hands[G.dummy];
+    const nt = G.trump < 0;
+    const ruffSluff = s => !nt && s !== G.trump && G.void[G.decl][s] && dummyH[s].length === 0;
+    // 1. Une carte maîtresse, si le mort ne coupera pas.
+    for (let s = 0; s < 4; s++) {
+      if (!h[s].length || s === G.trump) continue;
+      const c = { s, r: h[s][0] };
+      if (unseenHigher(seat, c) === 0 && !dummyH[s].some(r => r > c.r) && (nt || dummyH[s].length || !dummyH[G.trump].length)) return c;
+    }
+    // 2. Rejouer la couleur d'entame du partenaire.
+    const ps = G.firstLead[partner(seat)];
+    if (ps !== undefined && ps !== G.trump && h[ps].length && !ruffSluff(ps)) return h[ps].length <= 2 ? { s: ps, r: h[ps][0] } : { s: ps, r: h[ps][h[ps].length - 1] };
+    // 3. Continuer sa propre couleur d'entame (surtout à SA).
+    const ms = G.firstLead[seat];
+    if (ms !== undefined && ms !== G.trump && h[ms].length && (nt || dummyH[ms].length) && !ruffSluff(ms)) return { s: ms, r: h[ms].length >= 3 ? h[ms][h[ms].length - 1] : h[ms][0] };
+    // 4. Une couleur où le mort est faible, sans donner de coupe et défausse.
+    let best = null;
+    for (let s = 0; s < 4; s++) {
+      if (!h[s].length || (s === G.trump && h.some((x, k) => k !== s && x.length)) || ruffSluff(s)) continue;
+      const dummyHonors = dummyH[s].filter(r => r >= 9).length;
+      const score = -dummyHonors * 2 + h[s].length * 0.3 - (!nt && !dummyH[s].length && dummyH[G.trump].length ? 3 : 0);
+      if (!best || score > best.score) best = { score, s };
+    }
+    if (best) { const cs = h[best.s]; const seq = cs.length >= 2 && cs[0] >= 9 && cs[1] === cs[0] - 1; return { s: best.s, r: seq ? cs[0] : cs[cs.length - 1] }; }
+    return lowest(l);
+  }
+
+  function follow(seat, l) {
+    const pos = G.trick.length;                 // 1 = 2e joueur, 2 = 3e, 3 = 4e
+    const led = G.trick[0].c.s;
+    const w = winnerOf(G.trick);
+    const partnerWins = side(w.seat) === side(seat);
+    const after = ORDER.slice(0).filter(s => !G.trick.some(t => t.seat === s) && s !== seat);
+    // Le gagnant actuel peut-il être battu par quelqu'un qui joue après moi ?
+    const safe = () => after.every(s => {
+      if (s === G.dummy) {
+        const dh = G.hands[s];
+        if (dh[led].length) return !dh[led].some(r => beats({ s: led, r }, w));
+        return G.trump < 0 || !dh[G.trump].length || (w.c.s === G.trump && !dh[G.trump].some(r => r > w.c.r));
+      }
+      return w.c.s === G.trump ? true : unseenHigher(seat, w.c) === 0 && (G.trump < 0 || w.c.s === G.trump || G.void[s][led] === false);
+    });
+    if (l[0].s === led) {
+      const winners = l.filter(c => beats(c, w));
+      if (pos === 1) {
+        const ledC = G.trick[0].c;
+        if (ledC.r >= 9 && side(G.trick[0].seat) !== side(seat) && winners.length) return lowest(winners); // couvrir un honneur
+        return lowest(l);
+      }
+      if (partnerWins && (pos === 3 || safe())) return lowest(l);
+      if (winners.length) return lowest(winners);   // 3e fort / 4e prend au plus juste
+      return lowest(l);
+    }
+    // Défausse ou coupe
+    if (partnerWins && (pos === 3 || safe())) return discard(seat);
+    if (G.trump >= 0 && G.hands[seat][G.trump].length) {
+      const ruffs = G.hands[seat][G.trump].map(r => ({ s: G.trump, r })).filter(c => beats(c, w));
+      if (ruffs.length) return lowest(ruffs);
+    }
+    return discard(seat);
+  }
+
+  function discard(seat) {
+    const h = G.hands[seat];
+    let best = null;
+    for (let s = 0; s < 4; s++) {
+      if (!h[s].length || (s === G.trump && h.some((x, k) => k !== s && x.length))) continue;
+      const honors = h[s].filter(r => r >= 9).length;
+      const score = h[s].length - honors * 3 - (s === G.firstLead[partner(seat)] ? 4 : 0);
+      if (!best || score > best.score) best = { score, s };
+    }
+    const cs = h[best.s];
+    return { s: best.s, r: cs[cs.length - 1] };
+  }
+
+  // ───── Affichage
+  function handRows(seat, clickable) {
+    const l = clickable ? legal(seat) : [];
+    return G.hands[seat].map((rs, s) => `<div class="hrow"><span class="hs ${red(s) ? 'red' : ''}">${SYM[s]}</span>${rs.length ? rs.map(r => {
+      const ok = l.some(c => c.s === s && c.r === r);
+      return `<button class="cd ${red(s) ? 'red' : ''}" data-play="${seat}:${s}:${r}" ${ok ? '' : 'disabled'}>${RLAB[r]}</button>`;
+    }).join('') : '<span class="muted">—</span>'}</div>`).join('');
+  }
+
+  function seatLabel(seat) {
+    const role = seat === G.decl ? 'déclarant' : seat === G.dummy ? 'mort' : 'défense';
+    return `${seat === 'S' ? 'Toi' : seat === 'N' ? 'Partenaire' : NAMES[seat]} · ${role}`;
+  }
+
+  function trickCell(seat) {
+    const t = G.trick.find(x => x.seat === seat);
+    const w = G.trick.length === 4 ? winnerOf(G.trick) : null;
+    const turn = !G.busy && G.turn === seat && !t;
+    return `<div class="tc t${seat} ${turn ? 'turn' : ''}"><div class="tn">${NAMES[seat]}</div>${t ? `<div class="pc ${w && w.seat === seat ? 'win' : ''}">${lab(t.c)}</div>` : '<div class="pc empty"></div>'}</div>`;
+  }
+
+  function view() {
+    const c = G.deal.c;
+    const toPlay = !G.busy && userSeat(G.turn) ? G.turn : null;
+    const showN = G.dummyShown || G.decl === 'N';
+    const showS = G.dummyShown || G.decl === 'S';
+    app.innerHTML = topbar(`Jeu · donne n° ${G.deal.n}`, 'Quitter') + `
+      <div class="card playbar">
+        <div><b>${c.l}${fmt(c.s)}</b> par ${G.decl === 'S' ? 'toi' : 'ton partenaire'} · il faut ${G.need} levées</div>
+        <div class="muted">Levées : <b>vous ${G.tricks.NS}</b> · eux ${G.tricks.EO} · objectif ${G.deal.dd}</div>
+      </div>
+      <div class="card hand ${toPlay === 'N' ? 'active' : ''}"><div class="hl">${seatLabel('N')}</div>${showN ? handRows('N', toPlay === 'N') : '<p class="muted">Le mort sera étalé après l’entame.</p>'}</div>
+      <div class="table3">${trickCell('N')}${trickCell('O')}${trickCell('E')}${trickCell('S')}</div>
+      <div class="card hand ${toPlay === 'S' ? 'active' : ''}"><div class="hl">${seatLabel('S')}</div>${showS ? handRows('S', toPlay === 'S') : '<p class="muted">Le mort sera étalé après l’entame.</p>'}</div>
+      ${G.last ? `<p class="muted center" style="font-size:13px">Levée précédente : ${G.last.map(t => NAMES[t.seat][0] + ' ' + lab(t.c)).join(' · ')}</p>` : ''}`;
+    on('back', () => { if (G.done || confirm('Abandonner le jeu de la carte ?')) { G.done = true; exit(G.deal); } });
+    app.querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', () => {
+      if (G.busy || G.done) return;
+      const [seat, s, r] = b.dataset.play.split(':');
+      if (seat !== G.turn) return;
+      playCard(seat, { s: +s, r: +r });
+    }));
+  }
+
+  function finish() {
+    const c = G.deal.c, made = G.tricks.NS, dd = G.deal.dd;
+    const diff = made - G.need;
+    const p = getProgress();
+    const prev = p['j' + G.deal.n] || {};
+    p['j' + G.deal.n] = { best: Math.max(prev.best || 0, made), last: made };
+    save();
+    const verdict = made > dd ? ['ok', `Au top ! ${made} levées pour un objectif de ${dd}`]
+      : made === dd ? ['ok', `Objectif atteint : ${made} levées`]
+      : ['ko', `En dessous de l’objectif : ${made} levées sur ${dd} possibles`];
+    const contract = diff >= 0 ? `Contrat réussi${diff ? ` avec ${diff} levée${diff > 1 ? 's' : ''} de mieux` : ''}` : `Chuté de ${-diff}`;
+    const mini = seat => `<div class="mini"><div class="who">${NAMES[seat]}</div>${parseHand(G.deal.h[seat]).map((rs, s) => `<div><span class="${red(s) ? 'red' : ''}">${SYM[s]}</span> ${rs.length ? rs.map(r => RLAB[r]).join(' ') : '—'}</div>`).join('')}</div>`;
+    app.innerHTML = topbar(`Jeu · donne n° ${G.deal.n}`, 'Donnes') + `
+      <div class="card center">
+        <div class="muted">${c.l}${fmt(c.s)} par ${G.decl === 'S' ? 'toi' : 'ton partenaire'}</div>
+        <div style="font-size:24px;font-weight:700;margin:4px 0">${contract}</div>
+        <div class="feedback ${verdict[0]}" style="margin-top:10px"><h3 style="margin:0">${verdict[1]}</h3>
+          <p style="margin:6px 0 0;font-size:14px">L’objectif est le nombre de levées faisable avec un jeu parfait des deux côtés (double mort).</p></div>
+      </div>
+      <div class="card"><b>Les 4 mains d’origine</b>
+        <div class="compass"><div class="cN">${mini('N')}</div><div class="cO">${mini('O')}</div><div class="cE">${mini('E')}</div><div class="cS">${mini('S')}</div></div></div>
+      <button class="btn primary center" data-act="replay">Rejouer la carte</button>
+      <button class="btn center" data-act="out">Retour aux donnes</button>`;
+    on('back', () => exit(G.deal));
+    on('out', () => exit(G.deal));
+    on('replay', () => start(G.deal));
+  }
+
+  return { start, _state: () => G, _play: (seat, c) => playCard(seat, c), _legal: seat => legal(seat) };
+}

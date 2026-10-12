@@ -124,6 +124,24 @@
   ol.expl { margin: 8px 0 0; padding-left: 22px; font-size: 15px; }
   ol.expl li { margin: 6px 0; }
   ol.expl li.bad { background: var(--ko-soft); border-radius: 6px; padding: 2px 6px; }
+  .playbar { padding: 10px 14px; font-size: 15px; }
+  .card.hand { padding: 10px 12px; }
+  .card.hand.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .hl { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 4px; }
+  .card.hand.active .hl { color: var(--accent); font-weight: 700; }
+  .hrow { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; min-height: 40px; }
+  .hs { width: 20px; font-size: 18px; }
+  .cd { min-width: 34px; height: 38px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font-size: 17px; font-weight: 700; cursor: pointer; padding: 0 6px; }
+  .cd.red { color: var(--red); }
+  .cd:not(:disabled) { border-color: var(--accent); box-shadow: 0 1px 0 var(--accent); }
+  .cd:disabled { opacity: .45; cursor: default; }
+  .table3 { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-areas: ". n ." "o . e" ". s ."; gap: 2px; margin: 0 0 12px; }
+  .tc { text-align: center; } .tN { grid-area: n; } .tO { grid-area: o; } .tE { grid-area: e; } .tS { grid-area: s; }
+  .tn { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+  .tc.turn .tn { color: var(--accent); font-weight: 700; }
+  .pc { display: inline-block; min-width: 52px; padding: 8px 6px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); font-size: 18px; font-weight: 700; }
+  .pc.empty { background: transparent; border-style: dashed; height: 40px; }
+  .pc.win { border-color: var(--accent); background: var(--accent-soft); }
   input.num { width: 100%; font-size: 20px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); margin-bottom: 10px; }
   .muted { color: var(--muted); }
   .center { text-align: center; }
@@ -136,6 +154,7 @@
 <script src="questions.js"></script>
 <script src="fiche.js"></script>
 <script src="deals.js"></script>
+<script src="jeu.js"></script>
 <script>
 (() => {
   'use strict';
@@ -499,8 +518,9 @@
   }
 
   let play = null;
+  const PLAY = createPlay({ app, fmt, topbar, on, go: v => v(), getProgress: () => progress, save, exit: () => go(dealList) });
   function startDeal(deal) {
-    play = { deal, i: 0, errors: [], choice: null, answered: false };
+    play = { deal, i: 0, errors: [], subs: {}, choice: null, answered: false };
     go(dealView);
   }
 
@@ -509,7 +529,7 @@
     for (let k = 0; k < SEATS.indexOf(deal.d); k++) cells.push('<td></td>');
     for (let k = 0; k < upto; k++) {
       const err = play.errors.find(e => e.i === k);
-      cells.push(`<td class="${err ? 'wasbad' : ''}"><span>${fmt(bidLabel(deal.a[k][0]))}</span></td>`);
+      cells.push(`<td class="${err ? 'wasbad' : ''}"><span>${fmt(bidLabel(play.subs[k] || deal.a[k][0]))}</span></td>`);
     }
     if (ask) cells.push('<td class="ask">?</td>');
     while (cells.length % 4) cells.push('<td></td>');
@@ -541,7 +561,8 @@
   function dealAnswer(choice) {
     const p = play;
     p.answered = true; p.choice = choice;
-    p.ok = choice === p.deal.a[p.i][0];
+    p.ok = choice === p.deal.a[p.i][0] || (p.deal.a[p.i][2] || []).includes(choice);
+    if (p.ok && choice !== p.deal.a[p.i][0]) p.subs[p.i] = choice;
     if (!p.ok) p.errors.push({ i: p.i, chosen: choice });
     dealView();
   }
@@ -549,7 +570,7 @@
   function dealFeedback() {
     const p = play, [good, why] = p.deal.a[p.i];
     document.getElementById('fb').innerHTML = `<div class="feedback ${p.ok ? 'ok' : 'ko'}">
-        <h3>${p.ok ? 'Bien joué : ' + fmt(bidLabel(good)) : 'Non : il fallait ' + fmt(bidLabel(good))}</h3>
+        <h3>${p.ok ? 'Bien joué : ' + fmt(bidLabel(p.choice)) : 'Non : il fallait ' + fmt(bidLabel(good))}</h3>
         ${!p.ok ? `<p class="muted">Tu avais dit ${fmt(bidLabel(p.choice))}. On continue avec la bonne enchère.</p>` : ''}
         ${why ? `<p>${fmt(why)}</p>` : ''}
       </div><div style="height:12px"></div>
@@ -596,10 +617,12 @@
           const seat = seatAt(deal, k);
           const err = p.errors.find(e => e.i === k);
           if (b === 'P' && !why && seat !== 'S') return '';
-          return `<li class="${err ? 'bad' : ''}"><b>${seat === 'S' ? 'Toi' : seat === 'N' ? 'Partenaire' : SEAT_NAMES[seat]} : ${fmt(bidLabel(b))}</b>${why ? ' — ' + fmt(why) : ''}${err ? `<br><span class="muted">tu avais dit ${fmt(bidLabel(err.chosen))}</span>` : ''}</li>`;
+          return `<li class="${err ? 'bad' : ''}"><b>${seat === 'S' ? 'Toi' : seat === 'N' ? 'Partenaire' : SEAT_NAMES[seat]} : ${fmt(bidLabel(p.subs[k] || b))}</b>${why ? ' — ' + fmt(why) : ''}${err ? `<br><span class="muted">tu avais dit ${fmt(bidLabel(err.chosen))}</span>` : ''}</li>`;
         }).join('')}</ol></div>
-      <button class="btn primary center" data-act="nextdeal">Donne suivante</button>
-      <button class="btn center" data-act="again">Rejouer cette donne</button>`;
+      ${deal.dd !== undefined ? '<button class="btn primary center" data-act="playcards">Jouer le contrat</button>' : ''}
+      <button class="btn ${deal.dd !== undefined ? '' : 'primary'} center" data-act="nextdeal">Donne suivante</button>
+      <button class="btn center" data-act="again">Rejouer les enchères</button>`;
+    on('playcards', () => { window.scrollTo(0, 0); PLAY.start(deal); });
     on('back', () => { play = null; go(dealList); });
     on('again', () => startDeal(deal));
     on('nextdeal', () => startDeal(pickDeal(deal)));

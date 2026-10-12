@@ -3,13 +3,15 @@
 //
 // d : donneur ; N/S (et E/O si besoin) : mains ♠.♥.♦.♣ (T = 10, - = chicane). Les mains manquantes
 //     sont distribuées au hasard (graine = n) avec des adversaires qui ont de quoi passer.
-// a : la séquence attendue, dans l'ordre à partir du donneur : [enchère, explication]. P = passe.
+// a : la séquence attendue, dans l'ordre à partir du donneur : [enchère, explication, [autres enchères acceptées]]. P = passe.
 // t : thème affiché après la donne.
 
 module.exports = [
   { n: 1, t: 'Texas', d: 'N', N: 'AQ4.KJ5.K962.Q83', S: 'KJ8752.A4.Q73.94', a: [
     ['1SA', '15-17H régulier'], ['P'], ['2♥', 'Texas ♠ : 5 cartes ou plus à ♠'], ['P'],
-    ['2♠', 'Acceptation simple (pas 17 points avec 4 cartes)'], ['P'], ['4♠', '6 cartes à ♠ et 10H face à 15-17 : la manche'], ['P'], ['P'], ['P']] },
+    ['2♠', 'Acceptation simple (pas 17 points avec 4 cartes)'], ['P'],
+    ['3♦', 'Changement de couleur après le Texas : forcing un tour, pour que le partenaire montre son fit (3♣ ou 3♥ conviennent aussi)', ['3♣', '3♥']], ['P'],
+    ['3♠', 'Il montre le fit ♠'], ['P'], ['4♠', 'Tu recomptes ta main : 12 HLD face à 15-17, pas de chelem, tu conclus à 4♠'], ['P'], ['P'], ['P']] },
 
   { n: 2, t: 'Texas', d: 'N', N: 'AQ74.KJ5.A96.K83', S: 'KJ852.84.Q73.J94', a: [
     ['1SA', '15-17H régulier'], ['P'], ['2♥', 'Texas ♠'], ['P'],

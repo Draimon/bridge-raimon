@@ -70,16 +70,71 @@ for (const d of SRC) {
     if (rk <= last) err(d, `enchère insuffisante ${b}`);
     last = rk; lastBidder = seat; dbl = 0;
   });
+  d.a.forEach(([bid, why, alt], i) => (alt || []).forEach(x => {
+    const prev = Math.max(-1, ...bids.slice(0, i).map(rank));
+    if (!['P', 'X', 'XX'].includes(x) && (rank(x) < 0 || rank(x) <= prev)) err(d, `variante illégale ${x}`);
+    if (SEATS[(SEATS.indexOf(d.d) + i) % 4] !== 'S') err(d, 'variante ailleurs qu’au tour de Sud');
+  }));
   const tail = bids.slice(-3);
   if (bids.length < 4 || tail.some(b => b !== 'P')) err(d, 'la séquence doit finir par 3 passes');
   if (!bids.some((b, i) => SEATS[(SEATS.indexOf(d.d) + i) % 4] === 'S')) err(d, 'Sud ne parle jamais');
-  out.push({ n: d.n, t: d.t, d: d.d, h: Object.fromEntries(SEATS.map(s => [s, fmt(hands[s])])), a: d.a });
+  // Contrat final : dernière enchère, déclarant = premier du camp à avoir nommé la dénomination.
+  let c = null;
+  const lastIdx = bids.reduce((k, b, i) => (rank(b) >= 0 ? i : k), -1);
+  if (lastIdx >= 0) {
+    const lb = bids[lastIdx], strain = lb.slice(1), lseat = SEATS[(SEATS.indexOf(d.d) + lastIdx) % 4];
+    const side = s => (s === 'N' || s === 'S' ? 'NS' : 'EO');
+    const k = bids.findIndex((b, i) => rank(b) >= 0 && b.slice(1) === strain && side(SEATS[(SEATS.indexOf(d.d) + i) % 4]) === side(lseat));
+    const after = bids.slice(lastIdx + 1);
+    c = { l: +lb[0], s: strain, by: SEATS[(SEATS.indexOf(d.d) + k) % 4], x: after.includes('XX') ? 2 : after.includes('X') ? 1 : 0 };
+    if (side(c.by) !== 'NS') err(d, 'le contrat doit être joué par Nord-Sud');
+  }
+  out.push({ n: d.n, t: d.t, d: d.d, h: Object.fromEntries(SEATS.map(s => [s, fmt(hands[s])])), a: d.a, c });
 }
 
 const nums = out.map(d => d.n);
 if (new Set(nums).size !== nums.length) { errors++; console.log('numéro de donne en double'); }
 if (errors) { console.log(`${errors} erreur(s) : deals.js non écrit.`); process.exit(1); }
-const body = `// GÉNÉRÉ par tools/build-deals.js à partir de tools/deals-src.js — ne pas éditer à la main.\nconst DEALS = ${JSON.stringify(out, null, 0).replace(/\},\{"n"/g, '},\n{"n"')};\n`;
+main();
+async function main() {
+  // Objectif double mort de chaque contrat, calculé en parallèle et mis en cache.
+  const cacheFile = path.join(__dirname, 'dd-cache.json');
+  let cache = {}; try { cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8')); } catch (e) { cache = {}; }
+  const PLAY = ['N', 'E', 'S', 'O'];
+  const toMask = h => h.split('.').map(p => (p === '-' ? 0 : p.split('').reduce((m, ch) => m | (1 << (12 - RANKS.indexOf(ch))), 0)));
+  const jobs = out.filter(d => d.c).map(d => {
+    const trump = d.c.s === 'SA' ? -1 : SUITS.indexOf(d.c.s);
+    const leader = (PLAY.indexOf(d.c.by) + 1) % 4;
+    const hands = PLAY.map(s => toMask(d.h[s]));
+    const id = JSON.stringify([hands, trump, leader]);
+    return { d, id, hands, trump, leader, guess: d.c.l + 6 };
+  });
+  const todo = jobs.filter(j => cache[j.id] === undefined);
+  if (todo.length) {
+    const { fork } = require('child_process');
+    const workers = Math.min(todo.length, Math.max(1, require('os').cpus().length - 1));
+    console.log(`Calcul double mort de ${todo.length} donne(s) sur ${workers} processus…`);
+    let next = 0, done = 0;
+    await new Promise(resolve => {
+      for (let w = 0; w < workers; w++) {
+        const child = fork(path.join(__dirname, 'dd-worker.js'));
+        const feed = () => { if (next < todo.length) { const j = todo[next++]; child.send({ id: j.id, hands: j.hands, trump: j.trump, leader: j.leader, guess: j.guess }); } else child.kill(); };
+        child.on('message', ({ id, tricks }) => {
+          cache[id] = tricks; done++;
+          fs.writeFileSync(cacheFile, JSON.stringify(cache));
+          process.stdout.write(`  ${done}/${todo.length}
+`);
+          if (done === todo.length) resolve();
+          feed();
+        });
+        feed();
+      }
+    });
+  }
+  for (const j of jobs) j.d.dd = cache[j.id];
+
+  const body = `// GÉNÉRÉ par tools/build-deals.js à partir de tools/deals-src.js — ne pas éditer à la main.\nconst DEALS = ${JSON.stringify(out, null, 0).replace(/\},\{"n"/g, '},\n{"n"')};\n`;
 fs.writeFileSync(path.join(__dirname, '..', 'deals.js'), body);
 console.log(`${out.length} donnes écrites dans deals.js.`);
-for (const d of out) console.log(`  n°${d.n} ${d.t} : ` + SEATS.map(s => `${s} ${hcpOf(parse(d.h[s]))}H`).join(', '));
+for (const d of out) console.log(`  n°${d.n} ${d.t} : ${d.c.l}${d.c.s} par ${d.c.by}, objectif ${d.dd} levées (${d.dd - d.c.l - 6 >= 0 ? 'fait' : 'chute ' + (d.c.l + 6 - d.dd)}) · ` + SEATS.map(s => `${s} ${hcpOf(parse(d.h[s]))}H`).join(', '));
+}
