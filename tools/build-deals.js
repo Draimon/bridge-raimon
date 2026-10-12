@@ -1,7 +1,7 @@
 // Construit deals.js à partir de tools/deals-src.js : complète les mains manquantes et vérifie tout.
 // Usage : node tools/build-deals.js
 const fs = require('fs'), path = require('path');
-const SRC = require('./deals-src.js');
+const SRC = require('./deals-src.js').concat(fs.existsSync(path.join(__dirname, 'deals-robot.json')) ? require('./deals-robot.json') : []);
 const SEATS = ['O', 'N', 'E', 'S'];          // ordre du jeu
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = 'AKQJT98765432';

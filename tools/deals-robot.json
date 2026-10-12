@@ -1,0 +1,2735 @@
+[
+ {
+  "n": 101,
+  "t": "Robot · Sur 1SA",
+  "d": "N",
+  "N": "T93.AQ9.AK9.A972",
+  "E": "AJ742.53.J5.QJ86",
+  "S": "Q85.T842.Q876.43",
+  "O": "K6.KJ76.T432.KT5",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Moins de 8H : tu passes"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 102,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "K632.KQ6.AKJ.T92",
+  "E": "AJ9.J8532.53.QJ3",
+  "S": "T874.AT4.Q972.K8",
+  "O": "Q5.97.T864.A7654",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "4 cartes à ♠ (pas 4 cartes à ♥)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Fit 4-4 et 8-9H : proposition"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Maximum : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 103,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "A7.AQ75.K96.A742",
+  "E": "83.J63.QT54.KQT8",
+  "S": "KJT54.T2.872.J63",
+  "O": "Q962.K984.AJ3.95",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Main faible : on joue la partielle"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 104,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "Q98.JT2.AKQJ7.A7",
+  "E": "K62.A95.9654.J82",
+  "S": "AJ.Q743.T832.Q53",
+  "O": "T7543.K86.-.KT964",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Pas de majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Pas de fit : proposition de 3SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Maximum : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 105,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "T82.J86.A5.AKQJ5",
+  "E": "AJ74.732.T64.T63",
+  "S": "KQ653.AK9.932.82",
+  "O": "9.QT54.KQJ87.974",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "5 cartes à ♠ et la manche : il choisit entre 3SA et 4♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "3 cartes à ♠ : il choisit 4♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 106,
+  "t": "Robot · Sur 1SA",
+  "d": "N",
+  "N": "AJ63.K93.AT9.K94",
+  "E": "KT8.Q874.763.A53",
+  "S": "Q95.A5.Q5.QJT862",
+  "O": "742.JT62.KJ842.7",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "La manche à SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 107,
+  "t": "Robot · Texas sur 2SA",
+  "d": "N",
+  "N": "AT7.J3.AKQ85.AQ6",
+  "E": "843.QT742.976.72",
+  "S": "K2.AK865.T42.854",
+  "O": "QJ965.9.J3.KJT93",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "Texas ♥ (dès 0H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "5 cartes à ♥ : il choisit entre 3SA et 4♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Pas de fit : 3SA"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 108,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "AJ7.JT2.AQ8.QJ72",
+  "E": "9.KQ853.KJ75.T96",
+  "S": "KQ852.A7.T93.843",
+  "O": "T643.964.642.AK5",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition avec 5 cartes à ♠ (8-9H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Minimum avec 3 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 109,
+  "t": "Robot · Sur 1SA",
+  "d": "N",
+  "N": "JT7.AT6.AQ96.A94",
+  "E": "Q8543.K2.J87.765",
+  "S": "K6.Q54.KT532.KJ3",
+  "O": "A92.J9873.4.QT82",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "La manche à SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 110,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "T864.KQT.AQ93.AT",
+  "E": "AQ932.975.JT.Q94",
+  "S": "KJ.AJ643.865.753",
+  "O": "75.82.K742.KJ862",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Texas ♥ : 5 cartes ou plus à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition avec 5 cartes à ♥ (8-9H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Minimum avec 3 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 111,
+  "t": "Robot · Sur 1SA",
+  "d": "N",
+  "N": "AKJ.Q32.KJ52.K64",
+  "E": "52.A54.976.T8753",
+  "S": "Q87.KT.AQT843.Q9",
+  "O": "T9643.J9876.-.AJ2",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "La manche à SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 112,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "Q53.854.AK73.AQ2",
+  "E": "AKT62.63.62.J986",
+  "S": "87.KQJ9.QJ9854.5",
+  "O": "J94.AT72.T.KT743",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Pas de majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Pas de fit : proposition de 3SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Minimum : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 113,
+  "t": "Robot · Sur 2SA",
+  "d": "N",
+  "N": "A8.KJ64.AK2.KQ65",
+  "E": "QT974.Q83.3.9843",
+  "S": "K6.52.QJ9876.J72",
+  "O": "J532.AT97.T54.AT",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "La manche à SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 114,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "AK7.942.K2.AK654",
+  "E": "J964.Q5.T963.QT8",
+  "S": "T532.A8763.AJ5.2",
+  "O": "Q8.KJT.Q874.J973",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Texas ♥ : 5 cartes ou plus à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Super-acceptation : 17 points avec 3 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Fit et un maximum en face : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 115,
+  "t": "Robot · Sur 1SA",
+  "d": "N",
+  "N": "QJ82.KQT4.AJ2.Q2",
+  "E": "AT543.J986.6.JT7",
+  "S": "9.A53.97543.A984",
+  "O": "K76.72.KQT8.K653",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition de 3SA (8-9H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Minimum : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 116,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "AQJ4.AJ3.KQ42.86",
+  "E": "97.K8764.J863.92",
+  "S": "KT865.T.A7.KJT54",
+  "O": "32.Q952.T95.AQ73",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Super-acceptation : 17 points avec 4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Fit et un maximum en face : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 117,
+  "t": "Robot · Sur 1SA",
+  "d": "N",
+  "N": "KT.A98.A985.AQ96",
+  "E": "A9852.KQT74.Q3.3",
+  "S": "J43.5.KJ742.KT87",
+  "O": "Q76.J632.T6.J542",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition de 3SA (8-9H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Maximum : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 118,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "A75.984.AK9.A632",
+  "E": "KT982.QT765.T2.5",
+  "S": "QJ63.A2.654.KQJ9",
+  "O": "4.KJ3.QJ873.T874",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Pas de majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit : 3SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 119,
+  "t": "Robot · Puppet",
+  "d": "N",
+  "N": "KQJ76.AT7.A4.AK7",
+  "E": "T94.K432.Q95.Q63",
+  "S": "A532.J8.KJ63.J54",
+  "O": "8.Q965.T872.T982",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Puppet"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Fit ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 120,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "72.AT7.AJ97.AKJ4",
+  "E": "QJT9.K5.QT543.T7",
+  "S": "63.Q8642.K6.Q852",
+  "O": "AK854.J93.82.963",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Texas ♥ : 5 cartes ou plus à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Super-acceptation : 17 points avec 3 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Fit et un maximum en face : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 121,
+  "t": "Robot · Sur 1SA",
+  "d": "N",
+  "N": "KQT7.K92.J753.AQ",
+  "E": "A854.JT.A8.87542",
+  "S": "J62.A54.T4.KJ963",
+  "O": "93.Q8763.KQ962.T",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition de 3SA (8-9H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Minimum : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 122,
+  "t": "Robot · Sur 2SA",
+  "d": "N",
+  "N": "A84.AKQ.AT4.K875",
+  "E": "Q9.T986.K872.Q63",
+  "S": "J765.72.Q965.942",
+  "O": "KT32.J543.J3.AJT",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Moins de 4H : tu passes"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 123,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "KQJ6.Q3.J92.AKT6",
+  "E": "A54.976.AKT75.74",
+  "S": "97.AK852.Q863.93",
+  "O": "T832.JT4.4.QJ852",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Texas ♥ : 5 cartes ou plus à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition avec 5 cartes à ♥ (8-9H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Maximum sans fit"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 124,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "AQ.K52.862.AQJ32",
+  "E": "T764.A64.A753.65",
+  "S": "K3.QT983.KQJT.K8",
+  "O": "J9852.J7.94.T974",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Texas ♥ : 5 cartes ou plus à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "5 cartes à ♥ et la manche : il choisit entre 3SA et 4♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "3 cartes à ♥ : il choisit 4♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 125,
+  "t": "Robot · Texas mineur",
+  "d": "N",
+  "N": "Q832.AKQ.AJ97.J4",
+  "E": "654.JT872.63.AKQ",
+  "S": "A.54.K42.T976532",
+  "O": "KJT97.963.QT85.8",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Texas mineur"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "L’ouvreur dit 3♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Main faible avec des ♣ : on joue 3♣"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 126,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "KQ93.K97.QJ5.KJ6",
+  "E": "AJT.QT54.A6.9432",
+  "S": "754.A632.T97.AQ8",
+  "O": "862.J8.K8432.T75",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "4 cartes à ♠ (pas 4 cartes à ♥)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit : 3SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 127,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "KJ9.QJ5.Q4.AK765",
+  "E": "Q4.A732.AJ73.T93",
+  "S": "A873.KT64.T62.J8",
+  "O": "T652.98.K985.Q42",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 en majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Pas de majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Pas de fit : proposition de 3SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Maximum : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 128,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "KQT3.AQJ3.K63.53",
+  "E": "J4.T654.T5.JT962",
+  "S": "A875.972.AJ84.KQ",
+  "O": "962.K8.Q972.A874",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit ♥ : 3SA (ton Stayman montrait les ♠)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Il a aussi 4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 129,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "A96.AQJ.AQ52.876",
+  "E": "Q84.T85.K976.A92",
+  "S": "JT732.962.T8.K53",
+  "O": "K5.K743.J43.QJT4",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Super-acceptation : 17 points avec 3 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Main trop faible : tu reviens à 3♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 130,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "A73.Q753.AQJ3.A6",
+  "E": "92.KJ964.42.T985",
+  "S": "KQ8654.82.97.QJ3",
+  "O": "JT.AT.KT865.K742",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Super-acceptation : 17 points avec 3 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Fit et un maximum en face : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 131,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "AKJ.QT6.A9543.Q4",
+  "E": "Q3.J8742.J86.A87",
+  "S": "T874.K93.KT.K652",
+  "O": "9652.A5.Q72.JT93",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Pas de majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Pas de fit : proposition de 3SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Maximum : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 132,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "KJ.JT85.A43.AK53",
+  "E": "42.K43.KT862.986",
+  "S": "T87653.A92.97.QJ",
+  "O": "AQ9.Q76.QJ5.T742",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Main faible : on joue la partielle"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 133,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "Q543.AKT.Q7.AQ73",
+  "E": "JT86.J65.T9432.8",
+  "S": "K72.Q742.AK6.J95",
+  "O": "A9.983.J85.KT642",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "4 cartes à ♠ (pas 4 cartes à ♥)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit : 3SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 134,
+  "t": "Robot · Texas sur 2SA",
+  "d": "N",
+  "N": "A93.AJ86.AKJ7.KT",
+  "E": "JT74.5.Q9853.964",
+  "S": "K2.QT973.T62.J82",
+  "O": "Q865.K42.4.AQ753",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "Texas ♥ (dès 0H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "5 cartes à ♥ : il choisit entre 3SA et 4♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "3 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 135,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "A4.K64.Q653.AKJ2",
+  "E": "J852.A75.A.T8643",
+  "S": "KQT3.QJ92.KT974.-",
+  "O": "976.T83.J82.Q975",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 en majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Pas de majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit : 3SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 136,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "T52.AT.AKJ3.KJ72",
+  "E": "KQ86.432.8762.A8",
+  "S": "J97.KJ985.T.QT53",
+  "O": "A43.Q76.Q954.964",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Texas ♥ : 5 cartes ou plus à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Main faible : on joue la partielle"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 137,
+  "t": "Robot · Sur 1SA",
+  "d": "N",
+  "N": "A65.AQ32.KQJ7.54",
+  "E": "T94.KJT.T542.AT2",
+  "S": "K3.974.986.KQJ98",
+  "O": "QJ872.865.A3.763",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition de 3SA (8-9H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Maximum : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 138,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "AKQ4.AQT.T7.J542",
+  "E": "72.64.AJ943.QT97",
+  "S": "JT95.J983.K85.AK",
+  "O": "863.K752.Q62.863",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 en majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "4 cartes à ♠ (pas 4 cartes à ♥)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Fit 4-4 et la manche : 4♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 139,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "AK.KQ84.654.KJ94",
+  "E": "Q2.AJ3.AT732.T75",
+  "S": "J965.95.KJ9.AQ82",
+  "O": "T8743.T762.Q8.63",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit ♥ : 3SA (ton Stayman montrait les ♠)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il n’a pas 4 cartes à ♠ : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 140,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "J2.QJ4.AK97.AJ74",
+  "E": "T86.K765.QJT.T53",
+  "S": "AKQ943.32.32.Q62",
+  "O": "75.AT98.8654.K98",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Changement de couleur après le Texas : forcing un tour, pour que le partenaire montre son fit"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Il montre le fit ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Tu recomptes ta main : 15 HLD face à 15-17, pas de chelem, tu conclus à 4♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 141,
+  "t": "Robot · Puppet",
+  "d": "N",
+  "N": "K95.AQT8.KQ.AK86",
+  "E": "T62.76.T853.JT72",
+  "S": "AJ84.953.96.Q954",
+  "O": "Q73.KJ42.AJ742.3",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Puppet"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "Au moins une majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Inversé : tu montres 4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas 4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 142,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "AJ8.AQ2.J53.QJ42",
+  "E": "T753.J.QT64.7653",
+  "S": "K94.K7653.A98.K8",
+  "O": "Q62.T984.K72.AT9",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "Texas ♥ : 5 cartes ou plus à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "5 cartes à ♥ et la manche : il choisit entre 3SA et 4♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "3 cartes à ♥ : il choisit 4♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 143,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "43.AQ82.K743.AQ8",
+  "E": "975.K73.QT9.KT74",
+  "S": "AQT6.J64.AJ65.J2",
+  "O": "KJ82.T95.82.9653",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit ♥ : 3SA (ton Stayman montrait les ♠)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il n’a pas 4 cartes à ♠ : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 144,
+  "t": "Robot · Sur 2SA",
+  "d": "N",
+  "N": "AKT.A8.AJ74.AJT2",
+  "E": "982.QJT52.QT8.83",
+  "S": "64.974.K965.K954",
+  "O": "QJ753.K63.32.Q76",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "La manche à SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 145,
+  "t": "Robot · Stayman",
+  "d": "N",
+  "N": "K532.AJ64.KQJ.J4",
+  "E": "T764.2.8742.A953",
+  "S": "AQ9.Q973.93.KQ86",
+  "O": "J8.KT85.AT65.T72",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "Stayman : tu cherches un fit 4-4 à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Fit 4-4 et la manche : 4♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 146,
+  "t": "Robot · Texas",
+  "d": "N",
+  "N": "K63.AQ7.AT5.K842",
+  "E": "Q9.J832.Q4.AJT93",
+  "S": "A8542.KT4.J72.76",
+  "O": "JT7.965.K9863.Q5",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Texas ♠ : 5 cartes ou plus à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition avec 5 cartes à ♠ (8-9H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Maximum avec 3 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 147,
+  "t": "Robot · Texas sur 2SA",
+  "d": "N",
+  "N": "AK75.Q2.AKQ4.Q42",
+  "E": "982.K964.J972.A5",
+  "S": "QJ643.83.86.JT93",
+  "O": "T.AJT75.T53.K876",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Texas ♠ (dès 0H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "5 cartes à ♠ : il choisit entre 3SA et 4♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "3 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 148,
+  "t": "Robot · Puppet",
+  "d": "N",
+  "N": "KJ6.AQJ64.KQ6.A2",
+  "E": "AT5.872.AT92.J96",
+  "S": "9873.93.J83.KT87",
+  "O": "Q42.KT5.754.Q543",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Puppet"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "5 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 149,
+  "t": "Robot · Texas mineur",
+  "d": "N",
+  "N": "KJ42.A97.AKT3.J5",
+  "E": "T6.KQT82.Q864.86",
+  "S": "75.J64.5.AQT9742",
+  "O": "AQ983.53.J972.K3",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Texas mineur"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "L’ouvreur dit 3♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Main faible avec des ♣ : on joue 3♣"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 150,
+  "t": "Robot · Texas mineur",
+  "d": "N",
+  "N": "QT5.AKQ5.T874.AJ",
+  "E": "AK643.J97.K6.T75",
+  "S": "72.84.Q32.KQ9643",
+  "O": "J98.T632.AJ95.82",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Texas mineur"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "L’ouvreur dit 3♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Main faible avec des ♣ : on joue 3♣"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 151,
+  "t": "Robot · Texas sur 2SA",
+  "d": "N",
+  "N": "AT9.AK53.A72.AJ7",
+  "E": "5.T876.T654.K542",
+  "S": "KQ876.J42.J98.93",
+  "O": "J432.Q9.KQ3.QT86",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Texas ♠ (dès 0H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "5 cartes à ♠ : il choisit entre 3SA et 4♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "3 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 152,
+  "t": "Robot · Texas sur 2SA",
+  "d": "N",
+  "N": "KJ.AK4.AKT7.Q532",
+  "E": "AT4.T2.J952.J964",
+  "S": "Q87652.J53.64.T7",
+  "O": "93.Q9876.Q83.AK8",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Texas ♠ (dès 0H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Il exécute le Texas"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Main faible : on joue 3♠"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 153,
+  "t": "Robot · Quantitatif",
+  "d": "N",
+  "N": "KQT2.A94.854.AQ7",
+  "E": "963.J752.93.T985",
+  "S": "AJ8.86.AQ2.KJ432",
+  "O": "754.KQT3.KJT76.6",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4SA",
+    "Quantitatif (15-16H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "15H : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 154,
+  "t": "Robot · Puppet",
+  "d": "N",
+  "N": "AKQ.A8.QJ42.A965",
+  "E": "832.JT76.T7.KQJT",
+  "S": "T765.Q4.AK83.842",
+  "O": "J94.K9532.965.73",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Puppet"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Ni majeure 4e, ni majeure 5e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 155,
+  "t": "Robot · Puppet",
+  "d": "N",
+  "N": "53.KT93.AKQJ.AKT",
+  "E": "J942.AJ85.T3.954",
+  "S": "AQ87.-.98765.J863",
+  "O": "KT6.Q7642.42.Q72",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Puppet"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "Au moins une majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Inversé : tu montres 4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas 4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 156,
+  "t": "Robot · Puppet",
+  "d": "N",
+  "N": "AKQJ.62.AJ42.AJ7",
+  "E": "7.KT53.Q87.QT842",
+  "S": "T843.AJ4.T96.K65",
+  "O": "9652.Q987.K53.93",
+  "a": [
+   [
+    "2SA",
+    "20-21H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Puppet"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "Au moins une majeure 4e"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "Inversé : tu montres 4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Fit ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 157,
+  "t": "Robot · Bicolore majeur",
+  "d": "N",
+  "N": "KJ6.KJT.Q3.AK964",
+  "E": "T75.853.A9652.53",
+  "S": "Q9432.AQ7642.4.8",
+  "O": "A8.9.KJT87.QJT72",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♦",
+    "Bicolore majeur de manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Il choisit sa meilleure majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 158,
+  "t": "Robot · Bicolore majeur",
+  "d": "N",
+  "N": "QT75.AK.Q74.AT52",
+  "E": "J8.QJ5.T953.KQ73",
+  "S": "K9643.98643.A2.9",
+  "O": "A2.T72.KJ86.J864",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♦",
+    "Bicolore majeur de manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Il choisit sa meilleure majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 159,
+  "t": "Robot · Quantitatif",
+  "d": "N",
+  "N": "AQJT.Q97.K9.AT72",
+  "E": "53.T542.QJT83.Q5",
+  "S": "K9.KJ8.A654.KJ98",
+  "O": "87642.A63.72.643",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4SA",
+    "Quantitatif (15-16H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "5SA",
+    "16H"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "15 + 16 : on s’arrête"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 160,
+  "t": "Robot · Bicolore majeur",
+  "d": "N",
+  "N": "J87.AT6.AKT.K843",
+  "E": "QT32.Q53.932.J62",
+  "S": "A9654.J9872.Q4.A",
+  "O": "K.K4.J8765.QT975",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♦",
+    "Bicolore majeur de manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Il choisit sa meilleure majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 161,
+  "t": "Robot · Quantitatif",
+  "d": "N",
+  "N": "KQ32.A8.K87.KJ63",
+  "E": "JT7.KT73.T942.Q5",
+  "S": "A9.J54.AQJ5.AT42",
+  "O": "8654.Q962.63.987",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4SA",
+    "Quantitatif (15-16H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "5SA",
+    "16H"
+   ],
+   [
+    "P"
+   ],
+   [
+    "6SA",
+    "16 + 16 : le petit chelem"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 162,
+  "t": "Robot · Bicolore majeur",
+  "d": "N",
+  "N": "J9.KQ8.QT95.AK93",
+  "E": "T532.A6.KJ2.T862",
+  "S": "AKQ76.JT9532.4.7",
+  "O": "84.74.A8763.QJ54",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♦",
+    "Bicolore majeur de manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Il choisit sa meilleure majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ }
+]

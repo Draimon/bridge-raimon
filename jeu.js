@@ -16,6 +16,7 @@ function createPlay(env) {
   const lab = c => `<span class="${red(c.s) ? 'red' : ''}">${SYM[c.s]}</span>${RLAB[c.r]}`;
 
   let G = null;
+  let epoch = 0;                              // invalide les temporisations après une annulation
 
   function parseHand(h) {
     return h.split('.').map(p => (p === '-' ? [] : p.split('').map(ch => 12 - RCH.indexOf(ch)).sort((a, b) => b - a)));
@@ -30,8 +31,9 @@ function createPlay(env) {
       hands: Object.fromEntries(ORDER.map(s => [s, parseHand(deal.h[s])])),
       turn: next(c.by), trick: [], tricks: { NS: 0, EO: 0 }, last: null,
       played: [], void: Object.fromEntries(ORDER.map(s => [s, [false, false, false, false]])),
-      firstLead: {}, busy: false, done: false, dummyShown: false,
+      firstLead: {}, busy: false, done: false, dummyShown: false, history: [], claiming: false, msg: '',
     };
+    epoch++;
     go(view);
     schedule();
   }
@@ -69,7 +71,9 @@ function createPlay(env) {
       G.tricks[side(w.seat)]++;
       G.busy = true;
       go(view);
+      const ep = epoch;
       setTimeout(() => {
+        if (ep !== epoch) return;
         G.last = G.trick; G.trick = []; G.turn = w.seat; G.busy = false;
         if (G.tricks.NS + G.tricks.EO === 13) { G.done = true; finish(); return; }
         go(view); schedule();
@@ -84,9 +88,10 @@ function createPlay(env) {
   function schedule() {
     if (G.done || G.busy) return;
     const seat = G.turn;
-    if (!userSeat(seat)) { G.busy = true; setTimeout(() => { G.busy = false; playCard(seat, bot(seat)); }, 550); return; }
+    const ep = epoch;
+    if (!userSeat(seat)) { G.busy = true; setTimeout(() => { if (ep !== epoch) return; G.busy = false; playCard(seat, bot(seat)); }, 550); return; }
     const l = legal(seat);
-    if (l.length === 1) { G.busy = true; setTimeout(() => { G.busy = false; playCard(seat, l[0]); }, 400); }
+    if (l.length === 1) { G.busy = true; setTimeout(() => { if (ep !== epoch) return; G.busy = false; playCard(seat, l[0]); }, 400); }
   }
 
   // ───── Robot de défense
@@ -214,6 +219,30 @@ function createPlay(env) {
     return { s: best.s, r: cs[cs.length - 1] };
   }
 
+  // ───── Annuler / réclamer
+  function snapshot() { const { deal, history, ...rest } = G; return JSON.stringify(rest); }
+  function undo() {
+    if (!G.history.length) return;
+    const st = JSON.parse(G.history.pop());
+    G = Object.assign(st, { deal: G.deal, history: G.history, busy: false, claiming: false, msg: '' });
+    epoch++;
+    view(); schedule();
+  }
+  function claim(k) {
+    const left = G.hands[G.turn].reduce((s, x) => s + x.length, 0);
+    const masks = ORDER.map(s => G.hands[s].map(rs => rs.reduce((m, r) => m | (1 << r), 0)));
+    let dd;
+    const lead = G.trick.length ? G.trick[0].seat : G.turn;
+    const cur = G.trick.map(t => ({ p: ORDER.indexOf(t.seat), s: t.c.s, r: t.c.r }));
+    try { dd = RaimonDDS.solve(masks, G.trump, ORDER.indexOf(lead), k, 4e6, cur); }
+    catch (e) { G.claiming = false; G.msg = 'Trop tôt pour vérifier une réclamation sur le téléphone : joue encore une ou deux levées.'; view(); return; }
+    G.claiming = false;
+    if (k > dd) { G.msg = `Réclamation refusée : la défense peut t'empêcher de faire ${k} levée${k > 1 ? 's' : ''} (au mieux ${dd}).`; view(); return; }
+    G.tricks.NS += k; G.tricks.EO += left - k; G.done = true; G.claimed = k;
+    epoch++;
+    finish();
+  }
+
   // ───── Affichage
   function handRows(seat, clickable) {
     const l = clickable ? legal(seat) : [];
@@ -235,6 +264,22 @@ function createPlay(env) {
     return `<div class="tc t${seat} ${turn ? 'turn' : ''}"><div class="tn">${NAMES[seat]}</div>${t ? `<div class="pc ${w && w.seat === seat ? 'win' : ''}">${lab(t.c)}</div>` : '<div class="pc empty"></div>'}</div>`;
   }
 
+  function actionsHtml() {
+    if (G.done) return '';
+    const left = G.hands[G.turn].reduce((s, x) => s + x.length, 0);
+    const canClaim = !G.busy && userSeat(G.turn) && left > 0;
+    let html = `<div class="row2" style="margin-bottom:10px">
+      <button class="btn center" data-act="undo" ${G.history.length && !G.busy ? '' : 'disabled'}>↶ Annuler</button>
+      <button class="btn center" data-act="claim" ${canClaim ? '' : 'disabled'}>Réclamer</button></div>`;
+    if (G.claiming && canClaim) {
+      const opts = []; for (let k = left; k >= 0; k--) opts.push(k);
+      html += `<div class="card"><b>Combien de levées sur les ${left} restantes ?</b>
+        <div class="claimgrid">${opts.map(k => `<button class="dcell" data-claim="${k}">${k}</button>`).join('')}</div>
+        <p class="muted" style="font-size:13px;margin:6px 0 0">La défense accepte si elle ne peut pas t'en prendre plus, même en jouant parfaitement.</p></div>`;
+    }
+    return html;
+  }
+
   function view() {
     const c = G.deal.c;
     const toPlay = !G.busy && userSeat(G.turn) ? G.turn : null;
@@ -248,12 +293,21 @@ function createPlay(env) {
       <div class="card hand ${toPlay === 'N' ? 'active' : ''}"><div class="hl">${seatLabel('N')}</div>${showN ? handRows('N', toPlay === 'N') : '<p class="muted">Le mort sera étalé après l’entame.</p>'}</div>
       <div class="table3">${trickCell('N')}${trickCell('O')}${trickCell('E')}${trickCell('S')}</div>
       <div class="card hand ${toPlay === 'S' ? 'active' : ''}"><div class="hl">${seatLabel('S')}</div>${showS ? handRows('S', toPlay === 'S') : '<p class="muted">Le mort sera étalé après l’entame.</p>'}</div>
+      ${G.msg ? `<div class="feedback ko" style="margin-bottom:10px"><p style="margin:0">${G.msg}</p></div>` : ''}
+      ${actionsHtml()}
       ${G.last ? `<p class="muted center" style="font-size:13px">Levée précédente : ${G.last.map(t => NAMES[t.seat][0] + ' ' + lab(t.c)).join(' · ')}</p>` : ''}`;
-    on('back', () => { if (G.done || confirm('Abandonner le jeu de la carte ?')) { G.done = true; exit(G.deal); } });
+    on('back', () => { if (G.done || confirm('Abandonner le jeu de la carte ?')) { G.done = true; epoch++; exit(G.deal); } });
+    on('undo', undo);
+    on('claim', () => { G.claiming = !G.claiming; G.msg = ''; view(); });
+    app.querySelectorAll('[data-claim]').forEach(b => b.addEventListener('click', () => {
+      b.textContent = 'Vérification…'; setTimeout(() => claim(+b.dataset.claim), 30);
+    }));
     app.querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', () => {
       if (G.busy || G.done) return;
       const [seat, s, r] = b.dataset.play.split(':');
       if (seat !== G.turn) return;
+      if (legal(seat).length > 1) G.history.push(snapshot());
+      G.msg = '';
       playCard(seat, { s: +s, r: +r });
     }));
   }
@@ -268,12 +322,13 @@ function createPlay(env) {
     const verdict = made > dd ? ['ok', `Au top ! ${made} levées pour un objectif de ${dd}`]
       : made === dd ? ['ok', `Objectif atteint : ${made} levées`]
       : ['ko', `En dessous de l’objectif : ${made} levées sur ${dd} possibles`];
+    const claimNote = G.claimed !== undefined ? `<p class="muted" style="margin:4px 0 0;font-size:14px">Fin de donne réclamée (${G.claimed} levée${G.claimed > 1 ? 's' : ''}), réclamation acceptée.</p>` : '';
     const contract = diff >= 0 ? `Contrat réussi${diff ? ` avec ${diff} levée${diff > 1 ? 's' : ''} de mieux` : ''}` : `Chuté de ${-diff}`;
     const mini = seat => `<div class="mini"><div class="who">${NAMES[seat]}</div>${parseHand(G.deal.h[seat]).map((rs, s) => `<div><span class="${red(s) ? 'red' : ''}">${SYM[s]}</span> ${rs.length ? rs.map(r => RLAB[r]).join(' ') : '—'}</div>`).join('')}</div>`;
     app.innerHTML = topbar(`Jeu · donne n° ${G.deal.n}`, 'Donnes') + `
       <div class="card center">
         <div class="muted">${c.l}${fmt(c.s)} par ${G.decl === 'S' ? 'toi' : 'ton partenaire'}</div>
-        <div style="font-size:24px;font-weight:700;margin:4px 0">${contract}</div>
+        <div style="font-size:24px;font-weight:700;margin:4px 0">${contract}</div>${claimNote}
         <div class="feedback ${verdict[0]}" style="margin-top:10px"><h3 style="margin:0">${verdict[1]}</h3>
           <p style="margin:6px 0 0;font-size:14px">L’objectif est le nombre de levées faisable avec un jeu parfait des deux côtés (double mort).</p></div>
       </div>

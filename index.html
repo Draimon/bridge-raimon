@@ -142,6 +142,8 @@
   .pc { display: inline-block; min-width: 52px; padding: 8px 6px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); font-size: 18px; font-weight: 700; }
   .pc.empty { background: transparent; border-style: dashed; height: 40px; }
   .pc.win { border-color: var(--accent); background: var(--accent-soft); }
+  .claimgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+  .btn:disabled { opacity: .45; cursor: default; }
   input.num { width: 100%; font-size: 20px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); margin-bottom: 10px; }
   .muted { color: var(--muted); }
   .center { text-align: center; }
@@ -154,6 +156,7 @@
 <script src="questions.js"></script>
 <script src="fiche.js"></script>
 <script src="deals.js"></script>
+<script src="dds.js"></script>
 <script src="jeu.js"></script>
 <script>
 (() => {
@@ -505,12 +508,13 @@
         À chaque tour, annonce ton enchère. Une erreur est corrigée tout de suite, puis la donne continue.</p>
         <p class="muted" style="margin:0;font-size:14px">${played.length} / ${DEALS.length} jouées · ${perfect.length} réussies sans faute</p></div>
       <button class="btn primary center" data-act="next">Donne suivante</button>
-      <div class="section-title">Toutes les donnes</div>
-      <div class="dgrid">${DEALS.map(d => {
+      ${[['Donnes écrites à la main', DEALS.filter(d => d.n < 100)], ['Donnes du robot (1SA et 2SA)', DEALS.filter(d => d.n >= 100)]].filter(g => g[1].length).map(([title, list]) => `
+      <div class="section-title">${title}</div>
+      <div class="dgrid">${list.map(d => {
         const p = progress[dealKey(d.n)];
         const cls = !p ? '' : p.last === 1 ? 'good' : 'bad';
         return `<button class="dcell ${cls}" data-deal="${d.n}">${d.n}</button>`;
-      }).join('')}</div>
+      }).join('')}</div>`).join('')}
       <p class="muted center" style="font-size:13px">Vert : réussie sans faute · rouge : à rejouer</p>`;
     on('back', () => go(home));
     on('next', () => startDeal(pickDeal()));

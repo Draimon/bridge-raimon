@@ -7,11 +7,15 @@
 
 function popcount(x) { let c = 0; while (x) { x &= x - 1; c++; } return c; }
 
-function solve(handsIn, trump, leader, guess) {
+// `trick` (optionnel) : cartes déjà posées dans la levée en cours, [{ p, s, r }] dans l'ordre, `leader` = qui l'a entamée.
+function solve(handsIn, trump, leader, guess, maxNodes, trick) {
+  let nodes = 0;
   const h = handsIn.map(hand => hand.slice());
   const table = [0, 0, 0, 0];                 // cartes posées dans la levée en cours, par couleur
   const TT = new Map();
-  const total = h[leader].reduce((s, m) => s + popcount(m), 0);
+  const cur = trick || [];
+  const nextSeat = (leader + cur.length) & 3;
+  const total = h[nextSeat].reduce((s, m) => s + popcount(m), 0);
 
   function key(lead) {
     let k = String(lead);
@@ -75,6 +79,7 @@ function solve(handsIn, trump, leader, guess) {
   }
 
   function play(pos, p, led, ws, wr, winner, lead, ns, left, target) {
+    if (maxNodes && ++nodes > maxNodes) throw new Error('budget');
     if (pos === 4) {
       const won = (winner & 1) === 0 ? 1 : 0;
       return trickStart(winner, ns + won, left - 1, target);
@@ -96,9 +101,17 @@ function solve(handsIn, trump, leader, guess) {
   }
 
   // Nombre exact de levées : on part de l'estimation (le contrat) et on avance d'une levée à la fois.
+  function root(target) {
+    if (!cur.length) return trickStart(leader, 0, total, target);
+    let ws = cur[0].s, wr = cur[0].r, winner = cur[0].p;
+    cur.forEach(c => { table[c.s] |= 1 << c.r; });
+    cur.slice(1).forEach(c => { if (beats(c.s, c.r, ws, wr)) { ws = c.s; wr = c.r; winner = c.p; } });
+    try { return play(cur.length, nextSeat, cur[0].s, ws, wr, winner, leader, 0, total, target); }
+    finally { cur.forEach(c => { table[c.s] &= ~(1 << c.r); }); }
+  }
   let g = Math.min(total, Math.max(0, guess === undefined ? Math.ceil(total / 2) : guess));
-  if (trickStart(leader, 0, total, g)) { while (g < total && trickStart(leader, 0, total, g + 1)) g++; return g; }
-  while (g > 0 && !trickStart(leader, 0, total, g)) g--;
+  if (root(g)) { while (g < total && root(g + 1)) g++; return g; }
+  while (g > 0 && !root(g)) g--;
   return g;
 }
 
@@ -129,10 +142,11 @@ function brute(handsIn, trump, leader) {
   return rec(0, leader, -1, -1, -1, -1);
 }
 
-module.exports = { solve, brute };
+if (typeof module !== 'undefined' && module.exports) module.exports = { solve, brute };
+else window.RaimonDDS = { solve };
 
 // Auto-test : `node tools/dds.js`
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   let seed = 12345;
   const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
   let bad = 0;
