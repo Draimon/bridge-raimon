@@ -292,10 +292,18 @@ function createPlay(env) {
   function fanHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
     const cards = DISPLAY_SUITS.flatMap(s => G.hands[seat][s].map(r => ({ s, r })));
-    return arcHtml(cards.map(c => {
+    const open = clickable ? selSuit(seat) : null;
+    const hasOpen = open !== null && open !== undefined && G.hands[seat][open].length;
+    const arc = arcHtml(cards.map(c => {
       const ok = l.some(x => x.s === c.s && x.r === c.r);
+      if (hasOpen && c.s === open) return { s: c.s, label: RLAB[c.r], cls: 'ghost' };
       return { s: c.s, label: RLAB[c.r], cls: clickable ? pickCls(seat, c, ok) : '', attrs: cardAttrs(seat, c, ok) };
     }));
+    // Comme au mort : la couleur choisie se pose au-dessus de la main, à l'horizontale, face à toi.
+    const row = hasOpen
+      ? `<div class="hpick ${G.hands[seat][open].length > 5 ? 'tight' : ''}">${G.hands[seat][open].map(r => cardHtml(open, RLAB[r], 'md can sel', cardAttrs(seat, { s: open, r }, l.some(x => x.s === open && x.r === r)))).join('')}</div>`
+      : '';
+    return `<div class="handwrap">${row}${arc}</div>`;
   }
   // Le mort étalé en colonnes par couleur
   function dummyHtml(seat, clickable) {
