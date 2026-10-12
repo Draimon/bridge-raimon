@@ -296,6 +296,7 @@
   .hpick .pcard { transform: scale(1.12); box-shadow: 0 0 0 3px #ffe08a, 0 8px 16px rgba(0,0,0,.5); }
   .hpick.tight { gap: 0; } .hpick.tight .pcard + .pcard { margin-left: -8px; }
   .pcard.ghost { opacity: .3; }
+  .btn.who { font-size: 22px; padding: 18px; }
   .claimgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
   .btn:disabled { opacity: .45; cursor: default; }
   .hint { border-color: var(--accent); background: var(--accent-soft); padding: 12px 16px; }
@@ -316,11 +317,11 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610130038"></script>
-<script src="fiche.js?v=202610130038"></script>
-<script src="deals.js?v=202610130038"></script>
-<script src="dds.js?v=202610130038"></script>
-<script src="jeu.js?v=202610130038"></script>
+<script src="questions.js?v=202610130053"></script>
+<script src="fiche.js?v=202610130053"></script>
+<script src="deals.js?v=202610130053"></script>
+<script src="dds.js?v=202610130053"></script>
+<script src="jeu.js?v=202610130053"></script>
 <script>
 (() => {
   'use strict';
@@ -332,10 +333,35 @@
   const BY_N = new Map(QUESTIONS.map(q => [q.n, q]));
   const STORE_KEY = 'raimon-quiz-v1';
 
-  // ───── Progression (sur le téléphone)
+  // ───── Joueur (sans mot de passe : on choisit qui on est) et sa progression, gardée sur l'appareil
+  const PLAYERS = ['Michèle', 'Damien', 'Hélène'];
+  let player = null;
+  try { player = localStorage.getItem('raimon-player'); } catch (e) { player = null; }
+  if (!PLAYERS.includes(player)) player = null;
+  const keyFor = p => STORE_KEY + ':' + p;
   let progress = {};
-  try { progress = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { progress = {}; }
-  function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(progress)); } catch (e) { /* stockage indisponible */ } }
+  function loadProgress() {
+    try {
+      // Première fois : la progression d'avant (sans joueur) revient au premier joueur choisi sur cet appareil.
+      const old = localStorage.getItem(STORE_KEY);
+      if (old && !localStorage.getItem(keyFor(player))) { localStorage.setItem(keyFor(player), old); localStorage.removeItem(STORE_KEY); }
+      progress = JSON.parse(localStorage.getItem(keyFor(player))) || {};
+    } catch (e) { progress = {}; }
+  }
+  function save() { if (!player) return; try { localStorage.setItem(keyFor(player), JSON.stringify(progress)); } catch (e) { /* stockage indisponible */ } }
+  function whoAmI() {
+    document.body.classList.remove('tablemode');
+    app.innerHTML = `
+      <div class="hero"><div class="logo">♠<span class="red">♥</span><span class="red">♦</span>♣</div>
+        <h1>Système Raimon</h1><p>Qui es-tu ?</p></div>
+      ${PLAYERS.map(p => `<button class="btn primary center who" data-who="${p}">${p}</button>`).join('')}
+      <p class="center muted" style="font-size:13px">Chacun garde sa propre progression (quiz et donnes).</p>`;
+    app.querySelectorAll('[data-who]').forEach(b => b.addEventListener('click', () => {
+      player = b.dataset.who;
+      try { localStorage.setItem('raimon-player', player); } catch (e) { /* stockage indisponible */ }
+      loadProgress(); go(home);
+    }));
+  }
   function record(n, ok) {
     const p = progress[n] || { ok: 0, ko: 0, streak: 0 };
     if (ok) { p.ok++; p.streak = (p.streak || 0) + 1; } else { p.ko++; p.streak = 0; }
@@ -402,7 +428,7 @@
     void seen;
     app.innerHTML = `
       <div class="hero"><div class="logo">♠<span class="red">♥</span><span class="red">♦</span>♣</div>
-        <h1>Système Raimon</h1><p>Fiche mars 2026 · ${QUESTIONS.length} questions</p></div>
+        <h1>Système Raimon</h1><p>Bonjour <b>${player}</b> · <button class="link" data-act="switch" style="padding:0;font-size:15px">changer de joueur</button></p></div>
       ${installHint()}
       <div class="section-title">S'entraîner</div>
       <button class="btn primary mode" data-act="quiz"><span class="mode-ico">?</span><span>Quiz<small>${QUESTIONS.length} questions · ${good} maîtrisées${rev ? ' · ' + rev + ' à revoir' : ''}</small></span></button>
@@ -417,7 +443,8 @@
     on('fiche', () => go(fiche));
     on('deals', () => go(dealList));
     on('hintoff', () => { try { localStorage.setItem('raimon-hint-off', '1'); } catch (e) { /* stockage indisponible */ } home(); });
-    on('reset', () => { if (confirm('Effacer toute la progression sur ce téléphone ?')) { progress = {}; save(); home(); } });
+    on('reset', () => { if (confirm('Effacer toute la progression de ' + player + ' sur ce téléphone ?')) { progress = {}; save(); home(); } });
+    on('switch', () => go(whoAmI));
   }
 
   function quizHome() {
@@ -961,7 +988,7 @@
   checkUpdate();
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
 
-  home();
+  if (player) { loadProgress(); home(); } else whoAmI();
 })();
 </script>
 </body>
