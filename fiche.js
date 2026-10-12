@@ -74,6 +74,7 @@ const FICHE = {
       '<b>2♥/2♠ = fort ou bicolore faible</b> à l’ouverture.',
       'Quand c’est le bicolore : toute autre enchère au palier de 3 est faible, un saut au palier de 4 = envie de chelem.',
       '<b>2♥ => 2♠ relais</b> : 2SA = bic ♥/♠ ; 3♣ = bic ♥/♣ ; 3♦ = bic ♥/♦ ; 3♥ = fort + singleton ; 3♠ = fort et 3 cartes ♠ ; 3SA = fort ; 4♣/4♦/4♥(♠) = fort + chicane.',
+      'Main forte : 3SA = fort sans rien de particulier. Ensuite, suite naturelle comme 2♣ – 2♦ – 2M du SEF : on donne ou non le fit, puis on cherche la manche ou le chelem.',
       '<b>2♠ => 2SA relais</b> : 3♣ = bic ♠/♣ ; 3♦ = bic ♠/♦ ; 3♥ = fort et 3 cartes ♥ ; 3♠ = fort + singleton ; 3SA = fort ; 4♣/4♦/4♥ = fort + chicane.',
     ],
   },

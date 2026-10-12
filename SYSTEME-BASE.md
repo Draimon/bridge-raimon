@@ -58,5 +58,4 @@ Réponses au questionnaire du 12/10/2026. La fiche (`fiche.js`) reste prioritair
 - **Collante / roulante** : après la réponse au Blackwood, sans obligation, selon le besoin pour décider entre 6 et 7 ; collante = connaître les Rois, roulante = la qualité de l'atout.
 - **Entame de l'As à la couleur** : c'est le partenaire de l'entameur qui signale (pair = préférentielle, impair = italien).
 
-## Encore à préciser (je demanderai au fil de l'eau)
-- La suite des enchères après « fort » sur 2♥/2♠.
+- **2♥/2♠ fort** : après le relais, 3SA = fort sans rien de particulier ; ensuite la suite est naturelle, comme 2♣ – 2♦ – 2M du SEF (on donne ou non le fit, puis on cherche la manche ou le chelem).
