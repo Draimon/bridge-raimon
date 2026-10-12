@@ -77,6 +77,8 @@ for (const d of SRC) {
   }));
   const tail = bids.slice(-3);
   if (bids.length < 4 || tail.some(b => b !== 'P')) err(d, 'la séquence doit finir par 3 passes');
+  const lastCall = bids.reduce((k, b, i) => (b !== 'P' ? i : k), -1);
+  if (lastCall >= 0 && bids.length - lastCall - 1 !== 3) err(d, `${bids.length - lastCall - 1} passes après la dernière enchère (il en faut 3)`);
   if (!bids.some((b, i) => SEATS[(SEATS.indexOf(d.d) + i) % 4] === 'S')) err(d, 'Sud ne parle jamais');
   // Contrat final : dernière enchère, déclarant = premier du camp à avoir nommé la dénomination.
   let c = null;
@@ -89,7 +91,7 @@ for (const d of SRC) {
     c = { l: +lb[0], s: strain, by: SEATS[(SEATS.indexOf(d.d) + k) % 4], x: after.includes('XX') ? 2 : after.includes('X') ? 1 : 0 };
     if (side(c.by) !== 'NS') err(d, 'le contrat doit être joué par Nord-Sud');
   }
-  out.push({ n: d.n, t: d.t, d: d.d, h: Object.fromEntries(SEATS.map(s => [s, fmt(hands[s])])), a: d.a, c });
+  out.push({ n: d.n, t: d.t, d: d.d, v: d.v || 'none', h: Object.fromEntries(SEATS.map(s => [s, fmt(hands[s])])), a: d.a, c });
 }
 
 const nums = out.map(d => d.n);

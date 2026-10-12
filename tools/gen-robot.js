@@ -8,6 +8,8 @@ const FILE = path.join(__dirname, 'deals-robot.json');
 const TOTAL = +process.argv[2] || 70;
 const RANKS = 'AKQJT98765432', SUITS = ['♠', '♥', '♦', '♣'];
 const QUOTA = { 'Stayman': 14, 'Texas': 16, 'Texas mineur': 3, 'Bicolore majeur': 4, 'Quantitatif': 3, 'Sur 1SA': 8, 'Puppet': 14, 'Texas sur 2SA': 5, 'Sur 2SA': 3, 'Chelem sur 1SA': 8, 'Oklahoma – chelem': 8, 'Enchère d’essai': 10, '2 sur 1': 12,
+  // tranche 4 : interventions adverses
+  'Lebelson': 8, 'Truscott': 6, 'Contre d’appel': 8, 'Copenhague': 6,
   // tranche 2 : ouvertures d'1 à la couleur
   'Soutien majeur': 6, 'Shadow fit': 8, 'Oklahoma': 6, '1♥ – 1♠': 5, 'Majeure – 1SA': 5, 'Ouverture majeure': 1, 'Mineure – majeure': 8,
   'Roudy': 6, 'Check-Back Stayman': 5, '1♣ – 1♦': 4, 'Mineure – SA': 4, 'Soutien mineur': 3, 'Ouverture mineure': 1 };
@@ -18,10 +20,11 @@ const out = [], count = {}, same = {}, seen = new Set();
 let dropped = 0, changed = 0;
 for (const d of old) {
   seen.add(d.N + d.S);
-  const a = R.auction(d.N, d.S);
+  const c = d.comp ? R.compAuction(d, d.v) : null;
+  const a = d.comp ? (c && c.a) : R.auction(d.N, d.S);
   if (!a) { dropped++; continue; }
   if (JSON.stringify(a) !== JSON.stringify(d.a)) changed++;
-  const t = R.theme(a), key = a.filter(x => x[0] !== 'P').map(x => x[0]).join(' ');
+  const t = d.comp ? c.theme : R.theme(a), key = a.filter(x => x[0] !== 'P').map(x => x[0]).join(' ');
   count[t] = (count[t] || 0) + 1; same[key] = (same[key] || 0) + 1;
   out.push({ ...d, t: 'Robot · ' + t, a });
 }
@@ -38,18 +41,20 @@ while (out.length < TOTAL && tries < 3e6) {
   const d = deck.slice();
   for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; }
   const H = { N: handStr(d.slice(0, 13)), E: handStr(d.slice(13, 26)), S: handStr(d.slice(26, 39)), O: handStr(d.slice(39)) };
-  const e = R.evalHand(H.E), o = R.evalHand(H.O);
-  if (e.hcp > 11 || o.hcp > 11 || Math.max(...e.len) > 5 || Math.max(...o.len) > 5) continue;   // adversaires muets
+  const v = ['none', 'NS', 'EO', 'all'][Math.floor(rnd() * 4)];
   if (seen.has(H.N + H.S)) continue;
-  const a = R.auction(H.N, H.S);
+  const e = R.evalHand(H.E), o = R.evalHand(H.O);
+  let a = null, t, dealer = 'N', comp = false;
+  if (e.hcp <= 11 && o.hcp <= 11 && Math.max(...e.len) <= 5 && Math.max(...o.len) <= 5) { a = R.auction(H.N, H.S); if (a) t = R.theme(a); }   // adversaires muets
+  if (!a) { const c = R.compAuction(H, v); if (c) { a = c.a; t = c.theme; dealer = c.d; comp = true; } }
   if (!a) continue;
-  const t = R.theme(a);
+  if (comp && a.every((x, i) => ['N', 'E', 'S', 'O'][(['N', 'E', 'S', 'O'].indexOf(dealer) + i) % 4] !== 'S' || x[0] === 'P')) continue;   // Sud doit avoir une décision
   if ((count[t] || 0) >= (QUOTA[t] || 0)) continue;
   const key = a.filter(x => x[0] !== 'P').map(x => x[0]).join(' ');
   if ((same[key] || 0) >= MAX_SAME || ((key === '1SA' || key === '2SA') && same[key])) continue;
   seen.add(H.N + H.S);
   count[t] = (count[t] || 0) + 1; same[key] = (same[key] || 0) + 1;
-  out.push({ n: nextN++, t: 'Robot · ' + t, d: 'N', ...H, a });
+  out.push({ n: nextN++, t: 'Robot · ' + t, d: dealer, v, ...(comp ? { comp: true } : {}), ...H, a });
   added++;
 }
 fs.writeFileSync(FILE, JSON.stringify(out, null, 1));

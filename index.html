@@ -601,7 +601,7 @@
     const myTurn = !p.answered;
     app.innerHTML = topbar('Donne n° ' + deal.n, 'Quitter') + `
       <div class="card">
-        <div class="qhead"><span class="qnum">Donne n° ${deal.n}</span><span class="progress">Donneur : ${SEAT_NAMES[deal.d]}</span></div>
+        <div class="qhead"><span class="qnum">Donne n° ${deal.n}</span><span class="progress">Donneur : ${SEAT_NAMES[deal.d]} · ${({ none: 'personne vulnérable', NS: 'vous êtes vulnérables', EO: 'eux vulnérables', all: 'tous vulnérables' })[deal.v || 'none']}</span></div>
         ${dealAuctionHtml(deal, p.answered ? p.i + 1 : p.i, myTurn)}
         ${handHtml(deal.h.S)}
         ${myTurn ? `<div class="prompt">À toi. Que dis-tu ?</div>${boxHtml()}` : ''}

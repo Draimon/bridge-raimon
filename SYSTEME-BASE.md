@@ -43,6 +43,12 @@ Réponses au questionnaire du 12/10/2026. La fiche (`fiche.js`) reste prioritair
 - Répondant : 2SA direct = 12H régulier ; 2 sur 1 puis 2SA = 11H régulier (cf. ouverture à 11 pts).
 - Pas de saut en nouvelle couleur du répondant (« on ne fait pas de barrage sur le partenaire »).
 
+## Interventions (précisions du 12/10/2026)
+- **Intervention simple** à la couleur : 5 cartes ; minimum 10H vulnérable, 8H non vulnérable ; toujours limitée à 16H (avec 17H et plus, on contre).
+- **1SA en intervention** : 16-18H régulier avec arrêt dans la couleur d'ouverture.
+- **Intervention à saut** : faible (barrage).
+- **Contre d'appel** : 12H et plus avec une courte dans la couleur d'ouverture, ou toute main de 17H et plus.
+
 ## Encore à préciser (je demanderai au fil de l'eau)
 - Ce que vous appelez « petit Stayman ».
 - La suite des enchères après 2♣ Albaran et après « fort » sur 2♥/2♠.

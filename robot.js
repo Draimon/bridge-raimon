@@ -1,5 +1,6 @@
-// Système Raimon — robot d'enchères à règles, sans intervention adverse :
-// tranche 1 = ouvertures de 1SA et 2SA ; tranche 2 = ouvertures d'1 à la couleur (11 à 19H).
+// Système Raimon — robot d'enchères à règles :
+// tranche 1 = ouvertures de 1SA et 2SA ; tranche 2 = ouvertures d'1 à la couleur (11 à 19H) ;
+// tranche 4 = interventions adverses (Lebelson, Truscott, contre d'appel, Copenhague) via compAuction().
 // Nord ouvre, Sud répond ; le robot enchérit pour les deux. Il renvoie null quand une situation sort de
 // ses règles sûres (chelems, cas non décrits par la fiche) : la donne est alors écartée.
 // Utilisable dans Node (génération des donnes) et dans le navigateur.
@@ -610,6 +611,180 @@
     return null;
   }
 
+  // ═════ Tranche 4 : interventions adverses ═════
+  // compAuction(H, v) : H = { N, E, S, O } (mains), v = vulnérabilité ('none' | 'NS' | 'EO' | 'all').
+  // Renvoie { d: donneur, a: séquence complète (tous les joueurs), theme } ou null.
+  // Termine une séquence par exactement 3 passes après la dernière enchère (en gardant leurs explications).
+  function closeAuction(A) {
+    let last = -1; A.forEach(([b], i) => { if (b !== 'P') last = i; });
+    const tail = A.slice(last + 1, last + 4).filter(x => x[0] === 'P');
+    while (tail.length < 3) tail.push(['P']);
+    return A.slice(0, last + 1).concat(tail);
+  }
+  const quietHand = (x, max) => x.hcp <= max && Math.max(...x.len) <= 5;   // un joueur qui n'a rien à dire
+
+  function compAuction(H, v) {
+    const e = { N: evalHand(H.N), E: evalHand(H.E), S: evalHand(H.S), O: evalHand(H.O) };
+    const vulEO = v === 'EO' || v === 'all';
+    return lebelsonDeal(e, vulEO) || truscottDeal(e) || takeoutDeal(e) || copenhagueDeal(e) || null;
+  }
+
+  // 1SA – (2♦/2♥/2♠) : Lebelson
+  function lebelsonDeal(e, vulEO) {
+    const n = e.N, E = e.E, s = e.S;
+    const op = opening(n);
+    if (!op || op[0] !== '1SA' || !quietHand(e.O, 7)) return null;
+    const xs = [0, 1, 2].filter(i => E.len[i] >= 5).sort((a, b) => E.len[b] - E.len[a] || a - b);
+    if (!xs.length || E.hcp < (vulEO ? 10 : 8) || E.hcp > 15) return null;
+    const x = xs[0], X = SUIT[x], cue = '3' + X;
+    const A = [['1SA', '15-17H régulier'], ['2' + X, `Intervention (adversaire) : ${E.len[x]} cartes à ${X}`]];
+    const P = () => A.push(['P']);
+    const res = () => ({ d: 'N', a: closeAuction(A), theme: 'Lebelson' });
+    if (s.hcp >= 16 || (s.hcp >= 8 && s.hcp <= 9)) return null;
+    const relay = why => { A.push(['2SA', why || 'Lebelson : passage par 2SA (l’ouvreur dira 3♣)']); P(); A.push(['3♣', 'Obligatoire sur 2SA']); P(); };
+    if (s.hcp <= 7) {
+      if (s.c >= 6) { relay(); A.push(['P', 'Misère à ♣ : on joue 3♣']); P(); P(); return res(); }
+      if (s.d >= 6 && x !== 2) { relay(); A.push(['3♦', 'Misère à ♦ : on joue 3♦']); P(); A.push(['P']); P(); return res(); }
+      A.push(['P', 'Main faible : tu passes']); P(); A.push(['P']); return res();
+    }
+    const st = stop(s, x), um = [0, 1].filter(i => i !== x);
+    const five = um.find(i => s.len[i] >= 5), four = um.filter(i => s.len[i] === 4);
+    if (five !== undefined) {
+      const M = SUIT[five];
+      if (st) A.push(['3' + M, `5 cartes à ${M} avec arrêt ${X}`]);
+      else { relay(); A.push(['3' + M, `2SA puis 3${M} : 5 cartes à ${M} sans arrêt ${X}`]); }
+      P();
+      if (n.len[five] >= 3) A.push(['4' + M, `3 cartes à ${M} : la manche`]);
+      else if (st || stop(n, x)) A.push(['3SA', `Pas de fit${st ? '' : ' mais l’arrêt ' + X}`]);
+      else return null;
+      P(); A.push(['P']); P(); return res();
+    }
+    if (four.length) {
+      if (st) A.push([cue, `Cue-bid direct : Stayman avec arrêt ${X}`]);
+      else { relay(); A.push([cue, `2SA puis cue-bid : Stayman sans arrêt ${X}`]); }
+      P();
+      const nm = um.find(i => n.len[i] >= 4 && s.len[i] >= 4) ?? um.find(i => n.len[i] >= 4);
+      if (nm !== undefined) {
+        const b3 = '3' + SUIT[nm];
+        const bid = rankOf(b3) > rankOf(cue) ? b3 : '4' + SUIT[nm];
+        A.push([bid, `4 cartes à ${SUIT[nm]}`]); P();
+        if (s.len[nm] >= 4) { if (bid[0] === '3') { A.push(['4' + SUIT[nm], 'Fit 4-4 : la manche']); P(); A.push(['P']); P(); } else { A.push(['P', 'Fit 4-4 : la manche']); P(); A.push(['P']); } return res(); }
+        if (!st && !stop(n, x)) return null;
+        A.push(['3SA', 'Pas de fit' + (st ? '' : ', mais l’arrêt ' + X)]); if (rankOf('3SA') <= rankOf(bid)) return null; P(); A.push(['P']); P(); return res();
+      }
+      if (!st && !stop(n, x)) return null;
+      A.push(['3SA', 'Pas de majeure 4e' + (st ? '' : ', mais l’arrêt ' + X)]); P(); A.push(['P']); P(); return res();
+    }
+    if (st) { A.push(['3SA', `3SA direct : conclusion avec arrêt ${X}`]); P(); A.push(['P']); P(); return res(); }
+    if (!stop(n, x)) return null;
+    relay(); A.push(['3SA', `2SA puis 3SA : conclusion sans arrêt ${X}`]); P(); A.push(['P', `Il a l’arrêt ${X} : il passe`]); P(); return res();
+  }
+
+  // 1x – (X) : Truscott (avec un fit)
+  function truscottDeal(e) {
+    const n = e.N, E = e.E, s = e.S;
+    const t = openSuit(n);
+    if (t === null || !quietHand(e.O, 6)) return null;
+    const others = [0, 1, 2, 3].filter(i => i !== t);
+    if (!(E.hcp >= 12 && E.hcp <= 16 && E.len[t] <= 1 && others.every(i => E.len[i] >= 3))) return null;
+    const T = SUIT[t];
+    const A = [['1' + T, t <= 1 ? `Ouverture, ${n.len[t]} cartes à ${T}` : 'Ouverture'], ['X', "Contre d'appel (adversaire)"]];
+    const P = () => A.push(['P']);
+    const res = () => ({ d: 'N', a: closeAuction(A), theme: 'Truscott' });
+    const h = s.hcp, fit = s.len[t];
+    if (t <= 1) {
+      if (fit < 3 || s.len[1 - t] >= 4 || h >= 16) return null;
+      if (h >= 13) { if (hld(n, t) + 14 >= 32) return null; A.push(['3SA', `Truscott : fit ${T}, 13-15H`]); P(); A.push(['4' + T, 'Il conclut la manche à la couleur']); P(); A.push(['P']); P(); return res(); }
+      if (h >= 11) { A.push(['2SA', `Truscott : fit ${T}, 11-12H`]); P(); const on = hld(n, t); A.push([on >= 14 ? '4' + T : '3' + T, on >= 14 ? `${on} HLD : la manche` : `${on} HLD : il s'arrête à 3${T}`]); P(); A.push(['P']); P(); return res(); }
+      if (hld(s, t) >= 6 && h <= 10) {
+        if (hld(n, t) >= 18) return null;
+        A.push([fit >= 4 ? '3' + T : '2' + T, `Fit direct = barrage (${fit} cartes, moins de 11H)`]); P(); A.push(['P', 'Il passe']); P(); return res();
+      }
+      return null;
+    }
+    if (fit < 4 || s.h >= 4 || s.s >= 4 || h >= 12) return null;
+    if (h >= 10) { A.push(['3SA', `Truscott : fit ${T}, 10-11H`]); P(); A.push(['P']); P(); return res(); }
+    if (h >= 8) { A.push(['2SA', `Truscott : fit ${T}, 8-9H`]); P(); A.push([n.hcp >= 15 ? '3SA' : '3' + T, n.hcp >= 15 ? 'Assez pour la manche' : `Minimum : il s'arrête à 3${T}`]); P(); A.push(['P']); P(); return res(); }
+    if (h >= 4 && fit >= 5) { A.push(['3' + T, 'Fit direct = barrage']); P(); A.push(['P']); P(); return res(); }
+    return null;
+  }
+
+  // (1x) – X : ton contre d'appel, réponses du partenaire par paliers
+  function takeoutDeal(e) {
+    const E = e.E, s = e.S, n = e.N;
+    const x = openSuit(E);
+    if (x === null || x === 0 || E.hcp > 15 || !quietHand(e.O, 5)) return null;
+    const others = [0, 1, 2, 3].filter(i => i !== x);
+    if (!(s.hcp >= 12 && s.hcp <= 16 && s.len[x] <= 2 && others.every(i => s.len[i] >= 3) && s.s < 5 && s.h < 5)) return null;
+    if (s.balanced && s.hcp >= 16 && stop(s, x)) return null;               // 1SA d'intervention
+    const X = SUIT[x];
+    const A = [['1' + X, 'Ouverture (adversaire)'], ['X', `Contre d'appel : ${s.hcp}H, court à ${X}`], ['P']];
+    const P = () => A.push(['P']);
+    const res = () => ({ d: 'E', a: closeAuction(A), theme: 'Contre d’appel' });
+    const um = [0, 1].filter(i => i !== x && n.len[i] >= 4).sort((a, b) => n.len[b] - n.len[a] || b - a);
+    const lvl = i => (rankOf('1' + SUIT[i]) > rankOf('1' + X) ? 1 : 2);
+    const r = n.hcp;
+    if (r >= 11) {
+      if (r <= 12 && stop(n, x) && !um.length) { A.push(['2SA', `11-12H avec arrêt ${X}`]); P(); A.push([s.hcp >= 13 ? '3SA' : 'P', s.hcp >= 13 ? 'Assez pour la manche' : 'Minimum : tu passes']); if (s.hcp >= 13) { P(); A.push(['P']); P(); } else { P(); A.push(['P']); } return res(); }
+      return null;
+    }
+    let bid, kind;
+    if (um.length) {
+      const M = um[0], base = lvl(M);
+      if (r <= 7) { bid = base + SUIT[M]; kind = 0; A.push([bid, `0-7H : palier ${base === 1 ? 1 : '1 (la moins chère)'}, ${n.len[M]} cartes à ${SUIT[M]}`]); }
+      else if (n.len[M] === 4) { bid = (base + 1) + SUIT[M]; kind = 4; A.push([bid, `Palier 2 (saut) : 8-10H avec 4 cartes à ${SUIT[M]}`]); }
+      else { bid = (base + 2) + SUIT[M]; kind = 5; A.push([bid, `Palier 3 : 8-10H avec 5 cartes à ${SUIT[M]}`]); }
+      P();
+      const sm = hld(s, M);
+      if (kind === 0) { A.push(['P', 'Ton partenaire a 0-7H : tu passes']); P(); A.push(['P']); return res(); }
+      if (kind === 4) {
+        if (sm >= 16) { A.push(['4' + SUIT[M], `${sm} HLD face à 8-10H : la manche`]); P(); A.push(['P']); P(); return res(); }
+        if (sm >= 14 && bid[0] === '2') { A.push(['3' + SUIT[M], `${sm} HLD : proposition`]); P(); A.push([r >= 10 ? '4' + SUIT[M] : 'P', r >= 10 ? 'Haut de zone : il accepte' : 'Bas de zone : il passe']); if (r >= 10) { P(); A.push(['P']); P(); } else { P(); A.push(['P']); } return res(); }
+        A.push(['P', 'Pas de manche : tu passes']); P(); A.push(['P']); return res();
+      }
+      if (sm >= 14 && bid[0] === '3') { A.push(['4' + SUIT[M], `${sm} HLD face à 8-10H avec 5 cartes : la manche`]); P(); A.push(['P']); P(); return res(); }
+      A.push(['P', 'Pas de manche : tu passes']); P(); A.push(['P']); return res();
+    }
+    if (r <= 7) {
+      const m = [3, 2].filter(i => i !== x).sort((a, b) => n.len[b] - n.len[a])[0];
+      A.push([lvl(m) + SUIT[m], `0-7H : la couleur la moins chère (${n.len[m]} cartes à ${SUIT[m]})`]); P();
+      A.push(['P', 'Ton partenaire a 0-7H : tu passes']); P(); A.push(['P']); return res();
+    }
+    if (!stop(n, x)) return null;
+    A.push(['1SA', `8-10H avec arrêt ${X}`]); P();
+    if (s.hcp >= 15) { A.push(['2SA', 'Proposition de manche']); P(); A.push([r >= 10 ? '3SA' : 'P', r >= 10 ? 'Haut de zone : il accepte' : 'Bas de zone : il passe']); if (r >= 10) { P(); A.push(['P']); P(); } else { P(); A.push(['P']); } return res(); }
+    A.push(['P', 'Pas de manche : tu passes']); P(); A.push(['P']); return res();
+  }
+
+  // (1x) – Copenhague : 2SA = 2 moins chères, 3♣ = extrêmes, 3♦ = 2 plus chères
+  function copenhagueDeal(e) {
+    const E = e.E, s = e.S, n = e.N;
+    const x = openSuit(E);
+    if (x === null || E.hcp > 15 || !quietHand(e.O, 6)) return null;
+    if (s.hcp < 6 || s.hcp > 12) return null;
+    const unbid = [3, 2, 1, 0].filter(i => i !== x);                            // du moins cher au plus cher
+    const two = unbid.filter(i => s.len[i] >= 5);
+    if (two.length !== 2) return null;
+    const X = SUIT[x];
+    const pairs = [[unbid[0], unbid[1], '2SA', 'les 2 moins chères'], [unbid[0], unbid[2], '3♣', 'les extrêmes'], [unbid[1], unbid[2], '3♦', 'les 2 plus chères']];
+    const pr = pairs.find(p => two.includes(p[0]) && two.includes(p[1]));
+    const A = [['1' + X, 'Ouverture (adversaire)'], [pr[2], `Copenhague : bicolore 5/5 ${SUIT[pr[0]]} + ${SUIT[pr[1]]} (${pr[3]})`], ['P']];
+    const P = () => A.push(['P']);
+    const res = () => ({ d: 'E', a: closeAuction(A), theme: 'Copenhague' });
+    const pick = [pr[0], pr[1]].sort((a, b) => n.len[b] - n.len[a] || a - b)[0];
+    const Y = SUIT[pick];
+    if (pick <= 1 && hld(n, pick) >= 12) { A.push(['4' + Y, `Il choisit les ${Y} et a de quoi jouer la manche`]); P(); A.push(['P']); P(); return res(); }
+    if (pr[2] === '2SA' && n.hcp >= 13) {
+      A.push(['4SA', '« Choisis » : il jouera ta meilleure mineure au palier de 5']); P();
+      const m = s.d >= s.c ? 2 : 3;
+      A.push(['5' + SUIT[m], s.d === s.c ? 'Même longueur : la plus chère' : `Ta mineure la plus longue (${SUIT[m]})`]); P(); A.push(['P']); P(); return res();
+    }
+    const b3 = '3' + Y;
+    if (b3 === pr[2]) { A.push(['P', `Il choisit les ${Y} : on joue ${b3}`]); P(); A.push(['P']); return res(); }
+    if (rankOf(b3) <= rankOf(pr[2])) return null;
+    A.push([b3, `Il choisit les ${Y}`]); P(); A.push(['P']); P(); return res();
+  }
+
   // Séquence complète, donneur Nord, adversaires qui passent. Renvoie null si hors règles.
   function auction(northStr, southStr) {
     const n = evalHand(northStr), s = evalHand(southStr);
@@ -639,6 +814,6 @@
     return r === '2♣' ? 'Stayman' : r === '2♦' || r === '2♥' ? 'Texas' : r === '2♠' ? 'Texas mineur' : r === '3♦' || r === '4♦' ? 'Bicolore majeur' : r === '4SA' ? 'Quantitatif' : 'Sur 1SA';
   };
 
-  const api = { evalHand, hld, opening, auction, theme };
+  const api = { evalHand, hld, opening, auction, compAuction, theme };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.RaimonRobot = api;
 })(this);

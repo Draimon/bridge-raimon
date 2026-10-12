@@ -7629,5 +7629,1200 @@
     "P"
    ]
   ]
+ },
+ {
+  "n": 271,
+  "t": "Robot · Copenhague",
+  "d": "E",
+  "v": "NS",
+  "comp": true,
+  "N": "A6.AK72.KQT64.Q5",
+  "E": "KJ4.J5.A75.KT762",
+  "S": "QT753.Q9863.3.A4",
+  "O": "982.T4.J982.J983",
+  "a": [
+   [
+    "1♣",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "3♦",
+    "Copenhague : bicolore 5/5 ♥ + ♠ (les 2 plus chères)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Il choisit les ♥ et a de quoi jouer la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 272,
+  "t": "Robot · Copenhague",
+  "d": "E",
+  "v": "all",
+  "comp": true,
+  "N": "K762.AJ9854.K7.K",
+  "E": "AJT.KT7.AT832.42",
+  "S": "Q9843.63.4.AQT53",
+  "O": "5.Q2.QJ965.J9876",
+  "a": [
+   [
+    "1♦",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "3♣",
+    "Copenhague : bicolore 5/5 ♣ + ♠ (les extrêmes)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Il choisit les ♠ et a de quoi jouer la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 273,
+  "t": "Robot · Copenhague",
+  "d": "E",
+  "v": "all",
+  "comp": true,
+  "N": "A93.A6.K64.K8763",
+  "E": "KJ87.KQ3.AJ32.T4",
+  "S": "54.98542.T.AQJ95",
+  "O": "QT62.JT7.Q9875.2",
+  "a": [
+   [
+    "1♦",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "2SA",
+    "Copenhague : bicolore 5/5 ♣ + ♥ (les 2 moins chères)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4SA",
+    "« Choisis » : il jouera ta meilleure mineure au palier de 5"
+   ],
+   [
+    "P"
+   ],
+   [
+    "5♣",
+    "Ta mineure la plus longue (♣)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 274,
+  "t": "Robot · Truscott",
+  "d": "N",
+  "v": "NS",
+  "comp": true,
+  "N": "QJ3.AKQ62.Q84.86",
+  "E": "AKT974.4.KT7.AJ2",
+  "S": "-.T853.A952.QT953",
+  "O": "8652.J97.J63.K74",
+  "a": [
+   [
+    "1♥",
+    "Ouverture, 5 cartes à ♥"
+   ],
+   [
+    "X",
+    "Contre d'appel (adversaire)"
+   ],
+   [
+    "3♥",
+    "Fit direct = barrage (4 cartes, moins de 11H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 275,
+  "t": "Robot · Copenhague",
+  "d": "E",
+  "v": "none",
+  "comp": true,
+  "N": "AKJ54.J4.82.K952",
+  "E": "T82.9876.AK9.AJT",
+  "S": "-.AQT53.QJT63.Q76",
+  "O": "Q9763.K2.754.843",
+  "a": [
+   [
+    "1♣",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "2SA",
+    "Copenhague : bicolore 5/5 ♦ + ♥ (les 2 moins chères)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Il choisit les ♥ et a de quoi jouer la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 276,
+  "t": "Robot · Copenhague",
+  "d": "E",
+  "v": "NS",
+  "comp": true,
+  "N": "K863.K7654.8.KQ3",
+  "E": "AQT74.A32.T65.A8",
+  "S": "952.-.AKJ74.JT765",
+  "O": "J.QJT98.Q932.942",
+  "a": [
+   [
+    "1♠",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "2SA",
+    "Copenhague : bicolore 5/5 ♣ + ♦ (les 2 moins chères)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Il choisit les ♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 277,
+  "t": "Robot · Contre d’appel",
+  "d": "E",
+  "v": "NS",
+  "comp": true,
+  "N": "K74.QT82.A7.9732",
+  "E": "T2.K7643.KT92.KQ",
+  "S": "AJ95.A.J83.AJT85",
+  "O": "Q863.J95.Q654.64",
+  "a": [
+   [
+    "1♥",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "X",
+    "Contre d'appel : 15H, court à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1SA",
+    "8-10H avec arrêt ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition de manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Bas de zone : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 278,
+  "t": "Robot · Contre d’appel",
+  "d": "E",
+  "v": "all",
+  "comp": true,
+  "N": "AQT64.A654.765.2",
+  "E": "973.J3.KQJ2.KJT5",
+  "S": "K85.K98.AT.A9873",
+  "O": "J2.QT72.9843.Q64",
+  "a": [
+   [
+    "1♦",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "X",
+    "Contre d'appel : 14H, court à ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Palier 3 : 8-10H avec 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "16 HLD face à 8-10H avec 5 cartes : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 279,
+  "t": "Robot · Truscott",
+  "d": "N",
+  "v": "none",
+  "comp": true,
+  "N": "AJ7653.75.QJ5.K5",
+  "E": "-.A98632.AKT8.Q87",
+  "S": "KQT.T.964.AJT643",
+  "O": "9842.KQJ4.732.92",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 6 cartes à ♠"
+   ],
+   [
+    "X",
+    "Contre d'appel (adversaire)"
+   ],
+   [
+    "2♠",
+    "Fit direct = barrage (3 cartes, moins de 11H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 280,
+  "t": "Robot · Contre d’appel",
+  "d": "E",
+  "v": "NS",
+  "comp": true,
+  "N": "976.AQ87.QT5.T72",
+  "E": "AT32.J6.KJ.A8653",
+  "S": "KQ54.KT54.A74.Q4",
+  "O": "J8.932.98632.KJ9",
+  "a": [
+   [
+    "1♣",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "X",
+    "Contre d'appel : 14H, court à ♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Palier 2 (saut) : 8-10H avec 4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "15 HLD : proposition"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Bas de zone : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 281,
+  "t": "Robot · Contre d’appel",
+  "d": "E",
+  "v": "all",
+  "comp": true,
+  "N": "654.987.A753.AQ5",
+  "E": "Q8.AQJT.KJ864.83",
+  "S": "AK72.6543.Q2.K96",
+  "O": "JT93.K2.T9.JT742",
+  "a": [
+   [
+    "1♦",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "X",
+    "Contre d'appel : 12H, court à ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1SA",
+    "8-10H avec arrêt ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Pas de manche : tu passes"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 282,
+  "t": "Robot · Contre d’appel",
+  "d": "E",
+  "v": "EO",
+  "comp": true,
+  "N": "KJ42.J3.K42.J875",
+  "E": "Q3.AKQT874.65.64",
+  "S": "AT87.5.AQ93.AQT2",
+  "O": "965.962.JT87.K93",
+  "a": [
+   [
+    "1♥",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "X",
+    "Contre d'appel : 16H, court à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Palier 2 (saut) : 8-10H avec 4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "18 HLD face à 8-10H : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 283,
+  "t": "Robot · Copenhague",
+  "d": "E",
+  "v": "NS",
+  "comp": true,
+  "N": "QT.KQT96.J97.AJ8",
+  "E": "AKJ932.A32.K8.92",
+  "S": "8.J8.AQT63.KQ654",
+  "O": "7654.754.542.T73",
+  "a": [
+   [
+    "1♠",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "2SA",
+    "Copenhague : bicolore 5/5 ♣ + ♦ (les 2 moins chères)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4SA",
+    "« Choisis » : il jouera ta meilleure mineure au palier de 5"
+   ],
+   [
+    "P"
+   ],
+   [
+    "5♦",
+    "Même longueur : la plus chère"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 284,
+  "t": "Robot · Truscott",
+  "d": "N",
+  "v": "EO",
+  "comp": true,
+  "N": "AQ875.93.A65.AJT",
+  "E": "-.AQT4.KQ43.K9753",
+  "S": "KJ932.862.92.Q62",
+  "O": "T64.KJ75.JT87.84",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "X",
+    "Contre d'appel (adversaire)"
+   ],
+   [
+    "3♠",
+    "Fit direct = barrage (5 cartes, moins de 11H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 285,
+  "t": "Robot · Contre d’appel",
+  "d": "E",
+  "v": "EO",
+  "comp": true,
+  "N": "75432.87.JT3.KJ5",
+  "E": "AJ.AK543.82.Q873",
+  "S": "KQ86.QT.AKQ4.962",
+  "O": "T9.J962.9765.AT4",
+  "a": [
+   [
+    "1♥",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "X",
+    "Contre d'appel : 16H, court à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♠",
+    "0-7H : palier 1, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Ton partenaire a 0-7H : tu passes"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 286,
+  "t": "Robot · Truscott",
+  "d": "N",
+  "v": "none",
+  "comp": true,
+  "N": "654.AK.J8762.K74",
+  "E": "Q873.QJ8.K.AQT83",
+  "S": "AT2.652.AQ9543.9",
+  "O": "KJ9.T9743.T.J652",
+  "a": [
+   [
+    "1♦",
+    "Ouverture"
+   ],
+   [
+    "X",
+    "Contre d'appel (adversaire)"
+   ],
+   [
+    "3SA",
+    "Truscott : fit ♦, 10-11H"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 287,
+  "t": "Robot · Lebelson",
+  "d": "N",
+  "v": "NS",
+  "comp": true,
+  "N": "AK.KJ8.872.KQT42",
+  "E": "QJ8753.T94.J5.AJ",
+  "S": "642.AQ75.KQ93.63",
+  "O": "T9.632.AT64.9875",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "2♠",
+    "Intervention (adversaire) : 6 cartes à ♠"
+   ],
+   [
+    "2SA",
+    "Lebelson : passage par 2SA (l’ouvreur dira 3♣)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Obligatoire sur 2SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "2SA puis cue-bid : Stayman sans arrêt ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de majeure 4e, mais l’arrêt ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 288,
+  "t": "Robot · Truscott",
+  "d": "N",
+  "v": "NS",
+  "comp": true,
+  "N": "Q643.J2.AKQ76.K6",
+  "E": "AKJT7.A963.T.T95",
+  "S": "8.Q87.5432.AQ432",
+  "O": "952.KT54.J98.J87",
+  "a": [
+   [
+    "1♦",
+    "Ouverture"
+   ],
+   [
+    "X",
+    "Contre d'appel (adversaire)"
+   ],
+   [
+    "2SA",
+    "Truscott : fit ♦, 8-9H"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Assez pour la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 289,
+  "t": "Robot · Contre d’appel",
+  "d": "E",
+  "v": "all",
+  "comp": true,
+  "N": "K9.JT87.QJ9.T652",
+  "E": "QJ3.A652.AT875.K",
+  "S": "AT72.KQ4.62.AJ93",
+  "O": "8654.93.K43.Q874",
+  "a": [
+   [
+    "1♦",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "X",
+    "Contre d'appel : 14H, court à ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♥",
+    "0-7H : palier 1, 4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Ton partenaire a 0-7H : tu passes"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 290,
+  "t": "Robot · Lebelson",
+  "d": "N",
+  "v": "all",
+  "comp": true,
+  "N": "52.AJT5.AKT9.QJT",
+  "E": "KJ9.42.QJ8654.A4",
+  "S": "AT43.K3.32.K9876",
+  "O": "Q876.Q9876.7.532",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "2♦",
+    "Intervention (adversaire) : 6 cartes à ♦"
+   ],
+   [
+    "2SA",
+    "Lebelson : passage par 2SA (l’ouvreur dira 3♣)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Obligatoire sur 2SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "2SA puis cue-bid : Stayman sans arrêt ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit, mais l’arrêt ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 291,
+  "t": "Robot · Truscott",
+  "d": "N",
+  "v": "NS",
+  "comp": true,
+  "N": "KQ743.K82.9.AQ97",
+  "E": "-.AJT9.QJ53.KJT84",
+  "S": "AT652.3.AT874.32",
+  "O": "J98.Q7654.K62.65",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "X",
+    "Contre d'appel (adversaire)"
+   ],
+   [
+    "3♠",
+    "Fit direct = barrage (5 cartes, moins de 11H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 292,
+  "t": "Robot · Contre d’appel",
+  "d": "E",
+  "v": "none",
+  "comp": true,
+  "N": "J9753.Q8.84.AQJ9",
+  "E": "KQ62.AJ42.J2.K42",
+  "S": "A84.K963.KQT6.86",
+  "O": "T.T75.A9753.T753",
+  "a": [
+   [
+    "1♣",
+    "Ouverture (adversaire)"
+   ],
+   [
+    "X",
+    "Contre d'appel : 12H, court à ♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Palier 3 : 8-10H avec 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Pas de manche : tu passes"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 293,
+  "t": "Robot · Lebelson",
+  "d": "N",
+  "v": "NS",
+  "comp": true,
+  "N": "A95.KT62.KQ.AT43",
+  "E": "3.AQJ753.J87.K62",
+  "S": "KJT74.9.A532.Q75",
+  "O": "Q862.84.T964.J98",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "2♥",
+    "Intervention (adversaire) : 6 cartes à ♥"
+   ],
+   [
+    "2SA",
+    "Lebelson : passage par 2SA (l’ouvreur dira 3♣)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Obligatoire sur 2SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "2SA puis 3♠ : 5 cartes à ♠ sans arrêt ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "3 cartes à ♠ : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 294,
+  "t": "Robot · Lebelson",
+  "d": "N",
+  "v": "none",
+  "comp": true,
+  "N": "Q98.AQJ2.K87.KQ2",
+  "E": "7.K98643.A643.J6",
+  "S": "AKJT65.-.Q2.AT875",
+  "O": "432.T75.JT95.943",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "2♥",
+    "Intervention (adversaire) : 6 cartes à ♥"
+   ],
+   [
+    "2SA",
+    "Lebelson : passage par 2SA (l’ouvreur dira 3♣)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Obligatoire sur 2SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "2SA puis 3♠ : 5 cartes à ♠ sans arrêt ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "3 cartes à ♠ : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 295,
+  "t": "Robot · Lebelson",
+  "d": "N",
+  "v": "NS",
+  "comp": true,
+  "N": "AK65.J2.AK65.Q74",
+  "E": "J982.KT.Q8432.K5",
+  "S": "QT.A97543.-.AJT63",
+  "O": "743.Q86.JT97.982",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "2♦",
+    "Intervention (adversaire) : 5 cartes à ♦"
+   ],
+   [
+    "2SA",
+    "Lebelson : passage par 2SA (l’ouvreur dira 3♣)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Obligatoire sur 2SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "2SA puis 3♥ : 5 cartes à ♥ sans arrêt ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Pas de fit mais l’arrêt ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 296,
+  "t": "Robot · Lebelson",
+  "d": "N",
+  "v": "none",
+  "comp": true,
+  "N": "96.KT9.AQT.AKJ54",
+  "E": "QJT875.AQJ3.75.2",
+  "S": "AK4.84.KJ862.Q93",
+  "O": "32.7652.943.T876",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "2♠",
+    "Intervention (adversaire) : 6 cartes à ♠"
+   ],
+   [
+    "3SA",
+    "3SA direct : conclusion avec arrêt ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 297,
+  "t": "Robot · Lebelson",
+  "d": "N",
+  "v": "NS",
+  "comp": true,
+  "N": "AQ84.A83.QT5.K63",
+  "E": "K92.KT9652.A3.QJ",
+  "S": "J76.QJ.KJ76.AT87",
+  "O": "T53.74.9842.9542",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "2♥",
+    "Intervention (adversaire) : 6 cartes à ♥"
+   ],
+   [
+    "2SA",
+    "Lebelson : passage par 2SA (l’ouvreur dira 3♣)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Obligatoire sur 2SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "2SA puis 3SA : conclusion sans arrêt ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il a l’arrêt ♥ : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 298,
+  "t": "Robot · Lebelson",
+  "d": "N",
+  "v": "none",
+  "comp": true,
+  "N": "AK5.762.AQT42.K8",
+  "E": "QT9864.T943.K6.A",
+  "S": "72.AKQ.J73.95432",
+  "O": "J3.J85.985.QJT76",
+  "a": [
+   [
+    "1SA",
+    "15-17H régulier"
+   ],
+   [
+    "2♠",
+    "Intervention (adversaire) : 6 cartes à ♠"
+   ],
+   [
+    "2SA",
+    "Lebelson : passage par 2SA (l’ouvreur dira 3♣)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Obligatoire sur 2SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "2SA puis 3SA : conclusion sans arrêt ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Il a l’arrêt ♠ : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
  }
 ]
