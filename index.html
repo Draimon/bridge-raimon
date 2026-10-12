@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Système Raimon</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Système Raimon">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1f6b45">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root {
+    --bg: #f3f1ea; --card: #ffffff; --ink: #1d2320; --muted: #66706b; --line: #dcd8cc;
+    --accent: #1f6b45; --accent-ink: #ffffff; --accent-soft: #e2efe7;
+    --red: #c4262e; --ok: #1f7a46; --ok-soft: #dff1e5; --ko: #b3261e; --ko-soft: #f9e0de;
+    --hl: #fff2c2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141816; --card: #1e2421; --ink: #e8ece9; --muted: #9aa49f; --line: #333b37;
+      --accent: #3fa36f; --accent-ink: #0d1410; --accent-soft: #23362b;
+      --red: #ff6b6b; --ok: #5cc98a; --ok-soft: #1e3828; --ko: #ff7b72; --ko-soft: #3d2220;
+      --hl: #4a4220;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 17px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 16px; }
+  header.top { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: 8px; }
+  header.top h1 { font-size: 20px; margin: 0; flex: 1; }
+  .back { border: 0; background: none; color: var(--accent); font-size: 17px; padding: 8px 4px; cursor: pointer; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .btn {
+    display: block; width: 100%; text-align: left; border: 1px solid var(--line); background: var(--card);
+    color: var(--ink); border-radius: 12px; padding: 14px 16px; font-size: 17px; margin-bottom: 10px; cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  .btn small { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .btn.primary small { color: var(--accent-ink); opacity: .85; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row2 .btn { margin-bottom: 0; }
+  .hero { text-align: center; padding: 8px 0 16px; }
+  .hero .logo { font-size: 40px; letter-spacing: 4px; }
+  .hero h1 { margin: 4px 0 0; font-size: 28px; color: var(--accent); }
+  .hero p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+  .stats { display: flex; justify-content: space-around; text-align: center; }
+  .stats b { display: block; font-size: 22px; }
+  .stats span { color: var(--muted); font-size: 13px; }
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 18px 4px 8px; }
+  .red { color: var(--red); }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  /* Question */
+  .qhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .qnum { font-weight: 700; font-size: 18px; }
+  .qtheme { color: var(--muted); font-size: 14px; text-align: right; }
+  .progress { color: var(--muted); font-size: 14px; }
+  table.auction { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 4px 0 12px; }
+  table.auction th { font-size: 13px; color: var(--muted); font-weight: 600; padding: 4px 0; border-bottom: 1px solid var(--line); }
+  table.auction th.me { color: var(--accent); }
+  table.auction td { text-align: center; padding: 6px 0; font-size: 18px; font-weight: 600; }
+  table.auction td.hl span { background: var(--hl); border-radius: 6px; padding: 2px 8px; }
+  table.auction td.ask { color: var(--accent); font-size: 22px; }
+  .vul { font-size: 13px; color: var(--muted); }
+  .hand { font-size: 20px; font-weight: 600; letter-spacing: .02em; margin: 6px 0 12px; }
+  .hand div { padding: 2px 0; }
+  .hand .s { display: inline-block; width: 26px; }
+  .hand .meta { font-size: 14px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+  .prompt { font-size: 18px; font-weight: 600; margin: 4px 0 12px; }
+  .opt { display: block; width: 100%; text-align: left; border: 2px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 12px; padding: 13px 14px; font-size: 16px; margin-bottom: 8px; cursor: pointer; }
+  .opt.good { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.bad { border-color: var(--ko); background: var(--ko-soft); }
+  .opt:disabled { cursor: default; color: var(--ink); }
+  /* Boîte d'enchères */
+  .box { margin-top: 4px; }
+  .levels, .strains, .specials { display: grid; gap: 6px; margin-bottom: 8px; }
+  .levels { grid-template-columns: repeat(7, 1fr); }
+  .strains { grid-template-columns: repeat(5, 1fr); }
+  .specials { grid-template-columns: 2fr 1fr 1fr; }
+  .bb { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 10px; padding: 12px 0;
+    font-size: 19px; font-weight: 700; cursor: pointer; }
+  .bb.sel { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .bb.sel .red { color: inherit; }
+  .bb:disabled { opacity: .3; cursor: default; }
+  .bb.pass { background: var(--ok-soft); }
+  .bb.dbl { background: var(--ko-soft); }
+  .chosen { text-align: center; font-size: 15px; color: var(--muted); min-height: 24px; margin-bottom: 8px; }
+  .chosen b { color: var(--ink); font-size: 20px; }
+  .feedback { border-radius: 12px; padding: 14px; margin-top: 4px; }
+  .feedback.ok { background: var(--ok-soft); }
+  .feedback.ko { background: var(--ko-soft); }
+  .feedback h3 { margin: 0 0 6px; font-size: 18px; }
+  .feedback p { margin: 6px 0; }
+  .fiche-line { font-size: 14px; color: var(--muted); border-left: 3px solid var(--accent); padding-left: 10px; margin-top: 10px; }
+  .link { background: none; border: 0; color: var(--accent); padding: 8px 0 0; font-size: 15px; cursor: pointer; text-decoration: underline; }
+  /* Fiche */
+  .fiche h2 { font-size: 18px; color: var(--accent); margin: 0 0 8px; }
+  .fiche ul { margin: 0; padding-left: 18px; }
+  .fiche li { margin: 4px 0; }
+  .toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .toc a { font-size: 14px; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); text-decoration: none; }
+  input.num { width: 100%; font-size: 20px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); margin-bottom: 10px; }
+  .muted { color: var(--muted); }
+  .center { text-align: center; }
+  .missed { display: flex; flex-wrap: wrap; gap: 6px; }
+  .missed span { background: var(--ko-soft); border-radius: 8px; padding: 4px 10px; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="questions.js"></script>
+<script src="fiche.js"></script>
+<script>
+(() => {
+  'use strict';
+  const app = document.getElementById('app');
+  const SEATS = ['O', 'N', 'E', 'S'];             // colonnes du tableau, dans l'ordre du jeu
+  const SEAT_NAMES = { O: 'Ouest', N: 'Nord', E: 'Est', S: 'Sud' };
+  const STRAINS = ['♣', '♦', '♥', '♠', 'SA'];
+  const THEME_NAME = Object.fromEntries(THEMES);
+  const BY_N = new Map(QUESTIONS.map(q => [q.n, q]));
+  const STORE_KEY = 'raimon-quiz-v1';
+
+  // ───── Progression (sur le téléphone)
+  let progress = {};
+  try { progress = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { progress = {}; }
+  function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(progress)); } catch (e) { /* stockage indisponible */ } }
+  function record(n, ok) {
+    const p = progress[n] || { ok: 0, ko: 0, streak: 0 };
+    if (ok) { p.ok++; p.streak = (p.streak || 0) + 1; } else { p.ko++; p.streak = 0; }
+    p.last = ok ? 1 : 0;
+    progress[n] = p; save();
+  }
+  // « À revoir » : ratée la dernière fois, ou ratée un jour et pas encore réussie 2 fois de suite.
+  const toReview = () => QUESTIONS.filter(q => { const p = progress[q.n]; return p && (p.last === 0 || (p.ko > 0 && p.streak < 2)); });
+  const mastered = q => { const p = progress[q.n]; return p && p.last === 1 && (p.ko === 0 || p.streak >= 2); };
+
+  // ───── Outils
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const suits = html => html.replace(/[♥♦]/g, m => `<span class="red">${m}</span>`);
+  const fmt = s => suits(esc(s));
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const bidLabel = b => b === 'P' ? 'Passe' : b;
+  const bidRank = b => { const m = /^([1-7])(♣|♦|♥|♠|SA)$/.exec(b); return m ? (m[1] - 1) * 5 + STRAINS.indexOf(m[2]) : -1; };
+  const bids = q => (q.s || '').split(/\s+/).filter(Boolean);
+  const bidderOf = q => SEATS[(SEATS.indexOf(q.d) + bids(q).length - 1) % 4];
+
+  // ───── Navigation
+  let session = null;
+  function go(view, arg) { window.scrollTo(0, 0); view(arg); }
+
+  function home() {
+    const seen = QUESTIONS.filter(q => progress[q.n]).length;
+    const good = QUESTIONS.filter(mastered).length;
+    const rev = toReview().length;
+    app.innerHTML = `
+      <div class="hero"><div class="logo">♠<span class="red">♥</span><span class="red">♦</span>♣</div>
+        <h1>Système Raimon</h1><p>Fiche mars 2026 · ${QUESTIONS.length} questions</p></div>
+      <div class="card stats">
+        <div><b>${seen}</b><span>vues</span></div>
+        <div><b>${good}</b><span>maîtrisées</span></div>
+        <div><b>${rev}</b><span>à revoir</span></div>
+      </div>
+      <div class="section-title">Jouer</div>
+      <button class="btn primary" data-act="themes">Par thème<small>Multi, Oklahoma, Landy, Puppet…</small></button>
+      <div class="row2">
+        <button class="btn" data-act="mix10">Mélange<small>10 questions</small></button>
+        <button class="btn" data-act="mix20">Mélange<small>20 questions</small></button>
+      </div>
+      <div style="height:10px"></div>
+      <button class="btn" data-act="review" ${rev ? '' : 'disabled'}>Révision des erreurs<small>${rev ? rev + ' question' + (rev > 1 ? 's' : '') + ' à revoir' : 'Rien à revoir pour l’instant'}</small></button>
+      <div class="section-title">Consulter</div>
+      <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
+      <button class="btn" data-act="find">Aller à la question n°…<small>Pour revoir une question précise</small></button>
+      <p class="center muted" style="font-size:13px;margin-top:20px">Un souci sur une question ? Note son numéro et préviens Damien.</p>
+      <p class="center"><button class="link" data-act="reset">Remettre la progression à zéro</button></p>`;
+    on('themes', () => go(themes));
+    on('mix10', () => start(shuffle(QUESTIONS).slice(0, 10), 'Mélange'));
+    on('mix20', () => start(shuffle(QUESTIONS).slice(0, 20), 'Mélange'));
+    on('review', () => start(shuffle(toReview()).slice(0, 20), 'Révision'));
+    on('fiche', () => go(fiche));
+    on('find', () => go(find));
+    on('reset', () => { if (confirm('Effacer toute la progression sur ce téléphone ?')) { progress = {}; save(); home(); } });
+  }
+
+  function on(act, fn) { app.querySelectorAll(`[data-act="${act}"]`).forEach(b => b.addEventListener('click', fn)); }
+  function topbar(title, back) {
+    return `<header class="top"><button class="back" data-act="back">‹ ${back || 'Accueil'}</button><h1>${title}</h1></header>`;
+  }
+
+  function themes() {
+    const rows = THEMES.map(([id, name]) => {
+      const qs = QUESTIONS.filter(q => q.t === id);
+      const m = qs.filter(mastered).length;
+      return `<button class="btn" data-theme="${id}">${fmt(name)}<small>${qs.length} questions · ${m} maîtrisée${m > 1 ? 's' : ''}</small>
+        <div class="bar"><i style="width:${qs.length ? Math.round(100 * m / qs.length) : 0}%"></i></div></button>`;
+    }).join('');
+    app.innerHTML = topbar('Par thème') + rows;
+    on('back', () => go(home));
+    app.querySelectorAll('[data-theme]').forEach(b => b.addEventListener('click', () => {
+      const id = b.dataset.theme;
+      start(shuffle(QUESTIONS.filter(q => q.t === id)), THEME_NAME[id]);
+    }));
+  }
+
+  function find() {
+    app.innerHTML = topbar('Question n°') + `
+      <div class="card"><input class="num" id="num" type="number" inputmode="numeric" placeholder="Numéro de la question">
+      <button class="btn primary" data-act="ok">Afficher</button><p class="muted" id="err"></p></div>`;
+    on('back', () => go(home));
+    const input = document.getElementById('num');
+    const run = () => {
+      const q = BY_N.get(Number(input.value));
+      if (!q) { document.getElementById('err').textContent = 'Aucune question avec ce numéro.'; return; }
+      start([q], 'Question n° ' + q.n);
+    };
+    on('ok', run);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+    input.focus();
+  }
+
+  function fiche(anchor) {
+    const order = ['precisions', ...THEMES.map(t => t[0])];
+    const toc = order.map(id => `<a href="#f-${id}">${fmt(id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id])}</a>`).join('');
+    const body = order.filter(id => FICHE[id]).map(id => `
+      <div class="card fiche" id="f-${id}"><h2>${fmt(id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id])}</h2>
+      <ul>${FICHE[id].lignes.map(l => `<li>${suits(l)}</li>`).join('')}</ul></div>`).join('');
+    app.innerHTML = topbar('Fiche système', session && anchor ? 'Question' : 'Accueil') + `<div class="toc">${toc}</div>${body}
+      <p class="center"><a href="convention2026.pdf" style="color:var(--accent)">Ouvrir la fiche originale (PDF)</a></p>
+      ${session && anchor ? '<div style="height:70px"></div><button class="btn primary center" data-act="back" style="position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:auto;max-width:528px;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,.2)">‹ Retour à la question</button>' : ''}`;
+    on('back', () => (session && anchor) ? go(question) : go(home));
+    app.querySelectorAll('.toc a').forEach(a => a.addEventListener('click', e => {
+      e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+    }));
+    if (anchor) { const el = document.getElementById('f-' + anchor); if (el) el.scrollIntoView(); }
+  }
+
+  // ───── Session de quiz
+  function start(list, title) {
+    session = { list, title, i: 0, score: 0, missed: [], answered: false, choice: null, options: null };
+    go(question);
+  }
+
+  function optionsFor(q) {
+    let wrong = q.w;
+    if (!wrong) {
+      const pool = [...new Set(QUESTIONS.filter(o => o.t === q.t && o.k === 's' && o.a !== q.a).map(o => o.a))];
+      wrong = shuffle(pool).slice(0, 3);
+    }
+    return shuffle([q.a, ...wrong.slice(0, 3)]);
+  }
+
+  function auctionHtml(q) {
+    const list = bids(q);
+    const cells = [];
+    const start = SEATS.indexOf(q.d);
+    for (let i = 0; i < start; i++) cells.push('<td></td>');
+    list.forEach((b, i) => {
+      const hl = q.k === 's' && i === list.length - 1;
+      cells.push(`<td class="${hl ? 'hl' : ''}"><span>${fmt(bidLabel(b))}</span></td>`);
+    });
+    if (q.k === 'm') cells.push('<td class="ask">?</td>');
+    if (!list.length && q.k === 's') return '';
+    while (cells.length % 4) cells.push('<td></td>');
+    let rows = '';
+    for (let i = 0; i < cells.length; i += 4) rows += '<tr>' + cells.slice(i, i + 4).join('') + '</tr>';
+    const head = SEATS.map(s => `<th class="${s === 'S' ? 'me' : ''}">${s === 'S' ? 'Toi' : s === 'N' ? 'Partenaire' : SEAT_NAMES[s]}</th>`).join('');
+    return `<table class="auction"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function handHtml(h) {
+    const parts = h.split('.');
+    const syms = ['♠', '♥', '♦', '♣'];
+    let hcp = 0;
+    const lines = parts.map((p, i) => {
+      const cards = p === '-' ? [] : p.split('');
+      cards.forEach(c => { hcp += { A: 4, K: 3, Q: 2, J: 1 }[c] || 0; });
+      const txt = cards.length ? cards.map(c => ({ A: 'A', K: 'R', Q: 'D', J: 'V', T: '10' }[c] || c)).join(' ') : '—';
+      return `<div><span class="s ${i === 1 || i === 2 ? 'red' : ''}">${syms[i]}</span>${txt}</div>`;
+    });
+    return `<div class="hand">${lines.join('')}<div class="meta">${hcp}H · ${parts.map(p => p === '-' ? 0 : p.length).join('-')}</div></div>`;
+  }
+
+  function promptFor(q) {
+    if (q.q) return q.q;
+    if (q.k === 'm') return 'Ta main. Que dis-tu ?';
+    const list = bids(q);
+    const b = list[list.length - 1];
+    const who = bidderOf(q);
+    if (b === 'P') return who === 'S' ? 'Que montres-tu en passant ?' : 'Que montre ton partenaire en passant ?';
+    const lab = fmt(bidLabel(b));
+    if (who === 'S') return `Que montres-tu avec ${lab} ?`;
+    if (who === 'N') return `Que montre ton partenaire avec ${lab} ?`;
+    return `Que montre ${SEAT_NAMES[who]} avec ${lab} ?`;
+  }
+
+  function question() {
+    const s = session, q = s.list[s.i];
+    if (!s.options && q.k !== 'm') s.options = optionsFor(q);
+    let body = '';
+    if (q.k === 's' || q.k === 'm') body += auctionHtml(q);
+    if (q.k === 'm') body += handHtml(q.h);
+    body += `<div class="prompt">${q.q ? fmt(q.q) : promptFor(q)}</div>`;
+    if (q.k === 'm') body += boxHtml(q);
+    else body += s.options.map((o, i) => `<button class="opt" data-opt="${i}">${fmt(o)}</button>`).join('');
+    body += `<div id="fb"></div>`;
+    app.innerHTML = topbar(fmt(s.title), 'Quitter') + `
+      <div class="card">
+        <div class="qhead"><span class="qnum">Question n° ${q.n}</span><span class="qtheme">${fmt(THEME_NAME[q.t])}</span></div>
+        ${s.list.length > 1 ? `<div class="progress">${s.i + 1} / ${s.list.length} · score ${s.score}</div>` : ''}
+        ${body}
+      </div>`;
+    on('back', () => { session = null; go(home); });
+    if (q.k === 'm') wireBox(q);
+    else app.querySelectorAll('[data-opt]').forEach(b => b.addEventListener('click', () => answer(s.options[+b.dataset.opt])));
+    if (s.answered) showFeedback();
+  }
+
+  // ───── Boîte d'enchères
+  function lastContractRank(q) { return Math.max(-1, ...bids(q).map(bidRank)); }
+  function boxHtml(q) {
+    return `<div class="box">
+      <div class="levels">${[1, 2, 3, 4, 5, 6, 7].map(l => `<button class="bb" data-level="${l}">${l}</button>`).join('')}</div>
+      <div class="strains">${STRAINS.map(st => `<button class="bb" data-strain="${st}">${suits(st)}</button>`).join('')}</div>
+      <div class="specials"><button class="bb pass" data-bid="P">Passe</button><button class="bb dbl" data-bid="X">X</button><button class="bb dbl" data-bid="XX">XX</button></div>
+      <div class="chosen" id="chosen">Choisis un palier puis une couleur</div>
+      <button class="btn primary center" id="validate" disabled>Valider</button></div>`;
+  }
+  function wireBox(q) {
+    const s = session, min = lastContractRank(q);
+    let level = null;
+    const levelBtns = app.querySelectorAll('[data-level]'), strainBtns = app.querySelectorAll('[data-strain]');
+    const validate = document.getElementById('validate'), chosen = document.getElementById('chosen');
+    levelBtns.forEach(b => { if (bidRank(b.dataset.level + 'SA') <= min) b.disabled = true; });
+    const refresh = () => {
+      levelBtns.forEach(b => b.classList.toggle('sel', +b.dataset.level === level));
+      strainBtns.forEach(b => {
+        b.disabled = level === null || bidRank(level + b.dataset.strain) <= min;
+        b.classList.toggle('sel', s.choice === level + b.dataset.strain);
+      });
+      app.querySelectorAll('[data-bid]').forEach(b => b.classList.toggle('sel', s.choice === b.dataset.bid));
+      chosen.innerHTML = s.choice ? `Ton enchère : <b>${fmt(bidLabel(s.choice))}</b>` : 'Choisis un palier puis une couleur';
+      validate.disabled = !s.choice || s.answered;
+    };
+    levelBtns.forEach(b => b.addEventListener('click', () => { if (s.answered) return; level = +b.dataset.level; s.choice = null; refresh(); }));
+    strainBtns.forEach(b => b.addEventListener('click', () => { if (s.answered) return; s.choice = level + b.dataset.strain; refresh(); }));
+    app.querySelectorAll('[data-bid]').forEach(b => b.addEventListener('click', () => { if (s.answered) return; level = null; s.choice = b.dataset.bid; refresh(); }));
+    validate.addEventListener('click', () => answer(s.choice));
+    if (s.answered) { app.querySelectorAll('.bb').forEach(b => { b.disabled = true; }); validate.style.display = 'none'; }
+    refresh();
+  }
+
+  function answer(choice) {
+    const s = session, q = s.list[s.i];
+    if (s.answered) return;
+    s.answered = true; s.choice = choice;
+    s.ok = choice === q.a || (q.alt || []).includes(choice);
+    if (s.ok) s.score++; else s.missed.push(q.n);
+    record(q.n, s.ok);
+    question();
+  }
+
+  function showFeedback() {
+    const s = session, q = s.list[s.i];
+    if (q.k !== 'm') {
+      app.querySelectorAll('[data-opt]').forEach(b => {
+        const o = s.options[+b.dataset.opt];
+        b.disabled = true;
+        if (o === q.a) b.classList.add('good'); else if (o === s.choice) b.classList.add('bad');
+      });
+    }
+    const last = s.i === s.list.length - 1;
+    const fb = document.getElementById('fb');
+    fb.innerHTML = `<div class="feedback ${s.ok ? 'ok' : 'ko'}">
+        <h3>${s.ok ? 'Bravo !' : 'Raté'}</h3>
+        ${!s.ok && q.k === 'm' ? `<p>La bonne enchère : <b>${fmt(bidLabel(q.a))}</b></p>` : ''}
+        ${q.e ? `<p>${fmt(q.e)}</p>` : ''}
+        ${q.f ? `<div class="fiche-line">Fiche : ${fmt(q.f)}</div>` : ''}
+        <button class="link" data-act="seefiche">Voir ce thème dans la fiche</button>
+      </div>
+      <div style="height:12px"></div>
+      <button class="btn primary center" data-act="next">${last ? 'Voir le résultat' : 'Question suivante'}</button>`;
+    on('seefiche', () => go(fiche, q.t));
+    on('next', next);
+    fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function next() {
+    const s = session;
+    if (s.i < s.list.length - 1) {
+      s.i++; s.answered = false; s.choice = null; s.options = null; go(question);
+    } else go(results);
+  }
+
+  function results() {
+    const s = session;
+    const pct = Math.round(100 * s.score / s.list.length);
+    app.innerHTML = topbar(fmt(s.title)) + `
+      <div class="card center"><div style="font-size:44px;font-weight:700">${s.score} / ${s.list.length}</div>
+        <div class="muted">${pct >= 90 ? 'Excellent !' : pct >= 70 ? 'Très bien' : pct >= 50 ? 'Pas mal, on révise ?' : 'À retravailler'}</div></div>
+      ${s.missed.length ? `<div class="card"><b>Questions ratées</b><div class="missed" style="margin-top:8px">${s.missed.map(n => `<span>n° ${n}</span>`).join('')}</div>
+        <p class="muted" style="font-size:14px">Elles reviendront dans « Révision des erreurs ».</p></div>` : ''}
+      <button class="btn primary center" data-act="again">Rejouer ces questions</button>
+      <button class="btn center" data-act="back2">Retour à l’accueil</button>`;
+    on('back', () => { session = null; go(home); });
+    on('back2', () => { session = null; go(home); });
+    on('again', () => start(shuffle(s.list), s.title));
+  }
+
+  home();
+})();
+</script>
+</body>
+</html>

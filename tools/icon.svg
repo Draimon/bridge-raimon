@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#1f6b45"/>
+  <rect x="56" y="56" width="400" height="400" rx="56" fill="#ffffff"/>
+  <text x="160" y="236" font-family="Segoe UI Symbol, Arial" font-size="150" text-anchor="middle" fill="#1d2320">♠</text>
+  <text x="352" y="236" font-family="Segoe UI Symbol, Arial" font-size="150" text-anchor="middle" fill="#c4262e">♥</text>
+  <text x="160" y="410" font-family="Segoe UI Symbol, Arial" font-size="150" text-anchor="middle" fill="#c4262e">♦</text>
+  <text x="352" y="410" font-family="Segoe UI Symbol, Arial" font-size="150" text-anchor="middle" fill="#1d2320">♣</text>
+</svg>
