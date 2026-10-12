@@ -264,6 +264,12 @@
   .bidframe { margin: 64px 42px 60px; padding: 26px 24px 30px; }
   .bidframe .plate.left { left: -40px; } .bidframe .plate.right { right: -40px; }
   .bidframe .bidcenter { margin: 10px 0; }
+  .bidstack { position: absolute; display: flex; gap: 4px; z-index: 3; }
+  .bidstack.N { top: -56px; left: -34px; } .bidstack.S { bottom: -56px; left: -34px; }
+  .bidstack.E { top: -16px; right: -46px; flex-direction: column; } .bidstack.O { bottom: -14px; left: -46px; flex-direction: column; }
+  .gb.stack { width: 40px; height: 36px; font-size: 17px; cursor: default; } .gb.stack span { font-size: 13px; }
+  .gb.stack.gpass { font-size: 9px; } .gb.stack.stop { background: #d9332b; color: #fff; font-size: 10px; }
+  .gb.stack.last { outline: 3px solid #ffe08a; outline-offset: 1px; } .gb.stack.wasbad { outline: 3px dashed #ff8a80; outline-offset: 1px; }
   .gb.lastbid { position: absolute; width: 50px; height: 44px; font-size: 20px; cursor: default; z-index: 3; }
   .gb.lastbid span { font-size: 15px; }
   .gb.lastbid.gpass { font-size: 10px; width: 54px; }
@@ -310,11 +316,11 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610130025"></script>
-<script src="fiche.js?v=202610130025"></script>
-<script src="deals.js?v=202610130025"></script>
-<script src="dds.js?v=202610130025"></script>
-<script src="jeu.js?v=202610130025"></script>
+<script src="questions.js?v=202610130029"></script>
+<script src="fiche.js?v=202610130029"></script>
+<script src="deals.js?v=202610130029"></script>
+<script src="dds.js?v=202610130029"></script>
+<script src="jeu.js?v=202610130029"></script>
 <script>
 (() => {
   'use strict';
@@ -788,18 +794,25 @@
     const myTurn = !p.answered;
     document.body.classList.add('tablemode');
     const upto = p.answered ? p.i + 1 : p.i;
-    // Comme Funbridge : seule la dernière enchère de chaque joueur, en grand, hors du cadre près de sa place.
-    const lastOf = {};
-    for (let k = 0; k < upto; k++) lastOf[seatAt(deal, k)] = { b: p.subs[k] || deal.a[k][0], k };
-    const tile = seat => {
-      const x = lastOf[seat]; if (!x) return '';
-      const b = x.b, cols = ['SA', '♠', '♥', '♦', '♣'];
-      const k = b === 'P' ? 'gpass' : b === 'X' ? 'gx' : b === 'XX' ? 'gxx' : 'g' + cols.indexOf(b.slice(1));
+    // Comme Funbridge : toutes les enchères de chaque joueur, alignées hors du cadre près de sa place,
+    // avec un carton STOP automatique devant chaque enchère à saut.
+    const stacks = { N: [], E: [], S: [], O: [] };
+    let lastRank = -1;
+    const cols = ['SA', '♠', '♥', '♦', '♣'];
+    for (let k = 0; k < upto; k++) {
+      const b = p.subs[k] || deal.a[k][0], seat = seatAt(deal, k), rk = bidRank(b);
+      if (rk >= 0) {
+        const strain = b.slice(1);
+        let minLevel = 1; while (bidRank(minLevel + strain) <= lastRank) minLevel++;
+        if (+b[0] > minLevel) stacks[seat].push('<div class="gb stack stop">STOP</div>');
+        lastRank = rk;
+      }
+      const kind = b === 'P' ? 'gpass' : b === 'X' ? 'gx' : b === 'XX' ? 'gxx' : 'g' + cols.indexOf(b.slice(1));
       const txt = b === 'P' ? 'PASSE' : b === 'X' || b === 'XX' ? b : b[0] + `<span>${b.slice(1) === 'SA' ? 'SA' : suits(b.slice(1))}</span>`;
-      const err = p.errors.some(e => e.i === x.k);
-      return `<div class="gb lastbid ${seat} ${k} ${x.k === upto - 1 ? 'last' : ''} ${err ? 'wasbad' : ''}">${txt}</div>`;
-    };
-    const history = deal.a.slice(0, upto).map((x, k) => fmt(bidLabel(p.subs[k] || x[0]))).join(' – ');
+      stacks[seat].push(`<div class="gb stack ${kind} ${k === upto - 1 ? 'last' : ''} ${p.errors.some(e => e.i === k) ? 'wasbad' : ''}">${txt}</div>`);
+    }
+    const tile = seat => (stacks[seat].length ? `<div class="bidstack ${seat}">${stacks[seat].join('')}</div>` : '');
+    const history = '';
     const vul = { none: 'Personne vulnérable', NS: 'Vulnérables : N/S', EO: 'Vulnérables : E/O', all: 'Tous vulnérables' }[deal.v || 'none'];
     const plate = (seat, cls, name) => `<div class="plate ${cls} ${myTurn && seat === 'S' ? 'turn' : ''}"><span class="seat">${seat}</span>${name}${deal.d === seat ? ' · donneur' : ''}</div>`;
     app.innerHTML = topbar('Donne n° ' + deal.n, 'Quitter') + `
@@ -809,7 +822,7 @@
         <div class="bidcenter" id="fb">${myTurn ? gridBoxHtml(deal, p) : ''}</div>
         <div class="vulnote">${vul}</div>
       </div>
-      <p class="auctionline">${history ? 'Enchères : ' + history : 'Donneur : ' + SEAT_NAMES[deal.d]}</p>
+
       ${arcHtml([0, 1, 3, 2].flatMap(s => deal.h.S.split('.')[s].replace('-', '').split('').filter(Boolean).map(ch => ({ s, label: ({ A: 'A', K: 'R', Q: 'D', J: 'V', T: '10' }[ch] || ch) }))))}`;
     on('back', () => { if (confirm('Abandonner cette donne ?')) { play = null; go(dealList); } });
     if (myTurn) wireGridBox(deal, p);
