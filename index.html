@@ -142,6 +142,10 @@
   .pc { display: inline-block; min-width: 52px; padding: 8px 6px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); font-size: 18px; font-weight: 700; }
   .pc.empty { background: transparent; border-style: dashed; height: 40px; }
   .pc.win { border-color: var(--accent); background: var(--accent-soft); }
+  #majbar { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 50; max-width: 536px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 14px;
+    background: var(--accent); color: var(--accent-ink); font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+  #majbar button { border: 0; border-radius: 10px; padding: 8px 12px; font-size: 15px; font-weight: 700; background: var(--accent-ink); color: var(--accent); cursor: pointer; }
   .claimgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
   .btn:disabled { opacity: .45; cursor: default; }
   .hint { border-color: var(--accent); background: var(--accent-soft); padding: 12px 16px; }
@@ -162,11 +166,11 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610121715"></script>
-<script src="fiche.js?v=202610121715"></script>
-<script src="deals.js?v=202610121715"></script>
-<script src="dds.js?v=202610121715"></script>
-<script src="jeu.js?v=202610121715"></script>
+<script src="questions.js?v=202610121723"></script>
+<script src="fiche.js?v=202610121723"></script>
+<script src="deals.js?v=202610121723"></script>
+<script src="dds.js?v=202610121723"></script>
+<script src="jeu.js?v=202610121723"></script>
 <script>
 (() => {
   'use strict';
@@ -694,6 +698,24 @@
     on('again', () => startDeal(deal, true));
     on('nextdeal', () => startDeal(pickDeal(deal)));
   }
+
+  // ───── Mise à jour : si une nouvelle version est publiée, on propose de recharger (utile dans l'appli installée,
+  // qui n'a pas de bouton ↻).
+  const myVersion = ((document.querySelector('script[src*="jeu.js"]') || {}).src || '').split('v=')[1] || '';
+  function checkUpdate() {
+    if (!myVersion || !window.fetch) return;
+    fetch('./?maj=' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(html => {
+      const m = html.match(/jeu\.js\?v=(\d+)/);
+      if (!m || m[1] === myVersion || document.getElementById('majbar')) return;
+      const bar = document.createElement('div');
+      bar.id = 'majbar';
+      bar.innerHTML = '<span>Nouvelle version disponible</span><button>Mettre à jour</button>';
+      bar.querySelector('button').addEventListener('click', () => location.reload());
+      document.body.appendChild(bar);
+    }).catch(() => { /* hors ligne */ });
+  }
+  checkUpdate();
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
 
   home();
 })();
