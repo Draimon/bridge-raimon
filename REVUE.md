@@ -24,3 +24,17 @@ Ces questions reposent sur mon interprétation de la fiche. Dis-moi si c'est jus
 - **2♥/2♠ fort – relais – 3SA = « Fort »** : quelle main exactement ?
 - **2♣ Albaran avec intervention** : « X = 1 As non nommable », dans quel cas un As n'est-il pas nommable ?
 - **Petit Stayman** : quelles sont vos réponses ?
+
+## Donnes à enchérir : enchères « naturelles » à valider
+
+La fiche ne couvre pas tout. Sur ces donnes, une enchère du partenaire (ou la tienne) est du bridge naturel ; dis-moi si vous jouez autrement.
+
+| Donne | Séquence | Ce que j'ai mis |
+|---|---|---|
+| 4 | 1SA – 2♣ – 2♥ – 3SA | Stayman sans fit ♥ : 3SA, l'ouvreur passe sans 4 cartes à ♠. |
+| 9 | (1SA) 2♣ Landy – 2♠ | Le partenaire, 3-3 en majeures et faible, choisit la plus chère. |
+| 13 | (1♠) 3♣ Copenhague – 4♥ | Le partenaire choisit les ♥ et saute à la manche avec 11H. |
+| 14 | 2♥ – 2♠ – 2SA – 3♠ | Sur le bicolore faible, 3♠ = pour jouer (et non 4♠, qui serait envie de chelem). |
+| 19 | (2♠) 2SA – 3♦ – 3♥ – 3SA – 4♥ | Texas sur le 2SA de défense, puis choix 3SA / 4♥ avec 3 cartes. |
+| 21 | (1♥) 2SA – 4SA – 5♦ | Sur « choisis », 5-5 : la plus chère. |
+| 22 | (2♥) X – 4♠ | Le partenaire saute à la manche avec 5 cartes à ♠ et 10H. |

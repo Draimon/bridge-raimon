@@ -111,6 +111,19 @@
   .fiche li { margin: 4px 0; }
   .toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
   .toc a { font-size: 14px; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); text-decoration: none; }
+  .dgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 10px; }
+  .dcell { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 10px; padding: 12px 0; font-size: 17px; font-weight: 700; cursor: pointer; }
+  .dcell.good { background: var(--ok-soft); border-color: var(--ok); }
+  .dcell.bad { background: var(--ko-soft); border-color: var(--ko); }
+  table.auction td.wasbad span { text-decoration: underline wavy var(--ko); text-underline-offset: 4px; }
+  .compass { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "n n" "o e" "s s"; gap: 10px; margin-top: 10px; }
+  .cN { grid-area: n; justify-self: center; } .cO { grid-area: o; } .cE { grid-area: e; justify-self: end; } .cS { grid-area: s; justify-self: center; }
+  .mini { font-size: 15px; font-weight: 600; line-height: 1.35; }
+  .mini .who { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .cS .mini .who { color: var(--accent); }
+  ol.expl { margin: 8px 0 0; padding-left: 22px; font-size: 15px; }
+  ol.expl li { margin: 6px 0; }
+  ol.expl li.bad { background: var(--ko-soft); border-radius: 6px; padding: 2px 6px; }
   input.num { width: 100%; font-size: 20px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); margin-bottom: 10px; }
   .muted { color: var(--muted); }
   .center { text-align: center; }
@@ -122,6 +135,7 @@
 <div class="wrap" id="app"></div>
 <script src="questions.js"></script>
 <script src="fiche.js"></script>
+<script src="deals.js"></script>
 <script>
 (() => {
   'use strict';
@@ -194,6 +208,8 @@
       </div>
       <div style="height:10px"></div>
       <button class="btn" data-act="review" ${rev ? '' : 'disabled'}>Révision des erreurs<small>${rev ? rev + ' question' + (rev > 1 ? 's' : '') + ' à revoir' : 'Rien à revoir pour l’instant'}</small></button>
+      <div class="section-title">S'entraîner</div>
+      <button class="btn primary" data-act="deals">Donnes à enchérir<small>${DEALS.length} donnes face au partenaire robot</small></button>
       <div class="section-title">Consulter</div>
       <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
       <button class="btn" data-act="find">Aller à la question n°…<small>Pour revoir une question précise</small></button>
@@ -204,6 +220,7 @@
     on('mix20', () => start(mix(20), 'Mélange'));
     on('review', () => start(shuffle(toReview()).slice(0, 20), 'Révision'));
     on('fiche', () => go(fiche));
+    on('deals', () => go(dealList));
     on('find', () => go(find));
     on('reset', () => { if (confirm('Effacer toute la progression sur ce téléphone ?')) { progress = {}; save(); home(); } });
   }
@@ -338,14 +355,14 @@
         ${body}
       </div>`;
     on('back', () => { session = null; go(home); });
-    if (q.k === 'm') wireBox(q);
+    if (q.k === 'm') wireBox(lastContractRank(bids(q)), s, answer);
     else app.querySelectorAll('[data-opt]').forEach(b => b.addEventListener('click', () => answer(s.options[+b.dataset.opt])));
     if (s.answered) showFeedback();
   }
 
   // ───── Boîte d'enchères
-  function lastContractRank(q) { return Math.max(-1, ...bids(q).map(bidRank)); }
-  function boxHtml(q) {
+  function lastContractRank(list) { return Math.max(-1, ...list.map(bidRank)); }
+  function boxHtml() {
     return `<div class="box">
       <div class="levels">${[1, 2, 3, 4, 5, 6, 7].map(l => `<button class="bb" data-level="${l}">${l}</button>`).join('')}</div>
       <div class="strains">${STRAINS.map(st => `<button class="bb" data-strain="${st}">${suits(st)}</button>`).join('')}</div>
@@ -353,8 +370,8 @@
       <div class="chosen" id="chosen">Choisis un palier puis une couleur</div>
       <button class="btn primary center" id="validate" disabled>Valider</button></div>`;
   }
-  function wireBox(q) {
-    const s = session, min = lastContractRank(q);
+  // s : état partagé { choice, answered } ; onValidate(choix) appelé à la validation.
+  function wireBox(min, s, onValidate) {
     let level = null;
     const levelBtns = app.querySelectorAll('[data-level]'), strainBtns = app.querySelectorAll('[data-strain]');
     const validate = document.getElementById('validate'), chosen = document.getElementById('chosen');
@@ -372,7 +389,7 @@
     levelBtns.forEach(b => b.addEventListener('click', () => { if (s.answered) return; level = +b.dataset.level; s.choice = null; refresh(); }));
     strainBtns.forEach(b => b.addEventListener('click', () => { if (s.answered) return; s.choice = level + b.dataset.strain; refresh(); }));
     app.querySelectorAll('[data-bid]').forEach(b => b.addEventListener('click', () => { if (s.answered) return; level = null; s.choice = b.dataset.bid; refresh(); }));
-    validate.addEventListener('click', () => answer(s.choice));
+    validate.addEventListener('click', () => onValidate(s.choice));
     if (s.answered) { app.querySelectorAll('.bb').forEach(b => { b.disabled = true; }); validate.style.display = 'none'; }
     refresh();
   }
@@ -432,6 +449,160 @@
     on('back', () => { session = null; go(home); });
     on('back2', () => { session = null; go(home); });
     on('again', () => start(shuffle(s.list), s.title));
+  }
+
+  // ───── Donnes à enchérir (Sud = toi, Nord = partenaire robot qui suit le système)
+  const seatAt = (deal, i) => SEATS[(SEATS.indexOf(deal.d) + i) % 4];
+  const dealKey = n => 'd' + n;
+  const sideOf = s => (s === 'N' || s === 'S' ? 'NS' : 'EO');
+
+  function contractOf(deal) {
+    let last = null, lastSeat = null, dbl = '';
+    deal.a.forEach(([b], i) => {
+      if (b === 'P') return;
+      if (b === 'X') { dbl = ' contré'; return; }
+      if (b === 'XX') { dbl = ' surcontré'; return; }
+      last = b; lastSeat = seatAt(deal, i); dbl = '';
+    });
+    if (!last) return 'Donne passée';
+    const strain = last.replace(/^[1-7]/, '');
+    const k = deal.a.findIndex(([b], j) => bidRank(b) >= 0 && b.replace(/^[1-7]/, '') === strain && sideOf(seatAt(deal, j)) === sideOf(lastSeat));
+    const decl = seatAt(deal, k);
+    return `${last}${dbl} joué par ${decl === 'S' ? 'toi' : decl === 'N' ? 'ton partenaire' : SEAT_NAMES[decl]}`;
+  }
+
+  function pickDeal(except) {
+    const todo = DEALS.filter(d => !progress[dealKey(d.n)] && d !== except);
+    const redo = DEALS.filter(d => (progress[dealKey(d.n)] || {}).last === 0 && d !== except);
+    const pool = todo.length ? todo : redo.length ? redo : DEALS.filter(d => d !== except);
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function dealList() {
+    const played = DEALS.filter(d => progress[dealKey(d.n)]);
+    const perfect = DEALS.filter(d => (progress[dealKey(d.n)] || {}).last === 1);
+    app.innerHTML = topbar('Donnes à enchérir') + `
+      <div class="card"><p style="margin:0 0 6px">Tu es <b>Sud</b>, ton partenaire robot est <b>Nord</b> : il connaît le système par cœur.
+        À chaque tour, annonce ton enchère. Une erreur est corrigée tout de suite, puis la donne continue.</p>
+        <p class="muted" style="margin:0;font-size:14px">${played.length} / ${DEALS.length} jouées · ${perfect.length} réussies sans faute</p></div>
+      <button class="btn primary center" data-act="next">Donne suivante</button>
+      <div class="section-title">Toutes les donnes</div>
+      <div class="dgrid">${DEALS.map(d => {
+        const p = progress[dealKey(d.n)];
+        const cls = !p ? '' : p.last === 1 ? 'good' : 'bad';
+        return `<button class="dcell ${cls}" data-deal="${d.n}">${d.n}</button>`;
+      }).join('')}</div>
+      <p class="muted center" style="font-size:13px">Vert : réussie sans faute · rouge : à rejouer</p>`;
+    on('back', () => go(home));
+    on('next', () => startDeal(pickDeal()));
+    app.querySelectorAll('[data-deal]').forEach(b => b.addEventListener('click', () => startDeal(DEALS.find(d => d.n === +b.dataset.deal))));
+  }
+
+  let play = null;
+  function startDeal(deal) {
+    play = { deal, i: 0, errors: [], choice: null, answered: false };
+    go(dealView);
+  }
+
+  function dealAuctionHtml(deal, upto, ask) {
+    const cells = [];
+    for (let k = 0; k < SEATS.indexOf(deal.d); k++) cells.push('<td></td>');
+    for (let k = 0; k < upto; k++) {
+      const err = play.errors.find(e => e.i === k);
+      cells.push(`<td class="${err ? 'wasbad' : ''}"><span>${fmt(bidLabel(deal.a[k][0]))}</span></td>`);
+    }
+    if (ask) cells.push('<td class="ask">?</td>');
+    while (cells.length % 4) cells.push('<td></td>');
+    let rows = '';
+    for (let k = 0; k < cells.length; k += 4) rows += '<tr>' + cells.slice(k, k + 4).join('') + '</tr>';
+    const head = SEATS.map(s => `<th class="${s === 'S' ? 'me' : ''}">${s === 'S' ? 'Toi' : s === 'N' ? 'Partenaire' : SEAT_NAMES[s]}</th>`).join('');
+    return `<table class="auction"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function dealView() {
+    const p = play, deal = p.deal;
+    // Les autres joueurs annoncent jusqu'à ce que ce soit à toi.
+    while (!p.answered && p.i < deal.a.length && seatAt(deal, p.i) !== 'S') p.i++;
+    if (!p.answered && p.i >= deal.a.length) return go(dealEnd);
+    const myTurn = !p.answered;
+    app.innerHTML = topbar('Donne n° ' + deal.n, 'Quitter') + `
+      <div class="card">
+        <div class="qhead"><span class="qnum">Donne n° ${deal.n}</span><span class="progress">Donneur : ${SEAT_NAMES[deal.d]}</span></div>
+        ${dealAuctionHtml(deal, p.answered ? p.i + 1 : p.i, myTurn)}
+        ${handHtml(deal.h.S)}
+        ${myTurn ? `<div class="prompt">À toi. Que dis-tu ?</div>${boxHtml()}` : ''}
+        <div id="fb"></div>
+      </div>`;
+    on('back', () => { if (confirm('Abandonner cette donne ?')) { play = null; go(dealList); } });
+    if (myTurn) wireBox(lastContractRank(deal.a.slice(0, p.i).map(x => x[0])), p, dealAnswer);
+    else dealFeedback();
+  }
+
+  function dealAnswer(choice) {
+    const p = play;
+    p.answered = true; p.choice = choice;
+    p.ok = choice === p.deal.a[p.i][0];
+    if (!p.ok) p.errors.push({ i: p.i, chosen: choice });
+    dealView();
+  }
+
+  function dealFeedback() {
+    const p = play, [good, why] = p.deal.a[p.i];
+    document.getElementById('fb').innerHTML = `<div class="feedback ${p.ok ? 'ok' : 'ko'}">
+        <h3>${p.ok ? 'Bien joué : ' + fmt(bidLabel(good)) : 'Non : il fallait ' + fmt(bidLabel(good))}</h3>
+        ${!p.ok ? `<p class="muted">Tu avais dit ${fmt(bidLabel(p.choice))}. On continue avec la bonne enchère.</p>` : ''}
+        ${why ? `<p>${fmt(why)}</p>` : ''}
+      </div><div style="height:12px"></div>
+      <button class="btn primary center" data-act="cont">Continuer</button>`;
+    on('cont', () => { p.i++; p.answered = false; p.choice = null; go(dealView); });
+    document.getElementById('fb').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function miniHand(h, who) {
+    const syms = ['♠', '♥', '♦', '♣'];
+    const parts = h.split('.');
+    const hcp = parts.join('').split('').reduce((s, c) => s + ({ A: 4, K: 3, Q: 2, J: 1 }[c] || 0), 0);
+    return `<div class="mini"><div class="who">${who} · ${hcp}H</div>${parts.map((p, i) =>
+      `<div><span class="${i === 1 || i === 2 ? 'red' : ''}">${syms[i]}</span> ${p === '-' ? '—' : p.split('').map(c => ({ A: 'A', K: 'R', Q: 'D', J: 'V', T: '10' }[c] || c)).join(' ')}</div>`).join('')}</div>`;
+  }
+
+  function dealEnd() {
+    const p = play, deal = p.deal;
+    const perfect = p.errors.length === 0;
+    const prev = progress[dealKey(deal.n)] || {};
+    progress[dealKey(deal.n)] = { plays: (prev.plays || 0) + 1, last: perfect ? 1 : 0 };
+    save();
+    const mine = deal.a.filter((x, k) => seatAt(deal, k) === 'S').length;
+    const nErr = p.errors.length;
+    app.innerHTML = topbar('Donne n° ' + deal.n, 'Donnes') + `
+      <div class="card center">
+        <div style="font-size:15px" class="muted">Contrat final</div>
+        <div style="font-size:24px;font-weight:700;margin:4px 0">${fmt(contractOf(deal))}</div>
+        <div class="feedback ${perfect ? 'ok' : 'ko'}" style="margin-top:10px">
+          <h3 style="margin:0">${perfect ? 'Parfait : bon contrat, sans faute !' : `Retoqué : ${nErr} enchère${nErr > 1 ? 's' : ''} fausse${nErr > 1 ? 's' : ''} sur ${mine}`}</h3>
+          ${perfect ? '' : '<p style="margin:6px 0 0">Sans les corrections, vous ne seriez pas arrivés à ce contrat. Rejoue-la plus tard !</p>'}
+        </div>
+        <p class="muted" style="font-size:14px;margin:10px 0 0">Thème : ${fmt(deal.t)}</p>
+      </div>
+      <div class="card"><b>Les 4 mains</b>
+        <div class="compass">
+          <div class="cN">${miniHand(deal.h.N, 'Partenaire')}</div>
+          <div class="cO">${miniHand(deal.h.O, 'Ouest')}</div>
+          <div class="cE">${miniHand(deal.h.E, 'Est')}</div>
+          <div class="cS">${miniHand(deal.h.S, 'Toi')}</div>
+        </div></div>
+      <div class="card"><b>Les enchères expliquées</b>
+        <ol class="expl">${deal.a.map(([b, why], k) => {
+          const seat = seatAt(deal, k);
+          const err = p.errors.find(e => e.i === k);
+          if (b === 'P' && !why && seat !== 'S') return '';
+          return `<li class="${err ? 'bad' : ''}"><b>${seat === 'S' ? 'Toi' : seat === 'N' ? 'Partenaire' : SEAT_NAMES[seat]} : ${fmt(bidLabel(b))}</b>${why ? ' — ' + fmt(why) : ''}${err ? `<br><span class="muted">tu avais dit ${fmt(bidLabel(err.chosen))}</span>` : ''}</li>`;
+        }).join('')}</ol></div>
+      <button class="btn primary center" data-act="nextdeal">Donne suivante</button>
+      <button class="btn center" data-act="again">Rejouer cette donne</button>`;
+    on('back', () => { play = null; go(dealList); });
+    on('again', () => startDeal(deal));
+    on('nextdeal', () => startDeal(pickDeal(deal)));
   }
 
   home();
