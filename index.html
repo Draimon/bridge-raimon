@@ -146,6 +146,10 @@
     display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-radius: 14px;
     background: var(--accent); color: var(--accent-ink); font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
   #majbar button { border: 0; border-radius: 10px; padding: 8px 12px; font-size: 15px; font-weight: 700; background: var(--accent-ink); color: var(--accent); cursor: pointer; }
+  .pill { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 8px 12px; font-size: 14px; cursor: pointer; }
+  .pill.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+  .pill.on .red { color: inherit; }
+  #chapter { scroll-margin-top: 64px; }
   .claimgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
   .btn:disabled { opacity: .45; cursor: default; }
   .hint { border-color: var(--accent); background: var(--accent-soft); padding: 12px 16px; }
@@ -166,11 +170,11 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610121723"></script>
-<script src="fiche.js?v=202610121723"></script>
-<script src="deals.js?v=202610121723"></script>
-<script src="dds.js?v=202610121723"></script>
-<script src="jeu.js?v=202610121723"></script>
+<script src="questions.js?v=202610121728"></script>
+<script src="fiche.js?v=202610121728"></script>
+<script src="deals.js?v=202610121728"></script>
+<script src="dds.js?v=202610121728"></script>
+<script src="jeu.js?v=202610121728"></script>
 <script>
 (() => {
   'use strict';
@@ -331,22 +335,26 @@
     input.focus();
   }
 
-  function fiche(anchor) {
-    const order = ['precisions', ...THEMES.map(t => t[0])];
-    const toc = order.map(id => `<a href="#f-${id}">${fmt(id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id])}</a>`).join('');
-    const body = order.filter(id => FICHE[id]).map(id => `
-      <div class="card fiche" id="f-${id}"><h2>${fmt(id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id])}</h2>
-      <ul>${FICHE[id].lignes.map(l => `<li>${suits(l)}</li>`).join('')}</ul></div>`).join('');
-    app.innerHTML = topbar('Fiche', session && anchor ? 'Question' : 'Accueil', (session && anchor ? '<button class="tobtn" data-act="home">Accueil</button>' : '') + '<button class="tobtn" data-act="top">↑ Sommaire</button>') + `<div class="toc">${toc}</div>${body}
-      <p class="center"><a href="convention2026.pdf" style="color:var(--accent)">Ouvrir la fiche originale (PDF)</a></p>
-      ${session && anchor ? '<div style="height:70px"></div><button class="btn primary center" data-act="back" style="position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:auto;max-width:528px;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,.2)">‹ Retour à la question</button>' : ''}`;
-    on('back', () => (session && anchor) ? go(question) : go(home));
+  // Fiche : les chapitres en pastilles ; on touche une pastille pour afficher ce chapitre.
+  function fiche(anchor, chapter) {
+    const fromQuestion = !!(session && anchor);
+    const order = ['precisions', ...THEMES.map(t => t[0])].filter(id => FICHE[id]);
+    const sel = chapter || (anchor && FICHE[anchor] ? anchor : 'precisions');
+    const title = id => fmt(id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id]);
+    const pills = order.map(id => `<button class="pill ${id === sel ? 'on' : ''}" data-ch="${id}">${title(id)}</button>`).join('');
+    app.innerHTML = topbar('Fiche système', fromQuestion ? 'Question' : 'Accueil', fromQuestion ? '<button class="tobtn" data-act="home">Accueil</button>' : '') + `
+      <a class="btn center" href="convention2026.pdf" target="_blank" rel="noopener" style="text-decoration:none">📄 Voir la fiche originale (PDF)</a>
+      <div class="toc">${pills}</div>
+      <div class="card fiche" id="chapter"><h2>${title(sel)}</h2>
+        <ul>${FICHE[sel].lignes.map(l => `<li>${suits(l)}</li>`).join('')}</ul></div>
+      ${fromQuestion ? '<div style="height:70px"></div><button class="btn primary center" data-act="back" style="position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:auto;max-width:528px;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,.2)">‹ Retour à la question</button>' : ''}`;
+    on('back', () => fromQuestion ? go(question) : go(home));
     on('home', () => { session = null; go(home); });
-    on('top', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-    app.querySelectorAll('.toc a').forEach(a => a.addEventListener('click', e => {
-      e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+    app.querySelectorAll('[data-ch]').forEach(b => b.addEventListener('click', () => {
+      fiche(anchor, b.dataset.ch);
+      document.getElementById('chapter').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }));
-    if (anchor) { const el = document.getElementById('f-' + anchor); if (el) el.scrollIntoView(); }
+    if (chapter === undefined && anchor) document.getElementById('chapter').scrollIntoView({ block: 'start' });
   }
 
   // ───── Session de quiz
