@@ -144,6 +144,8 @@
   .pc.win { border-color: var(--accent); background: var(--accent-soft); }
   .claimgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
   .btn:disabled { opacity: .45; cursor: default; }
+  .hint { border-color: var(--accent); background: var(--accent-soft); }
+  .shareico { display: inline-block; border: 1.5px solid currentColor; border-radius: 4px; padding: 0 4px; font-size: 13px; color: #0a7aff; }
   input.num { width: 100%; font-size: 20px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); margin-bottom: 10px; }
   .muted { color: var(--muted); }
   .center { text-align: center; }
@@ -210,6 +212,26 @@
   let session = null;
   function go(view, arg) { window.scrollTo(0, 0); view(arg); }
 
+  // Guide d'installation sur l'écran d'accueil (iPhone/iPad, hors appli déjà installée).
+  function installHint() {
+    const ua = navigator.userAgent;
+    const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const installed = navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+    if (!iOS || installed) return '';
+    try { if (localStorage.getItem('raimon-hint-off')) return ''; } catch (e) { /* stockage indisponible */ }
+    const notSafari = /FBAN|FBAV|Instagram|Line\/|GSA\/|Snapchat|LinkedInApp|CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua) || !/Safari\//.test(ua);
+    const close = '<button class="link" data-act="hintoff">Ne plus afficher</button>';
+    if (notSafari) return `<div class="card hint"><b>Pour installer l'appli, ouvre cette page dans Safari.</b>
+      <a class="btn primary center" style="margin:10px 0 6px;text-decoration:none" href="x-safari-${esc(location.href)}">Ouvrir dans Safari</a>
+      <p class="muted" style="margin:0;font-size:14px">Si le bouton ne fait rien : touche le bouton ⋯ ou ↗ de l'application et choisis « Ouvrir dans Safari ».</p>${close}</div>`;
+    return `<div class="card hint"><b>Installe l'appli sur ton iPhone :</b>
+      <ol style="margin:8px 0 0;padding-left:20px">
+        <li>Touche le bouton <b>Partager</b> <span class="shareico">⬆︎</span> (le carré avec une flèche, en bas de l'écran).</li>
+        <li>Fais défiler et touche <b>« Sur l'écran d'accueil »</b>.</li>
+        <li>Touche <b>« Ajouter »</b> : l'icône ♠♥♦♣ apparaît avec tes applis.</li></ol>
+      <p class="muted" style="margin:6px 0 0;font-size:14px">Tu ne vois pas le bouton Partager ? Touche l'icône Safari (la boussole) en bas à droite, puis recommence.</p>${close}</div>`;
+  }
+
   function home() {
     const seen = QUESTIONS.filter(q => progress[q.n]).length;
     const good = QUESTIONS.filter(mastered).length;
@@ -217,6 +239,7 @@
     app.innerHTML = `
       <div class="hero"><div class="logo">♠<span class="red">♥</span><span class="red">♦</span>♣</div>
         <h1>Système Raimon</h1><p>Fiche mars 2026 · ${QUESTIONS.length} questions</p></div>
+      ${installHint()}
       <div class="card stats">
         <div><b>${seen}</b><span>vues</span></div>
         <div><b>${good}</b><span>maîtrisées</span></div>
@@ -244,6 +267,7 @@
     on('fiche', () => go(fiche));
     on('deals', () => go(dealList));
     on('find', () => go(find));
+    on('hintoff', () => { try { localStorage.setItem('raimon-hint-off', '1'); } catch (e) { /* stockage indisponible */ } home(); });
     on('reset', () => { if (confirm('Effacer toute la progression sur ce téléphone ?')) { progress = {}; save(); home(); } });
   }
 
@@ -508,7 +532,7 @@
         À chaque tour, annonce ton enchère. Une erreur est corrigée tout de suite, puis la donne continue.</p>
         <p class="muted" style="margin:0;font-size:14px">${played.length} / ${DEALS.length} jouées · ${perfect.length} réussies sans faute</p></div>
       <button class="btn primary center" data-act="next">Donne suivante</button>
-      ${[['Donnes écrites à la main', DEALS.filter(d => d.n < 100)], ['Donnes du robot (1SA et 2SA)', DEALS.filter(d => d.n >= 100)]].filter(g => g[1].length).map(([title, list]) => `
+      ${[['Donnes écrites à la main', DEALS.filter(d => d.n < 100)], ['Donnes du robot', DEALS.filter(d => d.n >= 100)]].filter(g => g[1].length).map(([title, list]) => `
       <div class="section-title">${title}</div>
       <div class="dgrid">${list.map(d => {
         const p = progress[dealKey(d.n)];
@@ -607,6 +631,7 @@
           <h3 style="margin:0">${perfect ? 'Parfait : bon contrat, sans faute !' : `Retoqué : ${nErr} enchère${nErr > 1 ? 's' : ''} fausse${nErr > 1 ? 's' : ''} sur ${mine}`}</h3>
           ${perfect ? '' : '<p style="margin:6px 0 0">Sans les corrections, vous ne seriez pas arrivés à ce contrat. Rejoue-la plus tard !</p>'}
         </div>
+        ${deal.best ? `<p style="font-size:15px;margin:10px 0 0">Meilleur contrat possible : <b>${fmt(deal.best.c)}</b> par ${deal.best.by === 'S' ? 'toi' : 'ton partenaire'} (${deal.best.t} levées en double mort)${deal.best.c === deal.c.l + deal.c.s ? ' : vous y êtes !' : ''}</p>` : ''}
         <p class="muted" style="font-size:14px;margin:10px 0 0">Thème : ${fmt(deal.t)}</p>
       </div>
       <div class="card"><b>Les 4 mains</b>
