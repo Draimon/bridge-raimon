@@ -35,8 +35,10 @@
     padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   }
   .wrap { max-width: 560px; margin: 0 auto; padding: 16px; }
-  header.top { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-bottom: 8px; }
-  header.top h1 { font-size: 20px; margin: 0; flex: 1; }
+  .fiche { scroll-margin-top: 64px; }
+  header.top { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: -16px -16px 8px; padding: 6px 16px; position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .tobtn { border: 1px solid var(--line); background: var(--card); color: var(--accent); border-radius: 999px; padding: 6px 12px; font-size: 15px; cursor: pointer; }
+  header.top h1 { font-size: 18px; margin: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .back { border: 0; background: none; color: var(--accent); font-size: 17px; padding: 8px 4px; cursor: pointer; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
   .btn {
@@ -207,8 +209,8 @@
   }
 
   function on(act, fn) { app.querySelectorAll(`[data-act="${act}"]`).forEach(b => b.addEventListener('click', fn)); }
-  function topbar(title, back) {
-    return `<header class="top"><button class="back" data-act="back">‹ ${back || 'Accueil'}</button><h1>${title}</h1></header>`;
+  function topbar(title, back, extra) {
+    return `<header class="top"><button class="back" data-act="back">‹ ${back || 'Accueil'}</button><h1>${title}</h1>${extra || ''}</header>`;
   }
 
   function themes() {
@@ -248,10 +250,12 @@
     const body = order.filter(id => FICHE[id]).map(id => `
       <div class="card fiche" id="f-${id}"><h2>${fmt(id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id])}</h2>
       <ul>${FICHE[id].lignes.map(l => `<li>${suits(l)}</li>`).join('')}</ul></div>`).join('');
-    app.innerHTML = topbar('Fiche système', session && anchor ? 'Question' : 'Accueil') + `<div class="toc">${toc}</div>${body}
+    app.innerHTML = topbar('Fiche', session && anchor ? 'Question' : 'Accueil', (session && anchor ? '<button class="tobtn" data-act="home">Accueil</button>' : '') + '<button class="tobtn" data-act="top">↑ Sommaire</button>') + `<div class="toc">${toc}</div>${body}
       <p class="center"><a href="convention2026.pdf" style="color:var(--accent)">Ouvrir la fiche originale (PDF)</a></p>
       ${session && anchor ? '<div style="height:70px"></div><button class="btn primary center" data-act="back" style="position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:auto;max-width:528px;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,.2)">‹ Retour à la question</button>' : ''}`;
     on('back', () => (session && anchor) ? go(question) : go(home));
+    on('home', () => { session = null; go(home); });
+    on('top', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     app.querySelectorAll('.toc a').forEach(a => a.addEventListener('click', e => {
       e.preventDefault(); document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
     }));
