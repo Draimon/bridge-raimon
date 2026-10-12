@@ -269,4 +269,43 @@ const FICHE = {
       '3SA = naturel',
     ],
   },
+  base: {
+    lignes: [
+      'On ouvre toujours à partir de 11H.',
+      '1SA = 15-17H régulier, jamais avec une majeure 5e (on ouvre alors 1♥/1♠).',
+      '♦ 4e : avec 3-3 en mineures → 1♣ ; avec 4-4 → 1♦.',
+      'Deux faible en majeure (via le 2♦ Multi) : 6 cartes, moins de 11H, 2 des 3 gros honneurs ou le couple V-10.',
+      '2SA = 20-21H ; 22-23H → 2♦ Multi ; 2♣ Albaran = forcing de manche ; 2♥/2♠ = fort ou bicolore faible.',
+    ],
+  },
+  reponses: {
+    lignes: [
+      'Soutien simple d’une majeure = 6-10 HLD ; 11-12 HLD = Shadow fit ; 13-15 HLD = Oklahoma ; 16H et plus = nouvelle couleur puis fit.',
+      '<b>2 sur 1</b> = 5 cartes (mensonge possible en mineure), 11H et plus, forcing un tour. Après un 2 sur 1 : 2SA de l’ouvreur = 15-17H régulier ; répétition de la majeure = minimum.',
+      '2SA direct = 12H régulier ; 2 sur 1 puis 2SA = 11H régulier.',
+      'Pas de saut en nouvelle couleur du répondant (pas de barrage sur le partenaire).',
+      'Soutien en mineure classique : 2m = 6-10H, 3m = 11-12H.',
+      '<b>Redemandes de l’ouvreur</b> : bicolore cher = 17H et plus (le partenaire peut freiner par 2SA) ; soutien 2M = 11-16 HLD, 3M = 17 HLD et plus ; répétition à saut = 6 cartes, 17-19 HLD, au moins 15H.',
+      '4e couleur = forcing un tour.',
+    ],
+  },
+  interv: {
+    lignes: [
+      'Intervention simple : 5 cartes ; 8H minimum non vulnérable, 10H vulnérable ; 16H au plus (avec 17H et plus, on contre).',
+      '1SA en intervention = 16-18H régulier avec arrêt.',
+      'Intervention à saut = barrage.',
+      'Contre d’appel = 12H et plus avec une courte dans la couleur d’ouverture, ou toute main de 17H et plus.',
+      'Réponses à notre Landy : 2♥/2♠ = préférence faible ; 3♥/3♠ = proposition ; 4M = manche ; le reste naturel.',
+      'Spoutnik : 8H+ (7H+ avec une majeure 5e), toute distribution.',
+    ],
+  },
+  chelem: {
+    lignes: [
+      'On cherche le chelem à partir de 32 HLD.',
+      'Blackwood Lefèvre (4SA) : 5♣/5♦ = 30/41 As (inversé si fit ♣) ; 5♥/5♠ = 2 As et 30/41 Rois ; 5SA = 2 As avec 2 Rois ou une chicane ; 6x = 1 As + chicane.',
+      'Collante (les Rois) et roulante (qualité de l’atout) : après la réponse au Blackwood, facultatives, pour décider entre 6 et 7.',
+      'Sur 1SA : 4♣ = BW 30-41 + CRM (4♦/4♥ = 30/41 ; 4♠/4SA/5♣ = 2 As de même couleur / rang / mélangés) ; 4SA = quantitatif.',
+      'Oklahoma : les relais localisent la chicane, puis 5SA = Blackwood aux Rois.',
+    ],
+  },
 };
