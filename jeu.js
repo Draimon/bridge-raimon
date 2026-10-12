@@ -301,12 +301,16 @@ function createPlay(env) {
   function dummyHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
     const open = clickable ? selSuit(seat) : null;
-    // Couleur choisie : ses cartes se soulèvent de la table et s'écartent (sans décaler le reste de l'écran).
-    return `<div class="dummy">${DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol ${open === s ? 'open' : ''}">${G.hands[seat][s].map((r, i) => {
+    // Couleur choisie : ses cartes descendent sous le mort, posées côte à côte face à toi (sans décaler l'écran).
+    const cols = DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol ${open === s ? 'ghost' : ''}">${G.hands[seat][s].map(r => {
       const ok = l.some(x => x.s === s && x.r === r);
-      const lift = open === s ? ` style="transform: translateY(${10 + i * 18}px) scale(1.12)"` : '';
-      return cardHtml(s, RLAB[r], 'md ' + (clickable ? pickCls(seat, { s, r }, ok) : ''), cardAttrs(seat, { s, r }, ok) + lift);
-    }).join('')}</div>`).join('')}</div>`;
+      if (open === s) return cardHtml(s, RLAB[r], 'md');
+      return cardHtml(s, RLAB[r], 'md ' + (clickable ? pickCls(seat, { s, r }, ok) : ''), cardAttrs(seat, { s, r }, ok));
+    }).join('')}</div>`).join('');
+    const row = open !== null && open !== undefined && G.hands[seat][open].length
+      ? `<div class="dpick ${G.hands[seat][open].length > 5 ? 'tight' : ''}">${G.hands[seat][open].map(r => cardHtml(open, RLAB[r], 'md can sel', cardAttrs(seat, { s: open, r }, l.some(x => x.s === open && x.r === r)))).join('')}</div>`
+      : '';
+    return `<div class="dummywrap"><div class="dummy">${cols}</div>${row}</div>`;
   }
   const isTurn = seat => !G.busy && !G.done && G.turn === seat && !G.trick.some(t => t.seat === seat);
   // Défenseur sur le côté : dos de cartes + nombre de cartes
