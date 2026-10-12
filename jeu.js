@@ -7,6 +7,14 @@ const DISPLAY_SUITS = [0, 1, 3, 2];          // ♠ ♥ ♣ ♦ : on alterne noi
 function cardHtml(s, label, cls, attrs) {
   return `<div class="pcard ${s === 1 || s === 2 ? 'red' : ''} ${cls || ''}" ${attrs || ''}><span class="rk">${label}</span><span class="st">${CARD_SYM[s]}</span><span class="big">${CARD_SYM[s]}</span></div>`;
 }
+// Main en arc de cercle (comme sur une vraie table) : cards = [{ s, label, cls, attrs }]
+function arcHtml(cards) {
+  const n = cards.length, spread = Math.min(30, n * 2.5);
+  return `<div class="arc">${cards.map((c, i) => {
+    const a = n > 1 ? -spread / 2 + (i * spread) / (n - 1) : 0;
+    return cardHtml(c.s, c.label, 'lg ' + (c.cls || ''), `${c.attrs || ''} style="transform: rotate(${a.toFixed(1)}deg)${/\bplay\b/.test(c.cls || '') ? ' translateY(-16px)' : ''}"`);
+  }).join('')}</div>`;
+}
 function backHtml(cls) { return `<div class="pcard back ${cls || ''}"></div>`; }
 
 function createPlay(env) {
@@ -257,17 +265,17 @@ function createPlay(env) {
   function fanHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
     const cards = DISPLAY_SUITS.flatMap(s => G.hands[seat][s].map(r => ({ s, r })));
-    return `<div class="fan">${cards.map(c => {
+    return arcHtml(cards.map(c => {
       const ok = l.some(x => x.s === c.s && x.r === c.r);
-      return cardHtml(c.s, RLAB[c.r], clickable ? (ok ? 'play' : 'dim') : '', cardAttrs(seat, c, ok));
-    }).join('')}</div>`;
+      return { s: c.s, label: RLAB[c.r], cls: clickable ? (ok ? 'play' : 'dim') : '', attrs: cardAttrs(seat, c, ok) };
+    }));
   }
   // Le mort étalé en colonnes par couleur
   function dummyHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
     return `<div class="dummy">${DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol">${G.hands[seat][s].map(r => {
       const ok = l.some(x => x.s === s && x.r === r);
-      return cardHtml(s, RLAB[r], clickable ? (ok ? 'play' : 'dim') : '', cardAttrs(seat, { s, r }, ok));
+      return cardHtml(s, RLAB[r], 'md ' + (clickable ? (ok ? 'play' : 'dim') : ''), cardAttrs(seat, { s, r }, ok));
     }).join('')}</div>`).join('')}</div>`;
   }
   const isTurn = seat => !G.busy && !G.done && G.turn === seat && !G.trick.some(t => t.seat === seat);
@@ -281,7 +289,7 @@ function createPlay(env) {
     const w = G.trick.length === 4 ? winnerOf(G.trick) : null;
     const slot = (seat, pos) => {
       const t = G.trick.find(x => x.seat === seat);
-      return `<div class="slot ${pos}">${t ? cardHtml(t.c.s, RLAB[t.c.r], w && w.seat === seat ? 'win' : '') : ''}</div>`;
+      return `<div class="slot ${pos}">${t ? cardHtml(t.c.s, RLAB[t.c.r], 'md ' + (w && w.seat === seat ? 'win' : '')) : ''}</div>`;
     };
     return `<div class="trick">${slot(M, 'top')}${slot(L, 'left')}${slot(R, 'right')}${slot(D, 'bottom')}</div>`;
   }
@@ -303,19 +311,22 @@ function createPlay(env) {
   }
 
   function view() {
+    if (typeof document !== 'undefined') document.body.classList.add('tablemode');
     const c = G.deal.c;
     const toPlay = !G.busy && userSeat(G.turn) ? G.turn : null;
     // Tu joues toujours depuis la place du déclarant : sa main en bas, le mort en face (en haut).
     const D = G.decl, M = G.dummy, L = next(D), R = next(M);
     const who = s => (s === 'S' ? 'Sud, ta main' : 'Nord, ton partenaire');
     app.innerHTML = topbar(`Jeu · donne n° ${G.deal.n}`, 'Quitter') + `
-      <div class="playbar"><div><b>${c.l}${fmt(c.s)}</b> par ${G.decl === 'S' ? 'toi' : 'ton partenaire'} · il faut ${G.need}</div>
-        <div class="score"><span>Vous <b>${G.tricks.NS}</b></span><span>Eux <b>${G.tricks.EO}</b></span></div></div>
-      <div class="felt play">
-        <div class="sname center ${isTurn(M) ? 'turn' : ''}">Mort · ${who(M)}</div>
-        ${G.dummyShown ? dummyHtml(M, toPlay === M) : '<p class="feltnote">Le mort sera étalé après l’entame</p>'}
-        <div class="midrow">${sideHtml(L)}${trickHtml(M, L, R, D)}${sideHtml(R)}</div>
-        <div class="sname center ${isTurn(D) ? 'turn' : ''}">Tu joues · déclarant (${who(D)})</div>
+      ${G.dummyShown ? dummyHtml(M, toPlay === M) : '<p class="feltnote">Le mort sera étalé après l’entame</p>'}
+      <div class="frame">
+        <div class="plate top ${isTurn(M) ? 'turn' : ''}"><span class="seat">${M}</span>Mort · ${M === 'S' ? 'ta main' : 'partenaire'}</div>
+        <div class="plate left ${isTurn(L) ? 'turn' : ''}"><span class="seat">${L === 'O' ? 'O' : 'E'}</span>${NAMES[L]} · ${G.hands[L].reduce((t, x) => t + x.length, 0)}</div>
+        <div class="plate right ${isTurn(R) ? 'turn' : ''}"><span class="seat">${R === 'O' ? 'O' : 'E'}</span>${NAMES[R]} · ${G.hands[R].reduce((t, x) => t + x.length, 0)}</div>
+        <div class="plate bottom ${isTurn(D) ? 'turn' : ''}"><span class="seat">${D}</span>Toi · déclarant<span class="contract">${c.l}${fmt(c.s)}</span></div>
+        <div class="corner cl">NS<br><b>${G.tricks.NS}/${G.need}</b></div>
+        <div class="corner cr">EO<br><b>${G.tricks.EO}</b></div>
+        ${trickHtml(M, L, R, D)}
       </div>
       ${fanHtml(D, toPlay === D)}
       ${G.msg ? `<div class="feedback ko" style="margin-bottom:10px"><p style="margin:0">${G.msg}</p></div>` : ''}
@@ -338,6 +349,7 @@ function createPlay(env) {
   }
 
   function finish() {
+    if (typeof document !== 'undefined') document.body.classList.remove('tablemode');
     const c = G.deal.c, made = G.tricks.NS, dd = G.deal.dd;
     const diff = made - G.need;
     const p = getProgress();

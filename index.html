@@ -189,6 +189,54 @@
   .bb { background: #fff; color: #1d2320; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
   .bb .red { color: #c4262e; }
   .bb.pass { background: #43a866; color: #fff; border-color: #43a866; } .bb.dbl { background: #d9443b; color: #fff; border-color: #d9443b; } .bb.rdbl { background: #2f6fd1; color: #fff; border-color: #2f6fd1; }
+  /* ── Mode table (façon Funbridge) */
+  body.tablemode { background: radial-gradient(ellipse at 50% 40%, #2a7a4c 0%, #1b5535 80%); }
+  body.tablemode header.top { background: transparent; border-bottom-color: rgba(255,255,255,.15); }
+  body.tablemode header.top h1, body.tablemode .back { color: #fff; }
+  body.tablemode .feltnote, body.tablemode .gridhint { color: #e8f5ec; }
+  .frame { position: relative; border: 2px solid #d8962b; border-radius: 4px; margin: 26px 34px 14px; min-height: 230px; padding: 30px 6px; }
+  .plate { position: absolute; background: #1d2724; color: #fff; font-size: 13px; font-weight: 600; border-radius: 6px; padding: 4px 10px 4px 0; display: flex; align-items: center; gap: 8px; white-space: nowrap; z-index: 2; }
+  .plate .seat { background: #b8322e; color: #fff; font-weight: 800; padding: 4px 8px; border-radius: 6px 0 0 6px; }
+  .plate.turn { background: #e08a1e; } .plate.turn .seat { background: #a3561a; }
+  .plate.top { top: -15px; left: 50%; transform: translateX(-50%); }
+  .plate.bottom { bottom: -15px; left: 50%; transform: translateX(-50%); }
+  .plate.left { left: -30px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
+  .plate.right { right: -30px; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center; }
+  .frame:not(.bidframe) .plate.left { left: -62px; } .frame:not(.bidframe) .plate.right { right: -62px; }
+  .plate .contract { background: #f6d5d5; color: #b8322e; border-radius: 4px; padding: 0 6px; margin-left: 2px; font-weight: 800; }
+  .plate .contract .red { color: #b8322e; }
+  .corner { position: absolute; color: #e2a94a; font-size: 13px; line-height: 1.1; } .corner b { font-size: 18px; }
+  .corner.cl { left: 6px; bottom: 18px; } .corner.cr { right: 6px; bottom: 18px; text-align: right; }
+  .frame .trick { width: 170px; height: 190px; }
+  .frame .trick .slot.top { left: 60px; top: 0; } .frame .trick .slot.bottom { left: 60px; bottom: 0; } .frame .trick .slot.left { left: 0; top: 57px; } .frame .trick .slot.right { right: 0; top: 57px; }
+  .pcard.md { width: 50px; height: 72px; } .pcard.md .rk { font-size: 18px; } .pcard.md .st { top: 21px; font-size: 16px; } .pcard.md .big { font-size: 28px; }
+  .pcard.lg { width: 66px; height: 96px; border-radius: 8px; } .pcard.lg .rk { font-size: 24px; top: 4px; left: 6px; } .pcard.lg .st { top: 30px; left: 7px; font-size: 20px; } .pcard.lg .big { font-size: 38px; right: 6px; bottom: 6px; }
+  .dummy { margin: 4px 0 0; } .dcol .pcard.md + .pcard.md { margin-top: -50px; } .dcol .pcard.play { box-shadow: 0 0 0 3px #ffe08a; transform: none; }
+  .arc { position: relative; height: 150px; margin: 6px auto 4px; max-width: 390px; overflow: visible; }
+  .arc .pcard.lg { position: absolute; left: calc(50% - 33px); top: 34px; transform-origin: 50% 560px; }
+  .arc .pcard.play { box-shadow: 0 0 0 3px #ffe08a, 0 6px 12px rgba(0,0,0,.4); }
+  .bidframe { min-height: 0; padding: 26px 44px 28px; margin: 26px 12px 14px; }
+  .bidframe .plate.left { left: -22px; } .bidframe .plate.right { right: -22px; }
+  .chips { position: absolute; display: flex; gap: 3px; z-index: 1; }
+  .chips.top { top: 17px; left: 50%; transform: translateX(-50%); } .chips.bottom { bottom: 12px; left: 50%; transform: translateX(-50%); }
+  .chips.left { left: 28px; top: 50%; transform: translateY(-50%); flex-direction: column; } .chips.right { right: 28px; top: 50%; transform: translateY(-50%); flex-direction: column; }
+  .chips .bidcard { min-width: 26px; height: 22px; font-size: 12px; padding: 0 3px; }
+  .bidcenter { margin: 18px 0; }
+  .vulnote { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; color: #e2a94a; font-size: 12px; pointer-events: none; }
+  .bidframe:has(.chips.bottom .bidcard) .vulnote { display: none; }
+  .gridbox { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .gb { border: 2px solid rgba(0,0,0,.25); border-radius: 8px; height: 40px; font-size: 20px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 1px; padding: 0; }
+  .gb span { font-size: 15px; } .gb:disabled { visibility: hidden; }
+  .gb.g0 { background: #cfe6fb; color: #123d8a; } .gb.g1 { background: #c2c8d0; color: #1d2320; } .gb.g2 { background: #f9d0d0; color: #b51f1f; }
+  .gb.g3 { background: #fbd9b0; color: #c26a00; } .gb.g4 { background: #e3e6ea; color: #3b4450; }
+  .gb .red { color: inherit; }
+  .gb.sel { outline: 3px solid #ffe08a; outline-offset: 1px; transform: scale(1.06); }
+  .gspecial { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .gb.gpass { background: #23a24d; color: #fff; font-size: 20px; } .gb.gx { background: #d9332b; color: #fff; } .gb.gxx { background: #2f6fd1; color: #fff; }
+  .gspecial .gb:disabled { visibility: visible; opacity: .3; }
+  .announce { margin-top: 10px; }
+  .gridhint { text-align: center; font-size: 14px; margin: 10px 0 0; }
+  body.tablemode .feedback h3 { color: var(--ink); }
   .claimgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
   .btn:disabled { opacity: .45; cursor: default; }
   .hint { border-color: var(--accent); background: var(--accent-soft); padding: 12px 16px; }
@@ -209,11 +257,11 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610121944"></script>
-<script src="fiche.js?v=202610121944"></script>
-<script src="deals.js?v=202610121944"></script>
-<script src="dds.js?v=202610121944"></script>
-<script src="jeu.js?v=202610121944"></script>
+<script src="questions.js?v=202610121952"></script>
+<script src="fiche.js?v=202610121952"></script>
+<script src="deals.js?v=202610121952"></script>
+<script src="dds.js?v=202610121952"></script>
+<script src="jeu.js?v=202610121952"></script>
 <script>
 (() => {
   'use strict';
@@ -264,7 +312,7 @@
 
   // ───── Navigation
   let session = null;
-  function go(view, arg) { window.scrollTo(0, 0); view(arg); }
+  function go(view, arg) { window.scrollTo(0, 0); document.body.classList.toggle('tablemode', view === dealView); view(arg); }
 
   // Guide d'installation sur l'écran d'accueil (iPhone/iPad, hors appli déjà installée).
   function installHint() {
@@ -685,17 +733,53 @@
     while (!p.answered && p.i < deal.a.length && seatAt(deal, p.i) !== 'S') p.i++;
     if (!p.answered && p.i >= deal.a.length) return go(dealEnd);
     const myTurn = !p.answered;
+    document.body.classList.add('tablemode');
+    const upto = p.answered ? p.i + 1 : p.i;
+    const by = { N: [], E: [], S: [], O: [] };
+    for (let k = 0; k < upto; k++) by[seatAt(deal, k)].push(bidCard(p.subs[k] || deal.a[k][0], (k === upto - 1 ? 'last ' : '') + (p.errors.some(e => e.i === k) ? 'wasbad' : '')));
+    const vul = { none: 'Personne vulnérable', NS: 'Vulnérables : N/S', EO: 'Vulnérables : E/O', all: 'Tous vulnérables' }[deal.v || 'none'];
+    const plate = (seat, cls, name) => `<div class="plate ${cls} ${myTurn && seat === 'S' ? 'turn' : ''}"><span class="seat">${seat}</span>${name}${deal.d === seat ? ' · donneur' : ''}</div><div class="chips ${cls}">${by[seat].join('')}</div>`;
     app.innerHTML = topbar('Donne n° ' + deal.n, 'Quitter') + `
-      <div class="card">
-        <div class="qhead"><span class="qnum">Donne n° ${deal.n}</span><span class="progress">Donneur : ${SEAT_NAMES[deal.d]} · ${({ none: 'personne vulnérable', NS: 'vous êtes vulnérables', EO: 'eux vulnérables', all: 'tous vulnérables' })[deal.v || 'none']}</span></div>
-        ${bidTableHtml(deal, p.answered ? p.i + 1 : p.i, myTurn)}
-        ${fanStr(deal.h.S)}
-        ${myTurn ? `<div class="prompt">À toi. Que dis-tu ?</div>${boxHtml()}` : ''}
-        <div id="fb"></div>
-      </div>`;
+      <div class="frame bidframe">
+        ${plate('N', 'top', 'Partenaire')}${plate('O', 'left', 'Ouest')}${plate('E', 'right', 'Est')}${plate('S', 'bottom', 'Toi')}
+        <div class="bidcenter" id="fb">${myTurn ? gridBoxHtml(deal, p) : ''}</div>
+        <div class="vulnote">${vul}</div>
+      </div>
+      ${arcHtml([0, 1, 3, 2].flatMap(s => deal.h.S.split('.')[s].replace('-', '').split('').filter(Boolean).map(ch => ({ s, label: ({ A: 'A', K: 'R', Q: 'D', J: 'V', T: '10' }[ch] || ch) }))))}`;
     on('back', () => { if (confirm('Abandonner cette donne ?')) { play = null; go(dealList); } });
-    if (myTurn) wireBox(lastContractRank(deal.a.slice(0, p.i).map(x => x[0])), p, dealAnswer);
+    if (myTurn) wireGridBox(deal, p);
     else dealFeedback();
+  }
+
+  // Boîte d'enchères complète (7 paliers × 5 dénominations) : on touche une enchère, puis « Annoncer ».
+  function auctionState(deal, upto) {
+    let last = -1, lastSeat = null, dbl = 0;
+    for (let k = 0; k < upto; k++) {
+      const b = deal.a[k][0], seat = seatAt(deal, k);
+      if (b === 'P') continue;
+      if (b === 'X') { dbl = 1; continue; }
+      if (b === 'XX') { dbl = 2; continue; }
+      last = bidRank(b); lastSeat = seat; dbl = 0;
+    }
+    const opp = lastSeat === 'E' || lastSeat === 'O';
+    return { last, canX: opp && dbl === 0, canXX: !opp && lastSeat !== null && dbl === 1 };
+  }
+  function gridBoxHtml(deal, p) {
+    const st = auctionState(deal, p.i);
+    const cols = ['SA', '♠', '♥', '♦', '♣'];
+    let rows = '';
+    for (let l = 1; l <= 7; l++) rows += cols.map(c => { const b = l + c; const ok = bidRank(b) > st.last; return `<button class="gb g${cols.indexOf(c)} ${p.choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : suits(c)}</span></button>`; }).join('');
+    return `<div class="gridbox">${rows}</div>
+      <div class="gspecial"><button class="gb gpass ${p.choice === 'P' ? 'sel' : ''}" data-gb="P">PASSE</button><button class="gb gx ${p.choice === 'X' ? 'sel' : ''}" ${st.canX ? 'data-gb="X"' : 'disabled'}>X</button><button class="gb gxx ${p.choice === 'XX' ? 'sel' : ''}" ${st.canXX ? 'data-gb="XX"' : 'disabled'}>XX</button></div>
+      ${p.choice ? `<button class="btn primary center announce" data-act="announce">Annoncer ${p.choice === 'P' ? 'Passe' : fmt(p.choice)}</button>` : '<p class="gridhint">À toi : touche ton enchère</p>'}`;
+  }
+  function wireGridBox(deal, p) {
+    app.querySelectorAll('[data-gb]').forEach(b => b.addEventListener('click', () => {
+      p.choice = b.dataset.gb;
+      document.getElementById('fb').innerHTML = gridBoxHtml(deal, p);
+      wireGridBox(deal, p);
+    }));
+    on('announce', () => dealAnswer(p.choice));
   }
 
   function dealAnswer(choice) {
@@ -713,10 +797,9 @@
         <h3>${p.ok ? 'Bien joué : ' + fmt(bidLabel(p.choice)) : 'Non : il fallait ' + fmt(bidLabel(good))}</h3>
         ${!p.ok ? `<p class="muted">Tu avais dit ${fmt(bidLabel(p.choice))}. On continue avec la bonne enchère.</p>` : ''}
         ${why ? `<p>${fmt(why)}</p>` : ''}
-      </div><div style="height:12px"></div>
-      <button class="btn primary center" data-act="cont">Continuer</button>`;
+      </div>
+      <button class="btn primary center" data-act="cont" style="margin-top:10px">Continuer</button>`;
     on('cont', () => { p.i++; p.answered = false; p.choice = null; go(dealView); });
-    document.getElementById('fb').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function miniHand(h, who) {
