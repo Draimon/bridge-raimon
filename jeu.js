@@ -38,7 +38,8 @@ function createPlay(env) {
     return h.split('.').map(p => (p === '-' ? [] : p.split('').map(ch => 12 - RCH.indexOf(ch)).sort((a, b) => b - a)));
   }
 
-  function start(deal) {
+  // mode : undefined (jeu normal), 'open' (jeux découverts) ou 'sol' (solution pas à pas)
+  function start(deal, mode) {
     const c = deal.c;
     G = {
       deal, decl: c.by, dummy: partner(c.by),
@@ -48,10 +49,29 @@ function createPlay(env) {
       turn: next(c.by), trick: [], tricks: { NS: 0, EO: 0 }, last: null,
       played: [], void: Object.fromEntries(ORDER.map(s => [s, [false, false, false, false]])),
       firstLead: {}, busy: false, done: false, dummyShown: false, history: [], claiming: false, msg: '',
+      mode, open: mode === 'open' || mode === 'sol',
     };
     epoch++;
+    if (mode === 'sol') { G.solCards = (deal.sol.match(/.{3}/g) || []).map(x => ({ seat: ORDER[+x[0]], c: { s: +x[1], r: x.charCodeAt(2) - 97 } })); G.step = 0; go(view); return; }
     go(view);
     schedule();
+  }
+
+  // Solution : on reconstruit la position après k cartes de la ligne optimale.
+  function solGo(k) {
+    const { deal, solCards } = G;
+    start(deal, 'sol');
+    G.solCards = solCards;
+    k = Math.max(0, Math.min(52, k));
+    for (let i = 0; i < k; i++) {
+      const { seat, c } = solCards[i];
+      if (G.trick.length === 4) { G.last = G.trick; G.trick = []; }
+      const h = G.hands[seat][c.s]; h.splice(h.indexOf(c.r), 1);
+      G.trick.push({ seat, c }); G.dummyShown = true;
+      if (G.trick.length === 4) { const w = winnerOf(G.trick); G.tricks[side(w.seat)]++; G.turn = w.seat; } else G.turn = next(seat);
+    }
+    G.step = k;
+    view();
   }
 
   // ───── Règles
@@ -295,6 +315,12 @@ function createPlay(env) {
   }
 
   function actionsHtml() {
+    if (G.mode === 'sol') {
+      const nextTrick = Math.min(52, (Math.floor(G.step / 4) + 1) * 4);
+      const cur = G.solCards[G.step - 1];
+      return `<div class="solnav"><button class="btn center" data-act="s0">⏮</button><button class="btn center" data-act="sprev">◀</button><button class="btn center" data-act="snext">▶</button><button class="btn center" data-act="strick">Levée ⏭</button></div>
+        <p class="center solinfo">Carte ${G.step}/52${cur ? ` · ${NAMES[cur.seat]} a joué ${lab(cur.c)}` : ' · touche ▶ pour commencer'}</p>`;
+    }
     if (G.done) return '';
     const left = G.hands[G.turn].reduce((s, x) => s + x.length, 0);
     const canClaim = !G.busy && userSeat(G.turn) && left > 0;
@@ -313,12 +339,13 @@ function createPlay(env) {
   function view() {
     if (typeof document !== 'undefined') document.body.classList.add('tablemode');
     const c = G.deal.c;
-    const toPlay = !G.busy && userSeat(G.turn) ? G.turn : null;
+    const toPlay = G.mode !== 'sol' && !G.busy && userSeat(G.turn) ? G.turn : null;
     // Tu joues toujours depuis la place du déclarant : sa main en bas, le mort en face (en haut).
     const D = G.decl, M = G.dummy, L = next(D), R = next(M);
     const who = s => (s === 'S' ? 'Sud, ta main' : 'Nord, ton partenaire');
-    app.innerHTML = topbar(`Jeu · donne n° ${G.deal.n}`, 'Quitter') + `
+    app.innerHTML = topbar(G.mode === 'sol' ? `Solution · donne n° ${G.deal.n}` : `Jeu · donne n° ${G.deal.n}${G.mode === 'open' ? ' (jeux découverts)' : ''}`, 'Quitter') + `
       ${G.dummyShown ? dummyHtml(M, toPlay === M) : '<p class="feltnote">Le mort sera étalé après l’entame</p>'}
+      ${G.open ? `<div class="openhands">${[L, R].map(s => `<div class="ohand"><div class="sname">${NAMES[s]}</div>${DISPLAY_SUITS.map(x => `<div><span class="${red(x) ? 'red' : ''}">${SYM[x]}</span> ${G.hands[s][x].map(r => RLAB[r]).join(' ') || '—'}</div>`).join('')}</div>`).join('')}</div>` : ''}
       <div class="frame">
         <div class="plate top ${isTurn(M) ? 'turn' : ''}"><span class="seat">${M}</span>Mort · ${M === 'S' ? 'ta main' : 'partenaire'}</div>
         <div class="plate left ${isTurn(L) ? 'turn' : ''}"><span class="seat">${L === 'O' ? 'O' : 'E'}</span>${NAMES[L]} · ${G.hands[L].reduce((t, x) => t + x.length, 0)}</div>
@@ -332,7 +359,9 @@ function createPlay(env) {
       ${G.msg ? `<div class="feedback ko" style="margin-bottom:10px"><p style="margin:0">${G.msg}</p></div>` : ''}
       ${actionsHtml()}
       ${G.last ? `<p class="muted center" style="font-size:13px">Levée précédente : ${G.last.map(t => NAMES[t.seat][0] + ' ' + lab(t.c)).join(' · ')}</p>` : ''}`;
-    on('back', () => { if (G.done || confirm('Abandonner le jeu de la carte ?')) { G.done = true; epoch++; exit(G.deal); } });
+    on('back', () => { if (G.mode === 'sol' || G.done || confirm('Abandonner le jeu de la carte ?')) { G.done = true; epoch++; exit(G.deal); } });
+    on('s0', () => solGo(0)); on('sprev', () => solGo(G.step - 1)); on('snext', () => solGo(G.step + 1));
+    on('strick', () => solGo(Math.min(52, (Math.floor(G.step / 4) + 1) * 4)));
     on('undo', undo);
     on('claim', () => { G.claiming = !G.claiming; G.msg = ''; view(); });
     app.querySelectorAll('[data-claim]').forEach(b => b.addEventListener('click', () => {
@@ -372,12 +401,16 @@ function createPlay(env) {
       </div>
       <div class="card"><b>Les 4 mains d’origine</b>
         <div class="compass"><div class="cN">${mini('N')}</div><div class="cO">${mini('O')}</div><div class="cE">${mini('E')}</div><div class="cS">${mini('S')}</div></div></div>
-      <button class="btn primary center" data-act="replay">Rejouer la carte</button>
+      ${G.deal.sol ? '<button class="btn primary center" data-act="showsol">Voir la solution</button>' : ''}
+      <button class="btn center" data-act="openplay">Rejouer à jeux découverts</button>
+      <button class="btn center" data-act="replay">Rejouer la carte</button>
       <button class="btn center" data-act="out">Retour aux donnes</button>`;
     on('back', () => exit(G.deal));
     on('out', () => exit(G.deal));
     on('replay', () => start(G.deal));
+    on('openplay', () => start(G.deal, 'open'));
+    on('showsol', () => { start(G.deal, 'sol'); });
   }
 
-  return { start, _state: () => G, _play: (seat, c) => playCard(seat, c), _legal: seat => legal(seat) };
+  return { start, _state: () => G, _play: (seat, c) => playCard(seat, c), _legal: seat => legal(seat), _solGo: k => solGo(k) };
 }

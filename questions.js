@@ -226,9 +226,9 @@ const QUESTIONS = [
   { n: 160, t: 'texas', k: 's', d: 'N', s: '1SA P 2♠ P 3♣ P 3♥', a: 'Singleton ou chicane ♥, 8H et plus', f: '1SA -> 2♠ -> 3♣ : 3♥/3♠ = singleton ou chicane, 8H+' },
   { n: 161, t: 'texas', k: 's', d: 'N', s: '1SA P 2♠ P 3♣ P 3SA', a: "Courte dans l'autre mineure", f: "1SA -> 2♠ -> 3♣ : 3SA = courte dans l'autre mineure" },
   { n: 162, t: 'texas', k: 's', d: 'N', s: '1SA P 2♠ P 3♣ P P', a: 'Main faible, pour jouer 3♣', f: '1SA -> 2♠ -> 3♣ : passe = faible' },
-  { n: 163, t: 'texas', k: 's', d: 'N', s: '1SA P 2♠ X XX', a: 'Arrêt ♠', f: 'Si le n°4 contre : ** = arrêt' },
-  { n: 164, t: 'texas', k: 's', d: 'N', s: '1SA P 2♠ X 3♣', a: 'Fit (rectification)', f: 'Si le n°4 contre : rectification = fit' },
-  { n: 165, t: 'texas', k: 's', d: 'N', s: '1SA P 2♠ X P', a: 'Ni fit, ni arrêt', f: 'Si le n°4 contre : passe = ni fit, ni arrêt' },
+  { n: 163, t: 'texas', k: 's', d: 'N', s: '1SA P 2♥ X XX', a: 'Arrêt ♥ (la couleur contrée)', f: 'Texas majeur contré par le n°4 : XX = arrêt' },
+  { n: 164, t: 'texas', k: 's', d: 'N', s: '1SA P 2♥ X 2♠', a: 'Fit ♠ (rectification du Texas)', f: 'Texas majeur contré par le n°4 : rectification = fit' },
+  { n: 165, t: 'texas', k: 's', d: 'N', s: '1SA P 2♥ X P', a: 'Ni fit, ni arrêt', f: 'Texas majeur contré par le n°4 : passe = ni fit, ni arrêt' },
 
   // ───────── Petit Joséphine & BW d'exclusion
   { n: 166, t: 'jose', k: 'c', q: "Le fit ♥ est établi. Ton partenaire saute à 5♥ : que demande-t-il ?", a: "Les honneurs d'atout (As, Roi, Dame)", w: ["Le nombre d'As", 'Un contrôle à ♦', 'De passer'], f: 'Fit ♥ -> 5♥ (As/R/D ?)' },

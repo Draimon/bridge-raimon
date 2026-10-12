@@ -49,6 +49,14 @@ Réponses au questionnaire du 12/10/2026. La fiche (`fiche.js`) reste prioritair
 - **Intervention à saut** : faible (barrage).
 - **Contre d'appel** : 12H et plus avec une courte dans la couleur d'ouverture, ou toute main de 17H et plus.
 
+## Précisions du 12/10/2026 (suite)
+- **Petit Stayman** : main faible (moins de 8H) avec 4♥ et 4♠ ; sur 2♦, le répondant dit 2♥ (l'ouvreur passe ou corrige à 2♠).
+- **2♣ Albaran** : après la réponse aux As, la suite est naturelle.
+- **Landy (réponses du partenaire)** : 2♥/2♠ = préférence faible ; 3♥/3♠ = proposition ; 4M = manche ; toute autre enchère est naturelle.
+- **Spoutnik** : 8H+ (7H+ avec une majeure 5e), toute distribution, sans promesse de couleur.
+- **Blackwood Lefèvre 5SA** : 2 As avec soit 2 Rois, soit une chicane.
+- **Collante / roulante** : après la réponse au Blackwood, sans obligation, selon le besoin pour décider entre 6 et 7 ; collante = connaître les Rois, roulante = la qualité de l'atout.
+- **Entame de l'As à la couleur** : c'est le partenaire de l'entameur qui signale (pair = préférentielle, impair = italien).
+
 ## Encore à préciser (je demanderai au fil de l'eau)
-- Ce que vous appelez « petit Stayman ».
-- La suite des enchères après 2♣ Albaran et après « fort » sur 2♥/2♠.
+- La suite des enchères après « fort » sur 2♥/2♠.

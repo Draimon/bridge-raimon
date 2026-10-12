@@ -135,6 +135,32 @@ async function main() {
   }
   for (const j of jobs) j.d.dd = cache[j.id];
 
+  // Solution : la ligne de jeu double mort complète (52 cartes), codée « joueur couleur rang » (ex. 02m).
+  const solFile = path.join(__dirname, 'sol-cache.json');
+  let sol = {}; try { sol = JSON.parse(fs.readFileSync(solFile, 'utf8')); } catch (e) { sol = {}; }
+  const solTodo = jobs.filter(j => j.d.dd !== undefined && sol[j.id] === undefined);
+  if (solTodo.length) {
+    const { fork } = require('child_process');
+    const workers = Math.min(solTodo.length, Math.max(1, require('os').cpus().length - 1));
+    console.log(`Solutions à calculer : ${solTodo.length} donne(s) sur ${workers} processus…`);
+    let next = 0, done = 0;
+    await new Promise(resolve => {
+      for (let w = 0; w < workers; w++) {
+        const child = fork(path.join(__dirname, 'sol-worker.js'));
+        const feed = () => { if (next < solTodo.length) { const j = solTodo[next++]; child.send({ id: j.id, hands: j.hands, trump: j.trump, leader: j.leader, value: j.d.dd }); } else child.kill(); };
+        child.on('message', ({ id, line, error }) => {
+          if (error) console.log('Solution impossible : ' + error); else sol[id] = line.map(([p, s, r]) => '' + p + s + String.fromCharCode(97 + r)).join('');
+          done++;
+          if (done % 10 === 0 || done === solTodo.length) fs.writeFileSync(solFile, JSON.stringify(sol));
+          if (done === solTodo.length) resolve();
+          feed();
+        });
+        feed();
+      }
+    });
+  }
+  for (const j of jobs) if (sol[j.id]) j.d.sol = sol[j.id];
+
   // Meilleur contrat Nord-Sud (double mort, non vulnérable), d'après tools/par.json (node tools/par.js).
   let par = {}; try { par = JSON.parse(fs.readFileSync(path.join(__dirname, 'par.json'), 'utf8')); } catch (e) { par = {}; }
   const VAL = { '♣': 20, '♦': 20, '♥': 30, '♠': 30, SA: 30 };

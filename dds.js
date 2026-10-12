@@ -8,7 +8,10 @@
 function popcount(x) { let c = 0; while (x) { x &= x - 1; c++; } return c; }
 
 // `trick` (optionnel) : cartes déjà posées dans la levée en cours, [{ p, s, r }] dans l'ordre, `leader` = qui l'a entamée.
-function solve(handsIn, trump, leader, guess, maxNodes, trick) {
+// `want` (optionnel) : { value } = valeur double mort connue de la position ; solve renvoie alors la meilleure carte
+// { s, r } du joueur à qui c'est le tour (au lieu du nombre de levées).
+function solve(handsIn, trump, leader, guess, maxNodes, trick, want) {
+  let picked = null;
   let nodes = 0;
   const h = handsIn.map(hand => hand.slice());
   const table = [0, 0, 0, 0];                 // cartes posées dans la levée en cours, par couleur
@@ -78,7 +81,7 @@ function solve(handsIn, trump, leader, guess, maxNodes, trick) {
     return res;
   }
 
-  function play(pos, p, led, ws, wr, winner, lead, ns, left, target) {
+  function play(pos, p, led, ws, wr, winner, lead, ns, left, target, top) {
     if (maxNodes && ++nodes > maxNodes) throw new Error('budget');
     if (pos === 4) {
       const won = (winner & 1) === 0 ? 1 : 0;
@@ -94,20 +97,27 @@ function solve(handsIn, trump, leader, guess, maxNodes, trick) {
       const res = play(pos + 1, (p + 1) & 3, pos === 0 ? s : led, nws, nwr, nw, lead, ns, left, target);
       h[p][s] |= b; table[s] &= ~b;
       if (pos === 3) { /* rien */ }
-      if (max && res) return true;
-      if (!max && !res) return false;
+      if (max && res) { if (top) picked = { s, r }; return true; }
+      if (!max && !res) { if (top) picked = { s, r }; return false; }
     }
     return !max;
   }
 
   // Nombre exact de levées : on part de l'estimation (le contrat) et on avance d'une levée à la fois.
-  function root(target) {
-    if (!cur.length) return trickStart(leader, 0, total, target);
+  function root(target, top) {
+    if (!cur.length) return top ? play(0, leader, -1, -1, -1, -1, leader, 0, total, target, true) : trickStart(leader, 0, total, target);
     let ws = cur[0].s, wr = cur[0].r, winner = cur[0].p;
     cur.forEach(c => { table[c.s] |= 1 << c.r; });
     cur.slice(1).forEach(c => { if (beats(c.s, c.r, ws, wr)) { ws = c.s; wr = c.r; winner = c.p; } });
-    try { return play(cur.length, nextSeat, cur[0].s, ws, wr, winner, leader, 0, total, target); }
+    try { return play(cur.length, nextSeat, cur[0].s, ws, wr, winner, leader, 0, total, target, top); }
     finally { cur.forEach(c => { table[c.s] &= ~(1 << c.r); }); }
+  }
+  if (want) {
+    const v = want.value, isMax = (nextSeat & 1) === 0;
+    const any = () => { const m = moves(nextSeat, cur.length ? cur[0].s : -1); return { s: m[0][0], r: m[0][1] }; };
+    if (isMax) { if (v <= 0) return any(); root(v, true); }
+    else { if (v >= total) return any(); root(v + 1, true); }
+    return picked || any();
   }
   let g = Math.min(total, Math.max(0, guess === undefined ? Math.ceil(total / 2) : guess));
   if (root(g)) { while (g < total && root(g + 1)) g++; return g; }
