@@ -12,7 +12,7 @@ function arcHtml(cards) {
   const n = cards.length, spread = Math.min(30, n * 2.5);
   return `<div class="arc">${cards.map((c, i) => {
     const a = n > 1 ? -spread / 2 + (i * spread) / (n - 1) : 0;
-    return cardHtml(c.s, c.label, 'lg ' + (c.cls || ''), `${c.attrs || ''} style="transform: rotate(${a.toFixed(1)}deg)${/\bplay\b/.test(c.cls || '') ? ' translateY(-16px)' : ''}"`);
+    return cardHtml(c.s, c.label, 'lg ' + (c.cls || ''), `${c.attrs || ''} style="transform: rotate(${a.toFixed(1)}deg)${/\bsel\b/.test(c.cls || '') ? ' translateY(-30px)' : ''}"`);
   }).join('')}</div>`;
 }
 function backHtml(cls) { return `<div class="pcard back ${cls || ''}"></div>`; }
@@ -99,6 +99,7 @@ function createPlay(env) {
     h.splice(h.indexOf(c.r), 1);
     if (G.trick.length && c.s !== G.trick[0].c.s) G.void[seat][G.trick[0].c.s] = true;
     if (!G.trick.length && side(seat) === 'EO' && G.firstLead[seat] === undefined) G.firstLead[seat] = c.s;
+    G.sel = null;
     G.trick.push({ seat, c });
     G.played.push({ seat, c });
     G.dummyShown = true;
@@ -281,21 +282,28 @@ function createPlay(env) {
 
   // ───── Affichage : tapis vert, vraies cartes
   const cardAttrs = (seat, c, ok) => (ok ? `data-play="${seat}:${c.s}:${c.r}"` : '');
+  // Couleur choisie pour le joueur à qui c'est le tour : imposée s'il doit fournir, sinon celle qu'il a touchée.
+  function selSuit(seat) {
+    const suits = [...new Set(legal(seat).map(c => c.s))];
+    return suits.length === 1 ? suits[0] : G.sel;
+  }
+  const pickCls = (seat, c, ok) => (!ok ? 'dim' : selSuit(seat) === c.s ? 'can sel' : selSuit(seat) === null || selSuit(seat) === undefined ? 'can' : 'can off');
   // Main en éventail (le déclarant, en bas)
   function fanHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
     const cards = DISPLAY_SUITS.flatMap(s => G.hands[seat][s].map(r => ({ s, r })));
     return arcHtml(cards.map(c => {
       const ok = l.some(x => x.s === c.s && x.r === c.r);
-      return { s: c.s, label: RLAB[c.r], cls: clickable ? (ok ? 'play' : 'dim') : '', attrs: cardAttrs(seat, c, ok) };
+      return { s: c.s, label: RLAB[c.r], cls: clickable ? pickCls(seat, c, ok) : '', attrs: cardAttrs(seat, c, ok) };
     }));
   }
   // Le mort étalé en colonnes par couleur
   function dummyHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
-    return `<div class="dummy">${DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol">${G.hands[seat][s].map(r => {
+    const open = clickable ? selSuit(seat) : null;
+    return `<div class="dummy">${DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol ${open === s ? 'open' : ''}">${G.hands[seat][s].map(r => {
       const ok = l.some(x => x.s === s && x.r === r);
-      return cardHtml(s, RLAB[r], 'md ' + (clickable ? (ok ? 'play' : 'dim') : ''), cardAttrs(seat, { s, r }, ok));
+      return cardHtml(s, RLAB[r], 'md ' + (clickable ? pickCls(seat, { s, r }, ok) : ''), cardAttrs(seat, { s, r }, ok));
     }).join('')}</div>`).join('')}</div>`;
   }
   const isTurn = seat => !G.busy && !G.done && G.turn === seat && !G.trick.some(t => t.seat === seat);
@@ -371,6 +379,7 @@ function createPlay(env) {
       if (G.busy || G.done) return;
       const [seat, s, r] = b.dataset.play.split(':');
       if (seat !== G.turn) return;
+      if (selSuit(seat) !== +s) { G.sel = +s; view(); return; }
       if (legal(seat).length > 1) G.history.push(snapshot());
       G.msg = '';
       playCard(seat, { s: +s, r: +r });
