@@ -150,6 +150,9 @@
   .hint summary::after { content: "▸"; color: var(--accent); transition: transform .2s; }
   .hint[open] summary::after { transform: rotate(90deg); }
   .shareico { display: inline-block; border: 1.5px solid currentColor; border-radius: 4px; padding: 0 4px; font-size: 13px; color: #0a7aff; }
+  .mode { display: flex; align-items: center; gap: 14px; padding: 18px 16px; font-size: 20px; }
+  .mode-ico { font-size: 30px; width: 36px; text-align: center; }
+  details.card summary { cursor: pointer; }
   input.num { width: 100%; font-size: 20px; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); margin-bottom: 10px; }
   .muted { color: var(--muted); }
   .center { text-align: center; }
@@ -241,16 +244,35 @@
     const seen = QUESTIONS.filter(q => progress[q.n]).length;
     const good = QUESTIONS.filter(mastered).length;
     const rev = toReview().length;
+    const playedOk = DEALS.filter(d => (progress['d' + d.n] || {}).last === 1).length;
+    void seen;
     app.innerHTML = `
       <div class="hero"><div class="logo">♠<span class="red">♥</span><span class="red">♦</span>♣</div>
         <h1>Système Raimon</h1><p>Fiche mars 2026 · ${QUESTIONS.length} questions</p></div>
       ${installHint()}
+      <button class="btn primary mode" data-act="quiz"><span class="mode-ico">?</span><span>Quiz<small>${QUESTIONS.length} questions · ${good} maîtrisées${rev ? ' · ' + rev + ' à revoir' : ''}</small></span></button>
+      <button class="btn primary mode" data-act="deals"><span class="mode-ico">♠</span><span>Jouer au bridge<small>${DEALS.length} donnes · ${playedOk} réussies sans faute · enchères puis jeu de la carte</small></span></button>
+      <div class="section-title">Consulter</div>
+      <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
+      <p class="center muted" style="font-size:13px;margin-top:20px">Un souci sur une question ou une donne ? Note son numéro et préviens Damien.</p>
+      <p class="center"><button class="link" data-act="reset">Remettre la progression à zéro</button></p>`;
+    on('quiz', () => go(quizHome));
+    on('fiche', () => go(fiche));
+    on('deals', () => go(dealList));
+    on('hintoff', () => { try { localStorage.setItem('raimon-hint-off', '1'); } catch (e) { /* stockage indisponible */ } home(); });
+    on('reset', () => { if (confirm('Effacer toute la progression sur ce téléphone ?')) { progress = {}; save(); home(); } });
+  }
+
+  function quizHome() {
+    const seen = QUESTIONS.filter(q => progress[q.n]).length;
+    const good = QUESTIONS.filter(mastered).length;
+    const rev = toReview().length;
+    app.innerHTML = topbar('Quiz') + `
       <div class="card stats">
         <div><b>${seen}</b><span>vues</span></div>
         <div><b>${good}</b><span>maîtrisées</span></div>
         <div><b>${rev}</b><span>à revoir</span></div>
       </div>
-      <div class="section-title">Jouer</div>
       <button class="btn primary" data-act="themes">Par thème<small>Multi, Oklahoma, Landy, Puppet…</small></button>
       <div class="row2">
         <button class="btn" data-act="mix10">Mélange<small>10 questions</small></button>
@@ -258,22 +280,13 @@
       </div>
       <div style="height:10px"></div>
       <button class="btn" data-act="review" ${rev ? '' : 'disabled'}>Révision des erreurs<small>${rev ? rev + ' question' + (rev > 1 ? 's' : '') + ' à revoir' : 'Rien à revoir pour l’instant'}</small></button>
-      <div class="section-title">S'entraîner</div>
-      <button class="btn primary" data-act="deals">Donnes à enchérir<small>${DEALS.length} donnes face au partenaire robot</small></button>
-      <div class="section-title">Consulter</div>
-      <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
-      <button class="btn" data-act="find">Aller à la question n°…<small>Pour revoir une question précise</small></button>
-      <p class="center muted" style="font-size:13px;margin-top:20px">Un souci sur une question ? Note son numéro et préviens Damien.</p>
-      <p class="center"><button class="link" data-act="reset">Remettre la progression à zéro</button></p>`;
+      <button class="btn" data-act="find">Aller à la question n°…<small>Pour revoir une question précise</small></button>`;
+    on('back', () => go(home));
     on('themes', () => go(themes));
     on('mix10', () => start(mix(10), 'Mélange'));
     on('mix20', () => start(mix(20), 'Mélange'));
     on('review', () => start(shuffle(toReview()).slice(0, 20), 'Révision'));
-    on('fiche', () => go(fiche));
-    on('deals', () => go(dealList));
     on('find', () => go(find));
-    on('hintoff', () => { try { localStorage.setItem('raimon-hint-off', '1'); } catch (e) { /* stockage indisponible */ } home(); });
-    on('reset', () => { if (confirm('Effacer toute la progression sur ce téléphone ?')) { progress = {}; save(); home(); } });
   }
 
   function on(act, fn) { app.querySelectorAll(`[data-act="${act}"]`).forEach(b => b.addEventListener('click', fn)); }
@@ -288,8 +301,8 @@
       return `<button class="btn" data-theme="${id}">${fmt(name)}<small>${qs.length} questions · ${m} maîtrisée${m > 1 ? 's' : ''}</small>
         <div class="bar"><i style="width:${qs.length ? Math.round(100 * m / qs.length) : 0}%"></i></div></button>`;
     }).join('');
-    app.innerHTML = topbar('Par thème') + rows;
-    on('back', () => go(home));
+    app.innerHTML = topbar('Par thème', 'Quiz') + rows;
+    on('back', () => go(quizHome));
     app.querySelectorAll('[data-theme]').forEach(b => b.addEventListener('click', () => {
       const id = b.dataset.theme;
       start(shuffle(QUESTIONS.filter(q => q.t === id)), THEME_NAME[id]);
@@ -297,10 +310,10 @@
   }
 
   function find() {
-    app.innerHTML = topbar('Question n°') + `
+    app.innerHTML = topbar('Question n°', 'Quiz') + `
       <div class="card"><input class="num" id="num" type="number" inputmode="numeric" placeholder="Numéro de la question">
       <button class="btn primary" data-act="ok">Afficher</button><p class="muted" id="err"></p></div>`;
-    on('back', () => go(home));
+    on('back', () => go(quizHome));
     const input = document.getElementById('num');
     const run = () => {
       const q = BY_N.get(Number(input.value));
@@ -405,7 +418,7 @@
         ${s.list.length > 1 ? `<div class="progress">${s.i + 1} / ${s.list.length} · score ${s.score}</div>` : ''}
         ${body}
       </div>`;
-    on('back', () => { session = null; go(home); });
+    on('back', () => { session = null; go(quizHome); });
     if (q.k === 'm') wireBox(lastContractRank(bids(q)), s, answer);
     else app.querySelectorAll('[data-opt]').forEach(b => b.addEventListener('click', () => answer(s.options[+b.dataset.opt])));
     if (s.answered) showFeedback();
@@ -496,9 +509,9 @@
       ${s.missed.length ? `<div class="card"><b>Questions ratées</b><div class="missed" style="margin-top:8px">${s.missed.map(n => `<span>n° ${n}</span>`).join('')}</div>
         <p class="muted" style="font-size:14px">Elles reviendront dans « Révision des erreurs ».</p></div>` : ''}
       <button class="btn primary center" data-act="again">Rejouer ces questions</button>
-      <button class="btn center" data-act="back2">Retour à l’accueil</button>`;
-    on('back', () => { session = null; go(home); });
-    on('back2', () => { session = null; go(home); });
+      <button class="btn center" data-act="back2">Retour au quiz</button>`;
+    on('back', () => { session = null; go(quizHome); });
+    on('back2', () => { session = null; go(quizHome); });
     on('again', () => start(shuffle(s.list), s.title));
   }
 
@@ -532,12 +545,14 @@
   function dealList() {
     const played = DEALS.filter(d => progress[dealKey(d.n)]);
     const perfect = DEALS.filter(d => (progress[dealKey(d.n)] || {}).last === 1);
-    app.innerHTML = topbar('Donnes à enchérir') + `
+    app.innerHTML = topbar('Jouer au bridge') + `
       <div class="card"><p style="margin:0 0 6px">Tu es <b>Sud</b>, ton partenaire robot est <b>Nord</b> : il connaît le système par cœur.
-        À chaque tour, annonce ton enchère. Une erreur est corrigée tout de suite, puis la donne continue.</p>
+        Annonce tes enchères (une erreur est corrigée tout de suite), puis joue le contrat contre la défense robot.</p>
         <p class="muted" style="margin:0;font-size:14px">${played.length} / ${DEALS.length} jouées · ${perfect.length} réussies sans faute</p></div>
       <button class="btn primary center" data-act="next">Donne suivante</button>
-      ${[['Donnes écrites à la main', DEALS.filter(d => d.n < 100)], ['Donnes du robot', DEALS.filter(d => d.n >= 100)]].filter(g => g[1].length).map(([title, list]) => `
+      <div class="row2" style="margin-bottom:10px"><input class="num" id="dealnum" type="number" inputmode="numeric" placeholder="Donne n°" style="margin:0"><button class="btn center" data-act="godeal" style="margin:0">Jouer cette donne</button></div>
+      <p class="muted" id="dealerr" style="margin:0 0 8px"></p>
+      ${[['Toutes les donnes', DEALS.slice().sort((a, b) => a.n - b.n)]].map(([title, list]) => `
       <div class="section-title">${title}</div>
       <div class="dgrid">${list.map(d => {
         const p = progress[dealKey(d.n)];
@@ -547,6 +562,10 @@
       <p class="muted center" style="font-size:13px">Vert : réussie sans faute · rouge : à rejouer</p>`;
     on('back', () => go(home));
     on('next', () => startDeal(pickDeal()));
+    on('godeal', () => {
+      const d = DEALS.find(x => x.n === +document.getElementById('dealnum').value);
+      if (d) startDeal(d); else document.getElementById('dealerr').textContent = 'Aucune donne avec ce numéro.';
+    });
     app.querySelectorAll('[data-deal]').forEach(b => b.addEventListener('click', () => startDeal(DEALS.find(d => d.n === +b.dataset.deal))));
   }
 
@@ -639,13 +658,13 @@
         ${deal.best ? `<p style="font-size:15px;margin:10px 0 0">Meilleur contrat possible : <b>${fmt(deal.best.c)}</b> par ${deal.best.by === 'S' ? 'toi' : 'ton partenaire'} (${deal.best.t} levées en double mort)${deal.best.c === deal.c.l + deal.c.s ? ' : vous y êtes !' : ''}</p>` : ''}
         <p class="muted" style="font-size:14px;margin:10px 0 0">Thème : ${fmt(deal.t)}</p>
       </div>
-      <div class="card"><b>Les 4 mains</b>
+      <details class="card"><summary><b>Voir les 4 mains</b> <span class="muted" style="font-size:13px">(dévoile le jeu)</span></summary>
         <div class="compass">
           <div class="cN">${miniHand(deal.h.N, 'Partenaire')}</div>
           <div class="cO">${miniHand(deal.h.O, 'Ouest')}</div>
           <div class="cE">${miniHand(deal.h.E, 'Est')}</div>
           <div class="cS">${miniHand(deal.h.S, 'Toi')}</div>
-        </div></div>
+        </div></details>
       <div class="card"><b>Les enchères expliquées</b>
         <ol class="expl">${deal.a.map(([b, why], k) => {
           const seat = seatAt(deal, k);
