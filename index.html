@@ -317,11 +317,12 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610130053"></script>
-<script src="fiche.js?v=202610130053"></script>
-<script src="deals.js?v=202610130053"></script>
-<script src="dds.js?v=202610130053"></script>
-<script src="jeu.js?v=202610130053"></script>
+<script src="questions.js?v=202610130100"></script>
+<script src="fiche.js?v=202610130100"></script>
+<script src="deals.js?v=202610130100"></script>
+<script src="dds.js?v=202610130100"></script>
+<script src="jeu.js?v=202610130100"></script>
+<script src="adeux.js?v=202610130100"></script>
 <script>
 (() => {
   'use strict';
@@ -434,6 +435,7 @@
       <button class="btn primary mode" data-act="quiz"><span class="mode-ico">?</span><span>Quiz<small>${QUESTIONS.length} questions · ${good} maîtrisées${rev ? ' · ' + rev + ' à revoir' : ''}</small></span></button>
       <div class="section-title">Jouer</div>
       <button class="btn primary mode" data-act="deals"><span class="mode-ico">♠</span><span>Jouer au bridge<small>${DEALS.length} donnes · ${playedOk} réussies sans faute · enchères puis jeu de la carte</small></span></button>
+      <button class="btn primary mode" data-act="duo"><span class="mode-ico">⇄</span><span>Jouer à deux<small id="duowait">Enchères au tour par tour avec Michèle, Damien ou Hélène</small></span></button>
       <div class="section-title">Consulter</div>
       <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
       <p class="center muted" style="font-size:13px;margin-top:20px">Un souci sur une question ou une donne ? Note son numéro et préviens Damien.</p>
@@ -442,6 +444,8 @@
     on('quiz', () => go(quizHome));
     on('fiche', () => go(fiche));
     on('deals', () => go(dealList));
+    on('duo', () => DUO.list());
+    DUO.waitingCount().then(k => { const el = document.getElementById('duowait'); if (el && k) el.innerHTML = '<b>' + k + ' donne' + (k > 1 ? 's' : '') + ' t’attend' + (k > 1 ? 'ent' : '') + '</b> · enchères au tour par tour'; });
     on('hintoff', () => { try { localStorage.setItem('raimon-hint-off', '1'); } catch (e) { /* stockage indisponible */ } home(); });
     on('reset', () => { if (confirm('Effacer toute la progression de ' + player + ' sur ce téléphone ?')) { progress = {}; save(); home(); } });
     on('switch', () => go(whoAmI));
@@ -673,10 +677,12 @@
         ${q.e ? `<p>${fmt(q.e)}</p>` : ''}
         ${q.f ? `<div class="fiche-line">Fiche : ${fmt(q.f)}</div>` : ''}
         <button class="link" data-act="seefiche">Voir ce thème dans la fiche</button>
+        <div id="fix" style="margin-top:8px">${DUO.fixButtonHtml()}</div>
       </div>
       <div style="height:12px"></div>
       <button class="btn primary center" data-act="next">${last ? 'Voir le résultat' : 'Question suivante'}</button>`;
     on('seefiche', () => go(fiche, q.t));
+    DUO.wireFix({ type: 'question', question: q.n, rapport: 'Question n° ' + q.n + ' (' + THEME_NAME[q.t] + ') — réponse attendue : ' + bidLabel(q.a) + (s.ok ? '' : ' — réponse donnée : ' + bidLabel(s.choice)) });
     on('next', next);
     fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
@@ -758,6 +764,7 @@
   }
 
   let play = null;
+  const DUO = createDuo({ app, topbar, on, go, fmt, bidLabel, bidRank, getPlayer: () => player, players: PLAYERS, home, SEAT_NAMES });
   const PLAY = createPlay({ app, fmt, topbar, on, go: v => v(), getProgress: () => progress, save, exit: () => go(dealList) });
   const biddingDone = n => { const p = progress[dealKey(n)]; return !!p && (p.won || p.last === 1); };
   function startDeal(deal, skipIntro) {
@@ -957,10 +964,12 @@
         }).join('')}</ol></div>
       ${deal.dd !== undefined ? '<button class="btn primary center" data-act="playcards">Jouer le contrat</button>' : ''}
       <button class="btn ${deal.dd !== undefined ? '' : 'primary'} center" data-act="nextdeal">Donne suivante</button>
-      <button class="btn center" data-act="again">Rejouer les enchères</button>`;
+      <button class="btn center" data-act="again">Rejouer les enchères</button>
+      <div id="fix">${DUO.fixButtonHtml()}</div>`;
     on('playcards', () => { window.scrollTo(0, 0); PLAY.start(deal); });
     on('back', () => { play = null; go(dealList); });
     on('again', () => startDeal(deal, true));
+    DUO.wireFix({ type: 'donne', donne: deal.n, rapport: 'Donne n° ' + deal.n + ' (' + deal.t + ') — séquence du système : ' + deal.a.map(x => bidLabel(x[0])).join(' – ') + (p.errors.length ? ' — erreurs : ' + p.errors.map(e => 'enchère ' + (e.i + 1) + ' : ' + bidLabel(e.chosen) + ' au lieu de ' + bidLabel(deal.a[e.i][0])).join(' ; ') : '') });
     on('nextdeal', () => startDeal(pickDeal(deal)));
   }
 
