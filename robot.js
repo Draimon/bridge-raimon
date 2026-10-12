@@ -26,6 +26,32 @@
   }
   const stop = (e, s) => { const p = e.parts[s]; return p.includes('A') || (p.includes('K') && p.length >= 2) || (p.includes('Q') && p.length >= 3); };
 
+  // ───── Chelems : Blackwood Lefèvre (As) et Blackwood 30-41 + CRM sur 1SA
+  const aces = e => e.parts.join('').split('').filter(c => c === 'A').length;
+  const kings = e => e.parts.join('').split('').filter(c => c === 'K').length;
+  // Réponse au 4SA Lefèvre avec l'atout t : [enchère, explication, valeurs possibles]
+  function lefevre(e, t) {
+    const a = aces(e), k = kings(e), inv = t === 3;
+    if (a === 0 || a === 3) return [inv ? '5♦' : '5♣', `0 ou 3 As${inv ? ' (inversé : atout ♣)' : ''}`, [0, 3]];
+    if (a === 1 || a === 4) return [inv ? '5♣' : '5♦', `1 ou 4 As${inv ? ' (inversé : atout ♣)' : ''}`, [1, 4]];
+    if (k === 0 || k === 3) return ['5♥', '2 As, 0 ou 3 Rois', [2]];
+    if (k === 1 || k === 4) return ['5♠', '2 As, 1 ou 4 Rois', [2]];
+    return ['5SA', '2 As et 2 Rois', [2]];
+  }
+  // Réponse au 4♣ (BW 30-41 + CRM) sur 1SA
+  function bw41(e) {
+    const a = aces(e);
+    if (a === 0 || a === 3) return ['4♦', '0 ou 3 As', [0, 3]];
+    if (a === 1 || a === 4) return ['4♥', '1 ou 4 As', [1, 4]];
+    const [i, j] = [0, 1, 2, 3].filter(x => e.parts[x].includes('A'));
+    const black = x => x === 0 || x === 3;
+    if (black(i) === black(j)) return ['4♠', '2 As de même couleur (CRM)', [2]];
+    if ((i < 2) === (j < 2)) return ['4SA', '2 As de même rang (CRM)', [2]];
+    return ['5♣', '2 As mixtes (CRM)', [2]];
+  }
+  // Lecture d'une réponse « 0 ou 3 » / « 1 ou 4 » : une seule valeur compatible avec ses propres As, sinon donne écartée.
+  function readAces(opts, mine) { const ok = opts.filter(x => x + mine <= 4); return ok.length === 1 ? ok[0] : null; }
+
   // ───── Ouverture de Nord
   function opening(n) {
     if (n.balanced && n.hcp >= 15 && n.hcp <= 17 && n.s < 5 && n.h < 5) return ['1SA', '15-17H régulier'];
@@ -79,7 +105,16 @@
         add('3' + SUIT[cs], `Changement de couleur après le Texas : forcing un tour, pour que le partenaire montre son fit`);
         add('3' + M, `Il montre le fit ${M}`);
         const p = hld(s, major5);
-        if (p + 17 >= 33) return null;                                // chelem possible : hors tranche 1
+        if (p + 16 >= 32) {
+          A.theme = 'Chelem sur 1SA';
+          add('4SA', `Tu recomptes ta main : ${p} HLD face à 15-17, zone de chelem : Blackwood Lefèvre`);
+          const [b, why, opts] = lefevre(n, major5); add(b, why);
+          const pa = readAces(opts, aces(s)); if (pa === null) return null;
+          const tot = pa + aces(s);
+          if (tot <= 2) { add('5' + M, `Il manque 2 As : on s'arrête à 5${M}`); add('P'); return A; }
+          if (tot === 4) return null;                                   // grand chelem : non géré
+          add('6' + M, 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
+        }
         add('4' + M, `Tu recomptes ta main : ${p} HLD face à 15-17, pas de chelem, tu conclus à 4${M}`);
         add('P'); return A;
       }
@@ -104,16 +139,38 @@
     if (s.d >= 6 && s.hcp <= 7) return null;                          // misère à ♦ : non décrite
     // Stayman
     if ((s.s === 4 || s.h === 4) && s.hcp >= 8) {
-      if (s.hcp >= 15) return null;
+      if (s.hcp >= 19) return null;
       add('2♣', `Stayman : tu cherches un fit 4-4 ${s.s === 4 && s.h === 4 ? 'en majeure' : 'à ' + (s.s === 4 ? '♠' : '♥')}`);
       const ans = n.h >= 4 ? '2♥' : n.s >= 4 ? '2♠' : '2♦';
       add(ans, ans === '2♥' ? '4 cartes à ♥' : ans === '2♠' ? '4 cartes à ♠ (pas 4 cartes à ♥)' : 'Pas de majeure 4e');
       const fitM = ans === '2♥' && s.h >= 4 ? '♥' : ans === '2♠' && s.s >= 4 ? '♠' : null;
       if (fitM) {
+        const t = fitM === '♠' ? 0 : 1, p = hld(s, t);
+        if (p + 16 >= 32) {
+          A.theme = 'Chelem sur 1SA';
+          add('4SA', `Fit ${fitM} et ${p} HLD face à 15-17 : Blackwood Lefèvre`);
+          const [b, why, opts] = lefevre(n, t); add(b, why);
+          const pa = readAces(opts, aces(s)); if (pa === null) return null;
+          const tot = pa + aces(s);
+          if (tot <= 2) { add('5' + fitM, `Il manque 2 As : on s'arrête à 5${fitM}`); add('P'); return A; }
+          if (tot === 4) return null;                                   // grand chelem : non géré
+          add('6' + fitM, 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
+        }
         if (s.hcp <= 9) { add('3' + fitM, `Fit 4-4 et 8-9H : proposition`); if (n.hcp >= 16) { add('4' + fitM, 'Maximum : il accepte'); add('P'); } else add('P', 'Minimum : il passe'); return A; }
         add('4' + fitM, `Fit 4-4 et la manche : 4${fitM}`); add('P'); return A;
       }
       const has4S = ans === '2♥' && s.s >= 4;
+      if (s.hcp >= 15) {
+        if (has4S) return null;
+        A.theme = 'Chelem sur 1SA';
+        if (s.hcp <= 16) {
+          add('4SA', 'Pas de fit : quantitatif (15-16H)');
+          if (n.hcp === 15) { add('P', '15H : il passe'); return A; }
+          if (n.hcp === 16) { add('5SA', '16H'); if (s.hcp === 16) { add('6SA', '16 + 16 : le petit chelem'); add('P'); } else add('P', '15 + 16 : on s’arrête'); return A; }
+          add('6SA', '17H : petit chelem'); add('P'); return A;
+        }
+        add('6SA', `Pas de fit et ${s.hcp}H face à 15-17 : petit chelem à SA`); add('P'); return A;
+      }
       if (s.hcp <= 9) {
         add('2SA', has4S ? 'Proposition de 3SA (et tu as 4 cartes à ♠)' : 'Pas de fit : proposition de 3SA');
         if (has4S && n.s >= 4) { if (n.hcp >= 16) { add('4♠', 'Les 4 cartes à ♠ et un maximum'); add('P'); } else { add('3♠', 'Les 4 cartes à ♠, minimum'); add('P'); } return A; }
@@ -133,6 +190,15 @@
       if (n.hcp === 15) { add('P', '15H : il passe'); return A; }
       if (n.hcp === 16) { add('5SA', '16H'); if (s.hcp === 16) { add('6SA', '16 + 16 : le petit chelem'); add('P'); } else add('P', '15 + 16 : on s’arrête'); return A; }
       add('6SA', '17H : petit chelem'); add('P'); return A;
+    }
+    if (s.hcp >= 17 && s.hcp <= 19 && s.balanced) {
+      A.theme = 'Chelem sur 1SA';
+      add('4♣', `Blackwood 30-41 + CRM : ${s.hcp}H face à 15-17, tu vises le chelem`);
+      const [b, why, opts] = bw41(n); add(b, why);
+      const pa = readAces(opts, aces(s)); if (pa === null) return null;
+      const tot = pa + aces(s);
+      if (tot <= 2 || (tot === 4 && s.hcp + n.hcp >= 37)) return null;
+      add('6SA', `${tot} As sur 4 : petit chelem`); add('P'); return A;
     }
     return null;
   }
@@ -235,9 +301,22 @@
         else if (k <= 1) { b = '4' + Ms; why = `Oklahoma : fit ${Ms}, 0 ou 1 carte clé`; }
         else { b = '4♦'; why = 'Oklahoma : fit, 2 cartes clés'; }
         add(b, why + ` (${h} HLD)`);
-        if (hld(n, M) + h >= 31) return null;                     // zone de chelem : hors tranche 2
+        A.theme = 'Oklahoma';
+        const nk = keyCards(n, M), rich = hld(n, M) + h >= 32;
+        if (rich && (b === '4♣' || b === '4♦') && nk + 2 >= 4) {
+          A.theme = 'Oklahoma – chelem';
+          if (b === '4♦') { add('6' + Ms, `${nk} cartes clés + 2 en face : petit chelem`); add('P'); return A; }
+          add('4♦', 'Relais chelem : où est ta chicane ?');
+          const v = [0, 1, 2, 3].find(i => i !== M && s.len[i] === 0);
+          const ans = (v <= 1 ? '4' : '5') + NAMES[v];
+          add(ans, `Chicane à ${NAMES[v]}`);
+          const waste = n.parts[v].replace(/[^AKQ]/g, '').length;
+          if (waste >= 2) { add(ans[0] === '4' && M === 0 ? '4♠' : '5' + Ms, `Ses honneurs à ${NAMES[v]} sont perdus en face de ta chicane : il s'arrête`); add('P'); return A; }
+          add('6' + Ms, 'Les cartes clés et pas de gaspillage en face de la chicane : petit chelem'); add('P'); return A;
+        }
+        if (rich && nk >= 3) return null;                             // autres cas de chelem : non couverts
         if (b !== '4' + Ms) add('4' + Ms, 'Pas de chelem en vue : il conclut à la manche');
-        add('P'); A.theme = 'Oklahoma'; return A;
+        add('P'); return A;
       }
       return null;
     }
