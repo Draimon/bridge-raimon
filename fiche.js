@@ -179,6 +179,10 @@ const FICHE = {
       'Majeure fittée au palier de 2 : 2SA/3♣/3♦/3♥/3♠ = enchère d’essai.',
       'Ouvreur HLD : 11-13 = 3♠/3♥ | 14 = 3♣/3♦/3♥ | 15-16 = 1er contrôle',
       'Répondant HLD : 6-8 = 3♠/3♥ | 9 = 3♣/3♦/3♥ | 10 = 1er contrôle',
+      '<b>Précisions</b> : 2SA = essai généralisé ; 3 dans une autre couleur = 5 cartes dans la couleur nommée (essai avec une 2e couleur naturelle).',
+      'Réponse du milieu (14 / 9 HLD) : 3♣/3♦/3♥ = une force dans la couleur nommée. Réponse maximum : on accepte la manche en nommant son 1er contrôle (As, Roi second, chicane ou singleton).',
+      'Les zones « ouvreur » s'appliquent quand l'ouvreur a soutenu à 2 (11-16 HLD) et que le répondant essaie (dès 11 HLD, toujours par l'essai) ; les zones « répondant » quand le répondant a soutenu à 2 (6-10 HLD).',
+      'Après 1M – 2M : 15-16 HLD → 3M proposition (le partenaire dit 4 avec 10 HLD) ; dès 17 HLD → essai.',
     ],
   },
   def2: {

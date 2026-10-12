@@ -35,6 +35,7 @@ n°213 Robot · Shadow fit : 4♥ (-100) alors que 2SA par N rapporte +120 — 1
 n°218 Robot · 1♥ – 1♠ : 4♥ (-50) alors que 3SA par N rapporte +400 — 1♥ 1♠ 3♥ 4♥
 n°219 Robot · 1♥ – 1♠ : 2♠ (+170) alors que 4♠ par S rapporte +420 — 1♥ 1♠ 2♦ 2♠
 n°230 Robot · Check-Back Stayman : 3SA (+460) alors que 6♦ par N rapporte +920 — 1♦ 1♠ 2SA 3♣ 3SA P
+n°231 Robot · Soutien majeur : 4♥ (-150) alors que 2♠ par N rapporte +110 — 1♥ 2♥ 3♥ 4♥
 n°235 Robot · Oklahoma – chelem : 6♥ (+1010) alors que 7SA par N rapporte +1520 — 1♥ 4♦ 6♥
 n°236 Robot · Oklahoma – chelem : 6♠ (+1010) alors que 7SA par N rapporte +1520 — 1♠ 4♦ 6♠
 n°238 Robot · Oklahoma – chelem : 6♥ (+1010) alors que 7♥ par N rapporte +1510 — 1♥ 4♦ 6♥
@@ -42,3 +43,11 @@ n°239 Robot · Oklahoma – chelem : 5♠ (+480) alors que 6♠ par N rapporte 
 n°241 Robot · Chelem sur 1SA : 4SA (+490) alors que 6SA par N rapporte +990 — 1SA 2♣ 2♠ 4SA P
 n°242 Robot · Chelem sur 1SA : 6SA (+990) alors que 7♣ par N rapporte +1440 — 1SA 2♣ 2♠ 4SA 6SA
 n°246 Robot · Chelem sur 1SA : 6SA (+1020) alors que 7SA par S rapporte +1520 — 1SA 2♣ 2♠ 6SA
+n°251 Robot · Enchère d’essai : 3♥ (+140) alors que 3SA par N rapporte +400 — 1♥ 2♥ 2SA 3♣ 3♥
+n°254 Robot · 2 sur 1 : 2SA (+150) alors que 3SA par N rapporte +400 — 1♠ 2♣ 2♥ 2SA P
+n°255 Robot · Enchère d’essai : 4♠ (-100) alors que 2♠ par S rapporte +110 — 1♣ 1♠ 2♠ 2SA 3♠ 4♠
+n°261 Robot · 2 sur 1 : 3SA (+490) alors que 6SA par N rapporte +990 — 1♠ 2♦ 2♥ 3SA
+n°262 Robot · 2 sur 1 : 3SA (-50) alors que 5♦ par N rapporte +400 — 1♠ 2♣ 2♦ 2SA 3SA
+n°266 Robot · 2 sur 1 : 3SA (+430) alors que 6♣ par S rapporte +920 — 1♠ 2♣ 2♥ 3SA
+n°267 Robot · 2 sur 1 : 3SA (-50) alors que 5♦ par S rapporte +400 — 1♥ 2♣ 2♥ 2SA 3SA
+n°269 Robot · 2 sur 1 : 4♥ (+480) alors que 6♦ par N rapporte +920 — 1♠ 2♥ 2♠ 4♥

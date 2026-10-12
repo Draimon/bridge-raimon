@@ -3622,7 +3622,7 @@
  },
  {
   "n": 182,
-  "t": "Robot · Mineure – majeure",
+  "t": "Robot · Enchère d’essai",
   "d": "N",
   "N": "Q87.Q865.AKT.QT3",
   "E": "KT953.A9.Q743.84",
@@ -3651,15 +3651,22 @@
     "P"
    ],
    [
+    "2SA",
+    "Essai généralisé (11 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
     "3♥",
-    "Proposition (11 HLD)"
+    "13 HLD, bas de zone : tu refuses"
    ],
    [
     "P"
    ],
    [
     "P",
-    "Bas de zone : il passe"
+    "Refus : on joue 3♥"
    ],
    [
     "P"
@@ -4509,8 +4516,15 @@
     "P"
    ],
    [
+    "3♠",
+    "16 HLD : proposition de manche"
+   ],
+   [
+    "P"
+   ],
+   [
     "P",
-    "Zone minimum (11-16 HLD) : il passe"
+    "9 HLD : tu refuses"
    ],
    [
     "P"
@@ -4793,7 +4807,7 @@
    ],
    [
     "P",
-    "Zone minimum (11-16 HLD) : il passe"
+    "14 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -5306,8 +5320,15 @@
     "P"
    ],
    [
+    "3♠",
+    "16 HLD : proposition de manche"
+   ],
+   [
+    "P"
+   ],
+   [
     "P",
-    "Zone minimum (11-16 HLD) : il passe"
+    "9 HLD : tu refuses"
    ],
    [
     "P"
@@ -5391,8 +5412,15 @@
     "P"
    ],
    [
+    "3♥",
+    "16 HLD : proposition de manche"
+   ],
+   [
+    "P"
+   ],
+   [
     "P",
-    "Zone minimum (11-16 HLD) : il passe"
+    "8 HLD : tu refuses"
    ],
    [
     "P"
@@ -5463,7 +5491,7 @@
    ],
    [
     "P",
-    "Zone minimum (11-16 HLD) : il passe"
+    "13 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -5660,8 +5688,22 @@
     "P"
    ],
    [
+    "3♥",
+    "16 HLD : proposition de manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "10 HLD : tu acceptes"
+   ],
+   [
+    "P"
+   ],
+   [
     "P",
-    "Zone minimum (11-16 HLD) : il passe"
+    ""
    ],
    [
     "P"
@@ -6465,6 +6507,1116 @@
    [
     "6♠",
     "Les cartes clés et pas de gaspillage en face de la chicane : petit chelem"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 249,
+  "t": "Robot · Mineure – majeure",
+  "d": "N",
+  "N": "J83.AJ65.Q2.AJ75",
+  "E": "KQT4.T98.643.KQ6",
+  "S": "A762.Q4.AKJ75.43",
+  "O": "95.K732.T98.T982",
+  "a": [
+   [
+    "1♣",
+    "Ouverture, meilleure mineure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♠",
+    "4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1SA",
+    "Régulier, 12-14H"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "La manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 250,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "AK765.Q8.T764.AJ",
+  "E": "T.T7643.KJ.KQ853",
+  "S": "Q9843.J2.A32.T76",
+  "O": "J2.AK95.Q985.942",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Soutien simple : fit ♠, 6-10 HLD (9)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Essai généralisé (17 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "9 HLD, milieu de zone : une force à ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "On s'arrête à 3♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 251,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "Q72.AKQ42.KT62.7",
+  "E": "J8.9863.85.AQT64",
+  "S": "AT94.T75.73.KJ82",
+  "O": "K653.J.AQJ94.953",
+  "a": [
+   [
+    "1♥",
+    "Ouverture, 5 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Soutien simple : fit ♥, 6-10 HLD (9)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Essai généralisé (17 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "9 HLD, milieu de zone : une force à ♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "On s'arrête à 3♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 252,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "K862.A953.A4.T62",
+  "E": "3.J6.QT852.AK974",
+  "S": "AT975.K874.J9.J5",
+  "O": "QJ4.QT2.K763.Q83",
+  "a": [
+   [
+    "1♣",
+    "Ouverture, meilleure mineure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♠",
+    "5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Fit ♠, 11-16 HLD (12)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Essai généralisé (12 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "12 HLD, bas de zone : tu refuses"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Refus : on joue 3♠"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 253,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "QJ.A8542.76.AK84",
+  "E": "KT9.KQT.T9842.Q5",
+  "S": "A876.J763.QJ5.76",
+  "O": "5432.9.AK3.JT932",
+  "a": [
+   [
+    "1♥",
+    "Ouverture, 5 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Soutien simple : fit ♥, 6-10 HLD (9)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Essai généralisé (17 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "9 HLD, milieu de zone : une force à ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "On s'arrête à 3♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 254,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "J9532.AQ72.K63.J",
+  "E": "KQ6.83.Q8742.K87",
+  "S": "T4.K95.AT95.AT53",
+  "O": "A87.JT64.J.Q9642",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "2 sur 1 avec 11H régulier, sans couleur 5e (« mensonge » en mineure)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "2e couleur : 4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "11H régulier : proposition"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Minimum : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 255,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "6542.AKJ6.98.K62",
+  "E": "A3.9.T6543.AJT73",
+  "S": "KJ97.Q73.AQ7.Q95",
+  "O": "QT8.T8542.KJ2.84",
+  "a": [
+   [
+    "1♣",
+    "Ouverture, meilleure mineure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♠",
+    "4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Fit ♠, 11-16 HLD (12)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Essai généralisé (14 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "12 HLD, bas de zone : tu refuses"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Assez pour la manche malgré le refus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 256,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "KQ42.KQJ5.632.62",
+  "E": "T3.94.AQT5.A7543",
+  "S": "AJ87.AT32.98.KJ8",
+  "O": "965.876.KJ74.QT9",
+  "a": [
+   [
+    "1♦",
+    "4-4 en majeures et 3 cartes à ♦ : 1♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♥",
+    "4 cartes à ♥ (avec 4-4 en majeures, les ♥ d’abord)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Fit ♥, 11-16 HLD (12)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Essai généralisé (14 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "12 HLD, bas de zone : tu refuses"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Assez pour la manche malgré le refus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 257,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "A8654.A852.Q.AT5",
+  "E": "T9.KJT6.KT98.K86",
+  "S": "KJ3.97.7643.J742",
+  "O": "Q72.Q43.AJ52.Q93",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Soutien simple : fit ♠, 6-10 HLD (6)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Essai généralisé (17 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "6 HLD, bas de zone : tu refuses"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Refus : on joue 3♠"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 258,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "AK983.AQT96.64.5",
+  "E": "J654.K4.J93.QJT9",
+  "S": "T7.J53.AK87.AK86",
+  "O": "Q2.872.QT52.7432",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "15H régulier, pas de fit"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 259,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "QJ83.AK9.J962.92",
+  "E": "K2.J6532.43.AQJ4",
+  "S": "AT94.7.AKT875.T5",
+  "O": "765.QT84.Q.K8763",
+  "a": [
+   [
+    "1♦",
+    "Ouverture, 4 cartes ou plus à ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♠",
+    "4 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Fit ♠, 11-16 HLD (12)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "Essai : 5 cartes à ♦ (16 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "12 HLD, bas de zone : tu refuses"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Assez pour la manche malgré le refus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 260,
+  "t": "Robot · Enchère d’essai",
+  "d": "N",
+  "N": "J4.KQJ6.A82.8653",
+  "E": "T85.A432.QT63.T9",
+  "S": "A97.T985.5.AKJ72",
+  "O": "KQ632.7.KJ974.Q4",
+  "a": [
+   [
+    "1♣",
+    "Ouverture, meilleure mineure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♥",
+    "4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Fit ♥, 11-16 HLD (12)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "Essai : 5 cartes à ♣ (15 HLD)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "12 HLD, bas de zone : tu refuses"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Assez pour la manche malgré le refus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 261,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "KQ543.KJT4.A.K97",
+  "E": "82.95.Q9654.J854",
+  "S": "JT.A873.KJ872.AT",
+  "O": "A976.Q62.T3.Q632",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "2 sur 1 : 5 cartes à ♦, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "2e couleur : 4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "La manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 262,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "KQ952.6.KQJ54.A6",
+  "E": "JT63.AK853.T8.KT",
+  "S": "A.JT4.A962.QJ932",
+  "O": "874.Q972.73.8754",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "2 sur 1 : 5 cartes à ♣, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "2e couleur : 4 cartes à ♦"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition (11-12H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Haut de zone : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 263,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "J9853.AQ74.J.K74",
+  "E": "K76.J83.42.QJT53",
+  "S": "Q2.K6.Q8763.A962",
+  "O": "AT4.T952.AKT95.8",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "2 sur 1 : 5 cartes à ♦, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "2e couleur : 4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition (11-12H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "Minimum : il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 264,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "AT9843.K8.K75.A2",
+  "E": "K7.A732.AT32.964",
+  "S": "-.QJT954.QJ98.KQ8",
+  "O": "QJ652.6.64.JT753",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 6 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "2 sur 1 : 5 cartes à ♥, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "6 cartes à ♠, minimum"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "6 cartes à ♥ : proposition"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Haut de zone avec 2 cartes à ♥ : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 265,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "T3.AK9763.A65.43",
+  "E": "KQ98.T842.Q4.982",
+  "S": "AJ4.QJ.JT72.AQ76",
+  "O": "7652.5.K983.KJT5",
+  "a": [
+   [
+    "1♥",
+    "Ouverture, 6 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "15H régulier, pas de fit"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "6 cartes à ♥ : la manche en majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 266,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "AK943.Q9863.-.A86",
+  "E": "87652.72.AK754.4",
+  "S": "QJ.KT.QT82.KQJT9",
+  "O": "T.AJ54.J963.7532",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "2 sur 1 : 5 cartes à ♣, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "2e couleur : 4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "La manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 267,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "AJ5.AK984.J83.82",
+  "E": "KT83.QJ.A76.9654",
+  "S": "9.65.KQ542.AQJT3",
+  "O": "Q7642.T732.T9.K7",
+  "a": [
+   [
+    "1♥",
+    "Ouverture, 5 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♣",
+    "2 sur 1 : 5 cartes à ♣, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Minimum (peut être régulier)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition (11-12H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Haut de zone : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 268,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "K763.AQJ83.3.A72",
+  "E": "Q52.42.KQT5.K864",
+  "S": "A.T.AJ7642.QJ953",
+  "O": "JT984.K9765.98.T",
+  "a": [
+   [
+    "1♥",
+    "Ouverture, 5 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "2 sur 1 : 5 cartes à ♦, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Minimum (peut être régulier)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition (11-12H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3SA",
+    "Haut de zone : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 269,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "AT943.-.A532.AQ65",
+  "E": "Q765.J986.96.KT7",
+  "S": "J.AKQ7542.QJT8.3",
+  "O": "K82.T3.K74.J9842",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "2 sur 1 : 5 cartes à ♥, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Minimum (peut être régulier)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "7 cartes à ♥ : la manche en majeure"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    ""
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
+  "n": 270,
+  "t": "Robot · 2 sur 1",
+  "d": "N",
+  "N": "6.AKJ8753.83.K95",
+  "E": "AT972.9.54.AQ764",
+  "S": "QJ8.Q4.AQJT92.T2",
+  "O": "K543.T62.K76.J83",
+  "a": [
+   [
+    "1♥",
+    "Ouverture, 7 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♦",
+    "2 sur 1 : 5 cartes à ♦, 11H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "6 cartes à ♥, minimum"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Proposition (11-12H)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "7 cartes à ♥, minimum : il répète sa couleur"
    ],
    [
     "P"

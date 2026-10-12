@@ -30,7 +30,19 @@ Réponses au questionnaire du 12/10/2026. La fiche (`fiche.js`) reste prioritair
 ## 2♦ Multi
 - **2♦ – 2SA (relais 15H+)** : l'ouvreur montre son deux faible naturellement (3♥/3♠), sans distinction mini/maxi.
 
+## Enchères d'essai (précisions du 12/10/2026)
+- 2SA = essai généralisé ; 3x = 5 cartes dans x (essai avec 2e couleur naturelle).
+- Réponses selon la zone de celui qui répond : ouvreur (soutien à 2 = 11-16 HLD) 11-13 → 3M, 14 → 3x « force dans la couleur nommée », 15-16 → 1er contrôle (accepte la manche) ; répondant (soutien à 2 = 6-10 HLD) 6-8 / 9 / 10 HLD idem.
+- 1er contrôle = As, Roi second, chicane ou singleton.
+- Après 1M – 2M : ouvreur 15-16 HLD → 3M proposition (le répondant dit 4 avec 10 HLD) ; dès 17 HLD → essai (manche ou chelem).
+- Après 1m – 1M – 2M : le répondant passe toujours par l'essai dès 11 HLD, puis développe vers le chelem si possible.
+
+## 2 sur 1
+- Toujours 5 cartes (on peut mentir en mineure pour un fit différé). Forcing un tour, 11H et plus.
+- Redemandes de l'ouvreur : 2SA = 15-17 régulier ; répétition de sa majeure = minimum (peut être 5332) ; 3♥ sur 1♠ – 2♥ = fit (toujours 3♥).
+- Répondant : 2SA direct = 12H régulier ; 2 sur 1 puis 2SA = 11H régulier (cf. ouverture à 11 pts).
+- Pas de saut en nouvelle couleur du répondant (« on ne fait pas de barrage sur le partenaire »).
+
 ## Encore à préciser (je demanderai au fil de l'eau)
 - Ce que vous appelez « petit Stayman ».
 - La suite des enchères après 2♣ Albaran et après « fort » sur 2♥/2♠.
-- Le saut en nouvelle couleur du répondant (1♥ – 2♠) : faible ou fort ?

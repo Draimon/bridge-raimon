@@ -27,6 +27,7 @@
   const stop = (e, s) => { const p = e.parts[s]; return p.includes('A') || (p.includes('K') && p.length >= 2) || (p.includes('Q') && p.length >= 3); };
 
   // ───── Chelems : Blackwood Lefèvre (As) et Blackwood 30-41 + CRM sur 1SA
+  const rankOf = b => { const m = /^([1-7])(♣|♦|♥|♠|SA)$/.exec(b); return m ? (m[1] - 1) * 5 + ['♣', '♦', '♥', '♠', 'SA'].indexOf(m[2]) : -1; };
   const aces = e => e.parts.join('').split('').filter(c => c === 'A').length;
   const kings = e => e.parts.join('').split('').filter(c => c === 'K').length;
   // Réponse au 4SA Lefèvre avec l'atout t : [enchère, explication, valeurs possibles]
@@ -100,7 +101,7 @@
       }
       if (L >= 6) {
         // Votre règle : changement de couleur forcing, puis on recompte en HLD.
-        const cands = [0, 1, 2, 3].filter(i => i !== major5);
+        const cands = [0, 1, 2, 3].filter(i => i !== major5 && rankOf('3' + SUIT[i]) < rankOf('3' + M));
         const cs = cands.sort((a, b) => s.len[b] - s.len[a])[0];
         add('3' + SUIT[cs], `Changement de couleur après le Texas : forcing un tour, pour que le partenaire montre son fit`);
         add('3' + M, `Il montre le fit ${M}`);
@@ -111,7 +112,7 @@
           const [b, why, opts] = lefevre(n, major5); add(b, why);
           const pa = readAces(opts, aces(s)); if (pa === null) return null;
           const tot = pa + aces(s);
-          if (tot <= 2) { add('5' + M, `Il manque 2 As : on s'arrête à 5${M}`); add('P'); return A; }
+          if (tot <= 2) { if (rankOf('5' + M) <= rankOf(b)) return null; add('5' + M, `Il manque 2 As : on s'arrête à 5${M}`); add('P'); return A; }
           if (tot === 4) return null;                                   // grand chelem : non géré
           add('6' + M, 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
         }
@@ -152,7 +153,7 @@
           const [b, why, opts] = lefevre(n, t); add(b, why);
           const pa = readAces(opts, aces(s)); if (pa === null) return null;
           const tot = pa + aces(s);
-          if (tot <= 2) { add('5' + fitM, `Il manque 2 As : on s'arrête à 5${fitM}`); add('P'); return A; }
+          if (tot <= 2) { if (rankOf('5' + fitM) <= rankOf(b)) return null; add('5' + fitM, `Il manque 2 As : on s'arrête à 5${fitM}`); add('P'); return A; }
           if (tot === 4) return null;                                   // grand chelem : non géré
           add('6' + fitM, 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
         }
@@ -260,6 +261,105 @@
   const keyCards = (e, t) => (e.parts.join('').split('').filter(c => c === 'A').length) + (e.parts[t].includes('K') ? 1 : 0);
   const voidSuit = (e, t) => [0, 1, 2, 3].some(i => i !== t && e.len[i] === 0);
 
+  // ───── Enchère d'essai (fit M soutenu à 2)
+  const honPts = (e, i) => e.parts[i].split('').reduce((t, c) => t + ({ A: 4, K: 3, Q: 2, J: 1 }[c] || 0), 0);
+  const hasControl = (e, i) => { const p = e.parts[i]; return p.length <= 1 || p.includes('A') || (p.includes('K') && p.length === 2); };
+  // 2SA = essai généralisé ; 3x = 5 cartes dans x (sous 3M)
+  function trialBid(e, M) {
+    const xs = [0, 1, 2, 3].filter(x => x !== M && e.len[x] >= 5 && rankOf('3' + NAMES[x]) < rankOf('3' + NAMES[M])).sort((a, b) => e.len[b] - e.len[a]);
+    return xs.length ? ['3' + NAMES[xs[0]], 'Essai : 5 cartes à ' + NAMES[xs[0]], xs[0]] : ['2SA', 'Essai généralisé', -1];
+  }
+  // Réponse selon la zone [bas, milieu, haut] : refus 3M / force dans une couleur / 1er contrôle (manche acceptée)
+  function trialAnswer(e, M, zone, last) {
+    const p = hld(e, M), Ms = NAMES[M];
+    if (p <= zone[0]) return ['3' + Ms, p + ' HLD, bas de zone : tu refuses', 'non'];
+    if (p === zone[1]) {
+      const cands = [3, 2, 1, 0].filter(i => i !== M && rankOf('3' + NAMES[i]) > rankOf(last) && rankOf('3' + NAMES[i]) < rankOf('3' + Ms) && honPts(e, i) >= 3);
+      const best = cands.sort((a, b) => honPts(e, b) - honPts(e, a))[0];
+      if (best === undefined) return ['3' + Ms, p + ' HLD, milieu de zone sans force à montrer : 3' + Ms, 'non'];
+      return ['3' + NAMES[best], p + ' HLD, milieu de zone : une force à ' + NAMES[best], 'force', best];
+    }
+    let cue = null;
+    for (const i of [0, 1, 2, 3]) {
+      if (i === M || !hasControl(e, i)) continue;
+      const b = rankOf('3' + NAMES[i]) > rankOf('3' + Ms) ? '3' + NAMES[i] : '4' + NAMES[i];
+      if (rankOf(b) > rankOf(last) && rankOf(b) < rankOf('4' + Ms) && (!cue || rankOf(b) < rankOf(cue[0]))) cue = [b, NAMES[i]];
+    }
+    if (!cue) return ['4' + Ms, p + ' HLD, haut de zone : la manche', 'oui'];
+    return [cue[0], p + ' HLD, haut de zone : tu acceptes la manche et nommes ton 1er contrôle (' + cue[1] + ')', 'oui'];
+  }
+  // Décision de celui qui a essayé
+  function trialEnd(A, add, asker, answerer, M, askP, type, x, forceSuit, ansBid, th) {
+    const Ms = NAMES[M];
+    const est = type === 'non' ? th.low : type === 'force' ? th.mid : th.other;
+    if (askP + est >= 32) {
+      add('4SA', 'Zone de chelem : Blackwood Lefèvre');
+      const [b, why, opts] = lefevre(answerer, M); add(b, why);
+      const pa = readAces(opts, aces(asker)); if (pa === null) return null;
+      const tot = pa + aces(asker);
+      if (tot <= 2) { if (rankOf('5' + Ms) <= rankOf(b)) return null; add('5' + Ms, "Il manque 2 As : on s'arrête à 5" + Ms); add('P'); return A; }
+      if (tot === 4) return null;
+      add('6' + Ms, 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
+    }
+    if (type === 'non') { if (askP >= th.refuse) { add('4' + Ms, 'Assez pour la manche malgré le refus'); add('P'); } else add('P', 'Refus : on joue 3' + Ms); return A; }
+    if (type === 'force') {
+      if (askP >= th.force || forceSuit === x) { add('4' + Ms, forceSuit === x ? 'La force est dans ta 2e couleur : la manche' : 'Assez pour la manche'); add('P'); }
+      else { add('3' + Ms, "On s'arrête à 3" + Ms); add('P'); }
+      return A;
+    }
+    if (ansBid === '4' + Ms) { add('P', 'Manche'); return A; }
+    add('4' + Ms, 'La manche'); add('P'); return A;
+  }
+
+  // ───── 2 sur 1 (répondant 11H et plus, sans fit 3 cartes)
+  function twoOverOne(n, s, M, A, add) {
+    const Ms = NAMES[M], r = s.hcp;
+    if (r >= 16 || (M === 1 && s.s >= 4)) return null;
+    A.theme = '2 sur 1';
+    const cand = [3, 2, 1].filter(i => i !== M && rankOf('2' + NAMES[i]) < rankOf('2' + Ms) && s.len[i] >= 5).sort((a, b) => s.len[b] - s.len[a]);
+    let x, liar = false;
+    if (!cand.length) {
+      if (!s.balanced) return null;
+      if (r === 12) {
+        add('2SA', '12H régulier, pas de fit');
+        if (n.len[M] >= 6) { add((n.hcp >= 13 ? '4' : '3') + Ms, '6 cartes à ' + Ms); add('P'); return A; }
+        if (n.hcp >= 13) { add('3SA', 'Assez pour la manche'); add('P'); } else add('P', 'Minimum : il passe');
+        return A;
+      }
+      if (r >= 13) { add('3SA', r + 'H régulier, pas de fit'); if (n.len[M] >= 6) { add('4' + Ms, '6 cartes à ' + Ms + ' : la manche en majeure'); add('P'); } else add('P'); return A; }
+      x = s.c >= 3 ? 3 : 2; liar = true;
+    } else x = cand[0];
+    const X = NAMES[x];
+    add('2' + X, liar ? '2 sur 1 avec 11H régulier, sans couleur 5e (« mensonge » en mineure)' : '2 sur 1 : 5 cartes à ' + X + ', 11H et plus');
+    let reb;
+    const y = [1, 2, 3].find(i => i !== M && i !== x && n.len[i] >= 4 && rankOf('2' + NAMES[i]) > rankOf('2' + X) && rankOf('2' + NAMES[i]) < rankOf('2' + Ms));
+    if (x === 1 && n.h >= 3) reb = ['3♥', 'Fit ♥ (3 cartes)'];
+    else if (x >= 2 && n.len[x] >= 4) reb = ['3' + X, 'Fit ' + X + ' (4 cartes)'];
+    else if (n.balanced && n.hcp >= 15 && n.hcp <= 17) reb = ['2SA', '15-17H régulier'];
+    else if (n.len[M] >= 6 && n.hcp <= 14) reb = ['2' + Ms, '6 cartes à ' + Ms + ', minimum'];
+    else if (y !== undefined && n.hcp <= 16) reb = ['2' + NAMES[y], '2e couleur : 4 cartes à ' + NAMES[y]];
+    else if (n.hcp <= 14) reb = ['2' + Ms, 'Minimum (peut être régulier)'];
+    else return null;
+    add(reb[0], reb[1]);
+    const b = reb[0];
+    if (b === '3♥') { if (hld(s, 1) + 14 >= 32) return null; add('4♥', 'Fit ♥ : la manche'); add('P'); return A; }
+    if (b === '3' + X) { add('3SA', 'Fit mineur mais la manche à SA'); add('P'); return A; }
+    if (b === '2SA') { if (r + 16 >= 32) return null; add('3SA', 'Face à 15-17 : la manche'); add('P'); return A; }
+    if (r <= 12 && x === 1 && s.h >= 6 && b === '2' + Ms) {
+      add('3♥', '6 cartes à ♥ : proposition');
+      if (n.hcp >= 13 && n.h >= 2) { add('4♥', 'Haut de zone avec 2 cartes à ♥ : il accepte'); add('P'); } else add('P', 'Il passe');
+      return A;
+    }
+    if (r <= 12) {
+      add('2SA', r === 11 && s.balanced ? '11H régulier : proposition' : 'Proposition (11-12H)');
+      if (n.len[M] >= 6) { add((n.hcp >= 13 ? '4' : '3') + Ms, n.len[M] + ' cartes à ' + Ms + (n.hcp >= 13 ? ' et haut de zone : la manche' : ', minimum : il répète sa couleur')); add('P'); return A; }
+      if (n.hcp >= 13) { add('3SA', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Minimum : il passe');
+      return A;
+    }
+    if (x === 1 && s.h >= 6) { add('4♥', s.h + ' cartes à ♥ : la manche en majeure'); add('P'); return A; }
+    add('3SA', 'La manche'); add('P'); return A;
+  }
+
   function openSuit(n) {
     if (n.hcp < 11 || n.hcp > 19) return null;
     if (n.balanced && n.hcp >= 15 && n.hcp <= 17 && n.s < 5 && n.h < 5) return null;   // 1SA
@@ -280,8 +380,14 @@
       if (h < 6) { add('P', 'Moins de 6 HLD : tu passes'); A.theme = 'Ouverture majeure'; return A; }
       if (h <= 10) {
         add('2' + Ms, `Soutien simple : fit ${Ms}, 6-10 HLD (${h})`);
-        if (hld(n, M) > 16) return null;                          // enchère d'essai : hors tranche 2
-        add('P', 'Zone minimum (11-16 HLD) : il passe'); A.theme = 'Soutien majeur'; return A;
+        A.theme = 'Soutien majeur';
+        const on = hld(n, M);
+        if (on <= 14) { add('P', on + ' HLD : pas de manche, il passe'); return A; }
+        if (on <= 16) { add('3' + Ms, on + ' HLD : proposition de manche'); if (h >= 10) { add('4' + Ms, h + ' HLD : tu acceptes'); add('P'); } else add('P', h + ' HLD : tu refuses'); return A; }
+        A.theme = 'Enchère d’essai';
+        const [tb, tw, tx] = trialBid(n, M); add(tb, tw + ' (' + on + ' HLD)');
+        const [ab, aw, at, af] = trialAnswer(s, M, [8, 9, 10], tb); add(ab, aw);
+        return trialEnd(A, add, n, s, M, on, at, tx, af, ab, { refuse: 19, force: 18, low: 7, mid: 9, other: 10 });
       }
       if (h <= 12) {
         if (s.hcp >= 8) add(fit >= 4 ? '3♦' : '3♣', `Shadow fit : fit ${Ms} par ${fit >= 4 ? 4 : 3} cartes, 8H et plus, zone 11-12 HLD`);
@@ -321,7 +427,7 @@
       return null;
     }
     if (s.hcp < 6) { add('P', 'Moins de 6H et pas de fit : tu passes'); A.theme = 'Ouverture majeure'; return A; }
-    if (s.hcp > 10) return null;                                   // 2 sur 1 : tranche suivante
+    if (s.hcp > 10) return twoOverOne(n, s, M, A, add);
     if (M === 1 && s.s >= 4) {
       add('1♠', '4 cartes ou plus à ♠ : forcing');
       A.theme = '1♥ – 1♠';
@@ -390,10 +496,11 @@
       const b = reb[0];
       if (b === '2' + Ms) {
         const h = hld(s, M);
-        if (h >= 18) return null;
-        if (h >= 13) { add('4' + Ms, `${h} HLD face à 11-16 : la manche`); add('P'); return A; }
-        if (h >= 11) { add('3' + Ms, `Proposition (${h} HLD)`); if (hld(n, M) >= 14) { add('4' + Ms, 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
-        add('P', 'Pas de manche : tu passes'); return A;
+        if (h <= 10) { add('P', 'Pas de manche : tu passes'); return A; }
+        A.theme = 'Enchère d’essai';
+        const [tb, tw, tx] = trialBid(s, M); add(tb, tw + ' (' + h + ' HLD)');
+        const [ab, aw, at, af] = trialAnswer(n, M, [13, 14, 16], tb); add(ab, aw);
+        return trialEnd(A, add, s, n, M, h, at, tx, af, ab, { refuse: 13, force: 12, low: 12, mid: 14, other: 15.5 });
       }
       if (b === '3' + Ms) { const h = hld(s, M); if (h >= 14) return null; if (h >= 8) { add('4' + Ms, 'Tu acceptes la manche'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
       if (b === '1♠') {
