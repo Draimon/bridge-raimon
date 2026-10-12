@@ -252,16 +252,12 @@ function createPlay(env) {
     }).join('') : '<span class="muted">—</span>'}</div>`).join('');
   }
 
-  function seatLabel(seat) {
-    const role = seat === G.decl ? 'déclarant' : seat === G.dummy ? 'mort' : 'défense';
-    return `${seat === 'S' ? 'Toi' : seat === 'N' ? 'Partenaire' : NAMES[seat]} · ${role}`;
-  }
-
-  function trickCell(seat) {
+  // pos : place à l'écran (N = en haut, S = en bas, O = à gauche, E = à droite)
+  function trickCell(seat, pos) {
     const t = G.trick.find(x => x.seat === seat);
     const w = G.trick.length === 4 ? winnerOf(G.trick) : null;
     const turn = !G.busy && G.turn === seat && !t;
-    return `<div class="tc t${seat} ${turn ? 'turn' : ''}"><div class="tn">${NAMES[seat]}</div>${t ? `<div class="pc ${w && w.seat === seat ? 'win' : ''}">${lab(t.c)}</div>` : '<div class="pc empty"></div>'}</div>`;
+    return `<div class="tc t${pos} ${turn ? 'turn' : ''}"><div class="tn">${NAMES[seat]}</div>${t ? `<div class="pc ${w && w.seat === seat ? 'win' : ''}">${lab(t.c)}</div>` : '<div class="pc empty"></div>'}</div>`;
   }
 
   function actionsHtml() {
@@ -283,16 +279,17 @@ function createPlay(env) {
   function view() {
     const c = G.deal.c;
     const toPlay = !G.busy && userSeat(G.turn) ? G.turn : null;
-    const showN = G.dummyShown || G.decl === 'N';
-    const showS = G.dummyShown || G.decl === 'S';
+    // Tu joues toujours depuis la place du déclarant : sa main en bas, le mort en face (en haut).
+    const D = G.decl, M = G.dummy, L = next(D), R = next(M);
+    const who = s => (s === 'S' ? 'Sud, ta main' : 'Nord, ton partenaire');
     app.innerHTML = topbar(`Jeu · donne n° ${G.deal.n}`, 'Quitter') + `
       <div class="card playbar">
         <div><b>${c.l}${fmt(c.s)}</b> par ${G.decl === 'S' ? 'toi' : 'ton partenaire'} · il faut ${G.need} levées</div>
         <div class="muted">Levées : <b>vous ${G.tricks.NS}</b> · eux ${G.tricks.EO} · objectif ${G.deal.dd}</div>
       </div>
-      <div class="card hand ${toPlay === 'N' ? 'active' : ''}"><div class="hl">${seatLabel('N')}</div>${showN ? handRows('N', toPlay === 'N') : '<p class="muted">Le mort sera étalé après l’entame.</p>'}</div>
-      <div class="table3">${trickCell('N')}${trickCell('O')}${trickCell('E')}${trickCell('S')}</div>
-      <div class="card hand ${toPlay === 'S' ? 'active' : ''}"><div class="hl">${seatLabel('S')}</div>${showS ? handRows('S', toPlay === 'S') : '<p class="muted">Le mort sera étalé après l’entame.</p>'}</div>
+      <div class="card hand ${toPlay === M ? 'active' : ''}"><div class="hl">Mort · ${who(M)}</div>${G.dummyShown ? handRows(M, toPlay === M) : '<p class="muted">Le mort sera étalé après l’entame.</p>'}</div>
+      <div class="table3">${trickCell(M, 'N')}${trickCell(L, 'O')}${trickCell(R, 'E')}${trickCell(D, 'S')}</div>
+      <div class="card hand ${toPlay === D ? 'active' : ''}"><div class="hl">Tu joues · déclarant (${who(D)})</div>${handRows(D, toPlay === D)}</div>
       ${G.msg ? `<div class="feedback ko" style="margin-bottom:10px"><p style="margin:0">${G.msg}</p></div>` : ''}
       ${actionsHtml()}
       ${G.last ? `<p class="muted center" style="font-size:13px">Levée précédente : ${G.last.map(t => NAMES[t.seat][0] + ' ' + lab(t.c)).join(' · ')}</p>` : ''}`;
@@ -331,6 +328,7 @@ function createPlay(env) {
         <div style="font-size:24px;font-weight:700;margin:4px 0">${contract}</div>${claimNote}
         <div class="feedback ${verdict[0]}" style="margin-top:10px"><h3 style="margin:0">${verdict[1]}</h3>
           <p style="margin:6px 0 0;font-size:14px">L’objectif est le nombre de levées faisable avec un jeu parfait des deux côtés (double mort).</p></div>
+        ${G.deal.best ? `<p style="font-size:15px;margin:10px 0 0">Meilleur contrat possible : <b>${fmt(G.deal.best.c)}</b> par ${G.deal.best.by === 'S' ? 'toi' : 'ton partenaire'} (${G.deal.best.t} levées en double mort)${G.deal.best.c === c.l + c.s ? ' : vous y étiez !' : ''}</p>` : ''}
       </div>
       <div class="card"><b>Les 4 mains d’origine</b>
         <div class="compass"><div class="cN">${mini('N')}</div><div class="cO">${mini('O')}</div><div class="cE">${mini('E')}</div><div class="cS">${mini('S')}</div></div></div>

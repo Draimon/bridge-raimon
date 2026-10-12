@@ -162,11 +162,11 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js"></script>
-<script src="fiche.js"></script>
-<script src="deals.js"></script>
-<script src="dds.js"></script>
-<script src="jeu.js"></script>
+<script src="questions.js?v=202610121715"></script>
+<script src="fiche.js?v=202610121715"></script>
+<script src="deals.js?v=202610121715"></script>
+<script src="dds.js?v=202610121715"></script>
+<script src="jeu.js?v=202610121715"></script>
 <script>
 (() => {
   'use strict';
@@ -573,9 +573,22 @@
 
   let play = null;
   const PLAY = createPlay({ app, fmt, topbar, on, go: v => v(), getProgress: () => progress, save, exit: () => go(dealList) });
-  function startDeal(deal) {
+  const biddingDone = n => { const p = progress[dealKey(n)]; return !!p && (p.won || p.last === 1); };
+  function startDeal(deal, skipIntro) {
     play = { deal, i: 0, errors: [], subs: {}, choice: null, answered: false };
+    if (!skipIntro && biddingDone(deal.n) && deal.dd !== undefined) return go(dealIntro);
     go(dealView);
+  }
+  function dealIntro() {
+    const deal = play.deal;
+    app.innerHTML = topbar('Donne n° ' + deal.n, 'Donnes') + `
+      <div class="card center"><div style="font-size:18px;font-weight:700">Tu as déjà réussi les enchères de cette donne.</div>
+        <p class="muted" style="margin:6px 0 0">Contrat : <b>${fmt(deal.c.l + deal.c.s)}</b> joué par ${deal.c.by === 'S' ? 'toi' : 'ton partenaire'}</p></div>
+      <button class="btn primary center" data-act="cardsnow">Jouer la carte directement</button>
+      <button class="btn center" data-act="bidagain">Refaire les enchères</button>`;
+    on('back', () => { play = null; go(dealList); });
+    on('cardsnow', () => { window.scrollTo(0, 0); PLAY.start(deal); });
+    on('bidagain', () => startDeal(deal, true));
   }
 
   function dealAuctionHtml(deal, upto, ask) {
@@ -645,7 +658,7 @@
     const p = play, deal = p.deal;
     const perfect = p.errors.length === 0;
     const prev = progress[dealKey(deal.n)] || {};
-    progress[dealKey(deal.n)] = { plays: (prev.plays || 0) + 1, last: perfect ? 1 : 0 };
+    progress[dealKey(deal.n)] = { plays: (prev.plays || 0) + 1, last: perfect ? 1 : 0, won: !!(prev.won || prev.last === 1 || perfect) };
     save();
     const mine = deal.a.filter((x, k) => seatAt(deal, k) === 'S').length;
     const nErr = p.errors.length;
@@ -657,7 +670,6 @@
           <h3 style="margin:0">${perfect ? 'Parfait : bon contrat, sans faute !' : `Retoqué : ${nErr} enchère${nErr > 1 ? 's' : ''} fausse${nErr > 1 ? 's' : ''} sur ${mine}`}</h3>
           ${perfect ? '' : '<p style="margin:6px 0 0">Sans les corrections, vous ne seriez pas arrivés à ce contrat. Rejoue-la plus tard !</p>'}
         </div>
-        ${deal.best ? `<p style="font-size:15px;margin:10px 0 0">Meilleur contrat possible : <b>${fmt(deal.best.c)}</b> par ${deal.best.by === 'S' ? 'toi' : 'ton partenaire'} (${deal.best.t} levées en double mort)${deal.best.c === deal.c.l + deal.c.s ? ' : vous y êtes !' : ''}</p>` : ''}
         <p class="muted" style="font-size:14px;margin:10px 0 0">Thème : ${fmt(deal.t)}</p>
       </div>
       <details class="card"><summary><b>Voir les 4 mains</b> <span class="muted" style="font-size:13px">(dévoile le jeu)</span></summary>
@@ -679,7 +691,7 @@
       <button class="btn center" data-act="again">Rejouer les enchères</button>`;
     on('playcards', () => { window.scrollTo(0, 0); PLAY.start(deal); });
     on('back', () => { play = null; go(dealList); });
-    on('again', () => startDeal(deal));
+    on('again', () => startDeal(deal, true));
     on('nextdeal', () => startDeal(pickDeal(deal)));
   }
 
