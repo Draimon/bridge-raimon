@@ -209,11 +209,11 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610121731"></script>
-<script src="fiche.js?v=202610121731"></script>
-<script src="deals.js?v=202610121731"></script>
-<script src="dds.js?v=202610121731"></script>
-<script src="jeu.js?v=202610121731"></script>
+<script src="questions.js?v=202610121944"></script>
+<script src="fiche.js?v=202610121944"></script>
+<script src="deals.js?v=202610121944"></script>
+<script src="dds.js?v=202610121944"></script>
+<script src="jeu.js?v=202610121944"></script>
 <script>
 (() => {
   'use strict';
@@ -304,7 +304,8 @@
       <div class="section-title">Consulter</div>
       <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
       <p class="center muted" style="font-size:13px;margin-top:20px">Un souci sur une question ou une donne ? Note son numéro et préviens Damien.</p>
-      <p class="center"><button class="link" data-act="reset">Remettre la progression à zéro</button></p>`;
+      <p class="center"><button class="link" data-act="reset">Remettre la progression à zéro</button></p>
+      <p class="center muted" style="font-size:13px">${versionLabel()}</p>`;
     on('quiz', () => go(quizHome));
     on('fiche', () => go(fiche));
     on('deals', () => go(dealList));
@@ -770,6 +771,12 @@
   // ───── Mise à jour : si une nouvelle version est publiée, on propose de recharger (utile dans l'appli installée,
   // qui n'a pas de bouton ↻).
   const myVersion = ((document.querySelector('script[src*="jeu.js"]') || {}).src || '').split('v=')[1] || '';
+  // « Version du 12/10/2026 à 17h31 » : pour vérifier d'un coup d'œil que le téléphone est à jour.
+  function versionLabel() {
+    const v = myVersion;
+    if (!/^\d{12}$/.test(v)) return 'Version de développement';
+    return `Version du ${v.slice(6, 8)}/${v.slice(4, 6)}/${v.slice(0, 4)} à ${v.slice(8, 10)}h${v.slice(10, 12)}`;
+  }
   function checkUpdate() {
     if (!myVersion || !window.fetch) return;
     fetch('./?maj=' + Date.now(), { cache: 'no-store' }).then(r => r.text()).then(html => {
