@@ -155,6 +155,19 @@
   const bids = q => (q.s || '').split(/\s+/).filter(Boolean);
   const bidderOf = q => SEATS[(SEATS.indexOf(q.d) + bids(q).length - 1) % 4];
 
+  // Mélange : une question par thème, sans jamais répéter un thème tant que tous n'ont pas été vus.
+  function mix(count) {
+    const out = [];
+    while (out.length < count) {
+      for (const [id] of shuffle(THEMES)) {
+        if (out.length >= count) break;
+        const pool = QUESTIONS.filter(q => q.t === id && !out.includes(q));
+        if (pool.length) out.push(pool[Math.floor(Math.random() * pool.length)]);
+      }
+    }
+    return out;
+  }
+
   // ───── Navigation
   let session = null;
   function go(view, arg) { window.scrollTo(0, 0); view(arg); }
@@ -185,8 +198,8 @@
       <p class="center muted" style="font-size:13px;margin-top:20px">Un souci sur une question ? Note son numéro et préviens Damien.</p>
       <p class="center"><button class="link" data-act="reset">Remettre la progression à zéro</button></p>`;
     on('themes', () => go(themes));
-    on('mix10', () => start(shuffle(QUESTIONS).slice(0, 10), 'Mélange'));
-    on('mix20', () => start(shuffle(QUESTIONS).slice(0, 20), 'Mélange'));
+    on('mix10', () => start(mix(10), 'Mélange'));
+    on('mix20', () => start(mix(20), 'Mélange'));
     on('review', () => start(shuffle(toReview()).slice(0, 20), 'Révision'));
     on('fiche', () => go(fiche));
     on('find', () => go(find));
@@ -316,7 +329,7 @@
     body += `<div id="fb"></div>`;
     app.innerHTML = topbar(fmt(s.title), 'Quitter') + `
       <div class="card">
-        <div class="qhead"><span class="qnum">Question n° ${q.n}</span><span class="qtheme">${fmt(THEME_NAME[q.t])}</span></div>
+        <div class="qhead"><span class="qnum">Question n° ${q.n}</span></div>
         ${s.list.length > 1 ? `<div class="progress">${s.i + 1} / ${s.list.length} · score ${s.score}</div>` : ''}
         ${body}
       </div>`;
@@ -382,7 +395,7 @@
     const last = s.i === s.list.length - 1;
     const fb = document.getElementById('fb');
     fb.innerHTML = `<div class="feedback ${s.ok ? 'ok' : 'ko'}">
-        <h3>${s.ok ? 'Bravo !' : 'Raté'}</h3>
+        <h3>${s.ok ? 'Bravo !' : 'Raté'} <span class="qtheme">· ${fmt(THEME_NAME[q.t])}</span></h3>
         ${!s.ok && q.k === 'm' ? `<p>La bonne enchère : <b>${fmt(bidLabel(q.a))}</b></p>` : ''}
         ${q.e ? `<p>${fmt(q.e)}</p>` : ''}
         ${q.f ? `<div class="fiche-line">Fiche : ${fmt(q.f)}</div>` : ''}
