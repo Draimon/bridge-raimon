@@ -301,9 +301,11 @@ function createPlay(env) {
   function dummyHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
     const open = clickable ? selSuit(seat) : null;
-    return `<div class="dummy">${DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol ${open === s ? 'open' : ''}">${G.hands[seat][s].map(r => {
+    // Couleur choisie : ses cartes se soulèvent de la table et s'écartent (sans décaler le reste de l'écran).
+    return `<div class="dummy">${DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol ${open === s ? 'open' : ''}">${G.hands[seat][s].map((r, i) => {
       const ok = l.some(x => x.s === s && x.r === r);
-      return cardHtml(s, RLAB[r], 'md ' + (clickable ? pickCls(seat, { s, r }, ok) : ''), cardAttrs(seat, { s, r }, ok));
+      const lift = open === s ? ` style="transform: translateY(${10 + i * 18}px) scale(1.12)"` : '';
+      return cardHtml(s, RLAB[r], 'md ' + (clickable ? pickCls(seat, { s, r }, ok) : ''), cardAttrs(seat, { s, r }, ok) + lift);
     }).join('')}</div>`).join('')}</div>`;
   }
   const isTurn = seat => !G.busy && !G.done && G.turn === seat && !G.trick.some(t => t.seat === seat);
