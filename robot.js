@@ -60,7 +60,7 @@
         add('3' + M, `Main trop faible : tu reviens à 3${M}`); add('P'); return A;
       }
       add('2' + M, 'Il exécute le Texas');
-      if (s.hcp <= 7) { add('P', 'Main faible : on joue la partielle'); return A; }
+      if (s.hcp <= 5 || (s.hcp <= 7 && L < 6)) { add('P', 'Main faible : on joue la partielle'); return A; }
       if (L === 5 && s.hcp <= 9) {
         add('2SA', `Proposition avec 5 cartes à ${M} (8-9H)`);
         if (n.hcp >= 16) { if (sup >= 3) add('4' + M, `Maximum avec 3 cartes à ${M}`); else add('3SA', 'Maximum sans fit'); add('P'); return A; }
@@ -253,18 +253,19 @@
         add('2♠', `Fit ♠, 11-16 HLD (${on})`); add('P', 'Pas de manche possible : tu passes'); return A;
       }
       if (n.balanced) {
-        if (n.hcp <= 14) { add('1SA', 'Régulier, 12-14H'); add('P', 'Pas de manche : tu passes'); return A; }
+        if (n.hcp <= 14) { add('1SA', 'Régulier, 12-14H'); if (s.s >= 6) { add('2♠', '6 cartes à ♠, main faible'); add('P'); return A; } add('P', 'Pas de manche : tu passes'); return A; }
         return null;
       }
       if (n.h >= 6) {
-        if (n.hcp >= 15 && hld(n, 1) >= 17) { add('3♥', '6 cartes à ♥, 17-19 HLD'); if (s.h >= 3 || s.hcp >= 8) { add('4♥', 'Tu acceptes la manche'); add('P'); } else add('P', 'Minimum sans fit : tu passes'); return A; }
+        if (n.hcp >= 15 && hld(n, 1) >= 17) { add('3♥', '6 cartes à ♥, 17-19 HLD'); if (s.h >= 2 || s.hcp >= 8) { add('4♥', `${s.h >= 2 ? 'Fit ♥ (6 cartes en face)' : 'Assez de points'} : tu acceptes la manche`); add('P'); } else add('P', 'Singleton ♥ et minimum : tu passes'); return A; }
         if (n.hcp > 16) return null;
-        add('2♥', '6 cartes à ♥, minimum'); add('P', 'Tu passes'); return A;
+        add('2♥', '6 cartes à ♥, minimum'); if (s.s >= 6 && s.h <= 1) { add('2♠', '6 cartes à ♠ et singleton ♥'); add('P'); return A; } add('P', 'Tu passes'); return A;
       }
       const m = n.d >= 4 && n.d >= n.c ? 2 : n.c >= 4 ? 3 : -1;
       if (m < 0 || n.hcp > 16) return null;
       add('2' + NAMES[m], `2e couleur : 4 cartes ou plus à ${NAMES[m]}`);
-      if (s.h >= 2 && s.h >= s.len[m]) { add('2♥', 'Préférence pour les ♥'); add('P'); } else add('P', `Tu préfères les ${NAMES[m]} : tu passes`);
+      if (s.s >= 5 && s.h <= 1) { add('2♠', `${s.s} cartes à ♠ et pas de préférence ♥`); add('P'); }
+      else if (s.h >= 2 && s.h >= s.len[m]) { add('2♥', 'Préférence pour les ♥'); add('P'); } else add('P', `Tu préfères les ${NAMES[m]} : tu passes`);
       return A;
     }
     add('1SA', 'Pas de fit, 6-10H');
@@ -373,10 +374,11 @@
         if (r >= 18) return null;
         if (r >= 13) { add('3SA', 'La manche à SA'); add('P'); return A; }
         if (r >= 11) { add('2SA', 'Proposition (11-12H)'); if (n.hcp >= 14) { add('3SA', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+        if (L >= 6) { add('2' + Ms, `${L} cartes à ${Ms}, main faible`); add('P'); return A; }
         if (b === '2♣' && m === 2 && s.d >= s.c) { add('2♦', 'Préférence pour les ♦'); add('P'); return A; }
         add('P', 'Pas de manche : tu passes'); return A;
       }
-      if (b === '3' + ms) { if (r >= 14) return null; if (r >= 8) { add('3SA', 'Assez pour la manche'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
+      if (b === '3' + ms) { if (r >= 14) return null; if (L >= 6) { add('4' + Ms, `${L} cartes à ${Ms} : la manche en majeure`); add('P'); return A; } if (r >= 8) { add('3SA', 'Assez pour la manche'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
       return null;
     }
     // Pas de majeure 4e

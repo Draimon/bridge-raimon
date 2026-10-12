@@ -154,8 +154,9 @@ async function main() {
       if (!best || sc > best.sc) best = { l, s, by, t, sc };
     }
     if (!best) continue;
-    d.best = { c: best.l + best.s, by: best.by, t: best.t };
     const mine = score(d.c.l, d.c.s, d.dd);
+    // À moins de 50 points du meilleur (ex. 4♥ = 420 contre 3SA = 430), le contrat joué compte comme le meilleur.
+    d.best = best.sc - mine < 50 ? { c: d.c.l + d.c.s, by: d.c.by, t: d.dd } : { c: best.l + best.s, by: best.by, t: best.t };
     if (d.n >= 100 && best.sc - mine >= 200) review.push(`n°${d.n} ${d.t} : ${d.c.l}${d.c.s} (${mine > 0 ? '+' : ''}${mine}) alors que ${d.best.c} par ${best.by} rapporte +${best.sc} — ${d.a.filter(x => x[0] !== 'P' || x[1]).map(x => x[0]).join(' ')}`);
   }
   fs.writeFileSync(path.join(__dirname, 'robot-review.txt'), review.join('\n') + '\n');

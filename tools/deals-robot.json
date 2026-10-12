@@ -1379,8 +1379,22 @@
     "P"
    ],
    [
+    "3♠",
+    "Proposition avec 6 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Maximum : il accepte"
+   ],
+   [
+    "P"
+   ],
+   [
     "P",
-    "Main faible : on joue la partielle"
+    ""
    ],
    [
     "P"
@@ -3244,8 +3258,8 @@
     "P"
    ],
    [
-    "3SA",
-    "Assez pour la manche"
+    "4♥",
+    "8 cartes à ♥ : la manche en majeure"
    ],
    [
     "P"
@@ -3460,8 +3474,15 @@
     "P"
    ],
    [
+    "4♥",
+    "Fit ♥ (6 cartes en face) : tu acceptes la manche"
+   ],
+   [
+    "P"
+   ],
+   [
     "P",
-    "Minimum sans fit : tu passes"
+    ""
    ],
    [
     "P"
@@ -4372,7 +4393,7 @@
    ],
    [
     "4♥",
-    "Tu acceptes la manche"
+    "Fit ♥ (6 cartes en face) : tu acceptes la manche"
    ],
    [
     "P"
@@ -5084,7 +5105,7 @@
    ],
    [
     "4♥",
-    "Tu acceptes la manche"
+    "Fit ♥ (6 cartes en face) : tu acceptes la manche"
    ],
    [
     "P"
@@ -5129,8 +5150,15 @@
     "P"
    ],
    [
+    "2♠",
+    "5 cartes à ♠ et pas de préférence ♥"
+   ],
+   [
+    "P"
+   ],
+   [
     "P",
-    "Tu préfères les ♦ : tu passes"
+    ""
    ],
    [
     "P"

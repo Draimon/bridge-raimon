@@ -1,0 +1,37 @@
+n°102 Robot · Stayman : 4♠ (-100) alors que 2SA par N rapporte +120 — 1SA 2♣ 2♠ 3♠ 4♠
+n°107 Robot · Texas sur 2SA : 3SA (+520) alors que 7SA par N rapporte +1520 — 2SA 3♦ 3♥ 3SA P
+n°110 Robot · Texas : 3♥ (+170) alors que 4♥ par S rapporte +420 — 1SA 2♦ 2♥ 2SA 3♥
+n°117 Robot · Sur 1SA : 3SA (+430) alors que 6♦ par S rapporte +920 — 1SA 2SA 3SA
+n°119 Robot · Puppet : 4♠ (+480) alors que 6SA par N rapporte +990 — 2SA 3♣ 3♠ 4♠
+n°121 Robot · Sur 1SA : 2SA (+150) alors que 3SA par N rapporte +400 — 1SA 2SA P
+n°125 Robot · Texas mineur : 3♣ (+130) alors que 3SA par N rapporte +400 — 1SA 2♠ 3♣ P
+n°133 Robot · Stayman : 3SA (+490) alors que 6SA par N rapporte +990 — 1SA 2♣ 2♠ 3SA P
+n°138 Robot · Stayman : 4♠ (+480) alors que 6♠ par N rapporte +980 — 1SA 2♣ 2♠ 4♠
+n°142 Robot · Texas : 4♥ (-50) alors que 3SA par N rapporte +400 — 1SA 2♦ 2♥ 3SA 4♥
+n°147 Robot · Texas sur 2SA : 4♠ (-100) alors que 2♠ par S rapporte +110 — 2SA 3♥ 3♠ 3SA 4♠
+n°149 Robot · Texas mineur : 3♣ (+130) alors que 3SA par N rapporte +400 — 1SA 2♠ 3♣ P
+n°155 Robot · Puppet : 3SA (+400) alors que 7♦ par S rapporte +1440 — 2SA 3♣ 3♦ 3♥ 3SA
+n°158 Robot · Bicolore majeur : 4♠ (+450) alors que 6♠ par S rapporte +980 — 1SA 4♦ 4♠
+n°159 Robot · Quantitatif : 5SA (+490) alors que 6SA par N rapporte +990 — 1SA 4SA 5SA P
+n°161 Robot · Quantitatif : 6SA (+990) alors que 7♣ par N rapporte +1440 — 1SA 4SA 5SA 6SA
+n°172 Robot · Mineure – majeure : 3SA (+400) alors que 6♣ par N rapporte +920 — 1♣ 1♥ 2♣ 3SA
+n°173 Robot · Mineure – majeure : 4♥ (+480) alors que 6♥ par S rapporte +980 — 1♣ 1♥ 3♣ 4♥
+n°175 Robot · Mineure – majeure : 2♦ (+130) alors que 3SA par N rapporte +430 — 1♦ 1♥ 2♦ P
+n°177 Robot · Soutien mineur : 3♣ (+190) alors que 7♣ par S rapporte +1440 — 1♣ 3♣ P
+n°185 Robot · Mineure – majeure : 4♥ (-100) alors que 3♥ par N rapporte +140 — 1♣ 1♥ 3♥ 4♥
+n°186 Robot · Majeure – 1SA : 2♥ (+230) alors que 6♥ par N rapporte +980 — 1♠ 1SA 2♥ P
+n°188 Robot · Ouverture majeure : 1♥ (+80) alors que 4♠ par S rapporte +450 — 1♥ P
+n°189 Robot · 1♣ – 1♦ : 3SA (-50) alors que 5♦ par S rapporte +400 — 1♣ 1♦ 1SA 2SA 3SA
+n°190 Robot · Roudy : 4♠ (-50) alors que 3SA par N rapporte +400 — 1♦ 1♠ 1SA 2♣ 2♥ 4♠
+n°191 Robot · Mineure – SA : 3SA (+460) alors que 6♦ par N rapporte +920 — 1♦ 3SA
+n°193 Robot · 1♣ – 1♦ : 1SA (+150) alors que 3SA par N rapporte +400 — 1♣ 1♦ 1SA P
+n°195 Robot · Shadow fit : 4♠ (-100) alors que 2♠ par N rapporte +110 — 1♠ 3♣ 4♠
+n°198 Robot · Oklahoma : 4♠ (+480) alors que 6♠ par N rapporte +980 — 1♠ 4♠
+n°200 Robot · Soutien mineur : 3♦ (+150) alors que 5♦ par N rapporte +400 — 1♦ 3♦ P
+n°201 Robot · 1♥ – 1♠ : 4♥ (-50) alors que 3SA par N rapporte +400 — 1♥ 1♠ 3♥ 4♥
+n°205 Robot · Roudy : 3SA (+490) alors que 6SA par S rapporte +990 — 1♦ 1♠ 1SA 2♣ 2♦ 3SA
+n°206 Robot · Soutien mineur : 3♦ (+130) alors que 3SA par N rapporte +430 — 1♦ 3♦ P
+n°213 Robot · Shadow fit : 4♥ (-100) alors que 2SA par N rapporte +120 — 1♥ 3♣ 4♥
+n°218 Robot · 1♥ – 1♠ : 4♥ (-50) alors que 3SA par N rapporte +400 — 1♥ 1♠ 3♥ 4♥
+n°219 Robot · 1♥ – 1♠ : 2♠ (+170) alors que 4♠ par S rapporte +420 — 1♥ 1♠ 2♦ 2♠
+n°230 Robot · Check-Back Stayman : 3SA (+460) alors que 6♦ par N rapporte +920 — 1♦ 1♠ 2SA 3♣ 3SA P
