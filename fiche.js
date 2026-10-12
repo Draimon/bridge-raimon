@@ -223,7 +223,7 @@ const FICHE = {
     lignes: [
       'Sur 2SA, 2♣ -> 2SA et 2♦ -> 2SA : 3♣ = Puppet',
       '3♦ = 1 ou 2 majeures 4e ; 3♥ = 5♥ ; 3♠ = 5♠ ; 3SA = ni majeure 4e, ni majeure 5e',
-      '<b>Si 3♦</b> (inversé) : 3♥ = 4♠ ; 4♠ = 4♥ ; 3SA = rien ; 4♣ = les 2 majeures de manche (moins de 9H) ; 4♦ = les 2 majeures de chelem (10H et +)',
+      '<b>Si 3♦</b> (inversé) : 3♥ = 4♠ ; 3♠ = 4♥ ; 3SA = rien ; 4♣ = les 2 majeures de manche (moins de 9H) ; 4♦ = les 2 majeures de chelem (10H et +)',
     ],
   },
   onze: {

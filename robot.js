@@ -161,7 +161,6 @@
       add('P', `Pas de fit : 3SA`); return A;
     }
     if ((s.s === 4 || s.h === 4) && s.hcp >= 4) {
-      if (s.h === 4 && s.s !== 4) return null;                          // séquence « 4♠ = 4♥ » à confirmer
       add('3♣', 'Puppet');
       if (n.h >= 5 || n.s >= 5) {
         const m = n.h >= 5 ? '♥' : '♠'; add('3' + m, `5 cartes à ${m}`);
@@ -174,8 +173,13 @@
         add('4♣', 'Les 2 majeures, de manche (moins de 9H)');
         add(n.s >= 4 ? '4♠' : '4♥', `Il a 4 cartes à ${n.s >= 4 ? '♠' : '♥'}`); add('P'); return A;
       }
-      add('3♥', 'Inversé : tu montres 4 cartes à ♠');
-      if (n.s >= 4) { add('4♠', 'Fit ♠'); add('P'); } else { add('3SA', 'Pas 4 cartes à ♠'); add('P'); }
+      if (s.s === 4) {
+        add('3♥', 'Inversé : tu montres 4 cartes à ♠');
+        if (n.s >= 4) { add('4♠', 'Fit ♠'); add('P'); } else { add('3SA', 'Pas 4 cartes à ♠'); add('P'); }
+        return A;
+      }
+      add('3♠', 'Inversé : tu montres 4 cartes à ♥');
+      if (n.h >= 4) { add('4♥', 'Fit ♥'); add('P'); } else { add('3SA', 'Pas 4 cartes à ♥'); add('P'); }
       return A;
     }
     if (s.c >= 6 && s.hcp < 4) { add('3♠', 'Texas ♣ (dès 0H)'); add('4♣', 'Il exécute le Texas'); add('P'); return A; }
