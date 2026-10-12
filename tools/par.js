@@ -3,6 +3,9 @@
 const fs = require('fs'), path = require('path'), { fork } = require('child_process');
 const vm = require('vm');
 const ctx = {}; vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'deals.js'), 'utf8') + ';this.DEALS=DEALS', ctx);
+// + les donnes du mode « Jouer à deux » (n° T001…)
+const duoFile = path.join(__dirname, '..', 'deals-duo.js');
+if (fs.existsSync(duoFile)) { const c2 = {}; vm.runInNewContext(fs.readFileSync(duoFile, 'utf8') + ';this.D=DUO_DEALS', c2); ctx.DEALS = ctx.DEALS.concat(c2.D); }
 const PLAY = ['N', 'E', 'S', 'O'], SUITS = ['♠', '♥', '♦', '♣'], RANKS = 'AKQJT98765432';
 const toMask = h => h.split('.').map(p => (p === '-' ? 0 : p.split('').reduce((m, ch) => m | (1 << (12 - RANKS.indexOf(ch))), 0)));
 const len = h => h.split('.').map(p => (p === '-' ? 0 : p.length));

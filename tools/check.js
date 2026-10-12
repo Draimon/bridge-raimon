@@ -1,7 +1,7 @@
 // Vérifie la banque de questions : numéros uniques, mains valides, points, légalité des enchères, tour de Sud.
 const fs = require('fs'), path = require('path'), vm = require('vm');
 // Syntaxe de tous les scripts servis par le site (une erreur casse la page entière).
-for (const f of ['questions.js', 'fiche.js', 'deals.js', 'jeu.js', 'dds.js', 'adeux.js']) {
+for (const f of ['questions.js', 'fiche.js', 'deals.js', 'deals-duo.js', 'jeu.js', 'dds.js', 'adeux.js']) {
   try { new vm.Script(fs.readFileSync(path.join(__dirname, '..', f), 'utf8'), { filename: f }); }
   catch (e) { console.log(`ERREUR DE SYNTAXE dans ${f} : ${e.message}`); process.exit(1); }
 }

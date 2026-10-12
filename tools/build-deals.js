@@ -1,7 +1,9 @@
 // Construit deals.js à partir de tools/deals-src.js : complète les mains manquantes et vérifie tout.
-// Usage : node tools/build-deals.js
+// Usage : node tools/build-deals.js        (mode « Jouer au bridge » → deals.js)
+//         node tools/build-deals.js duo    (mode « Jouer à deux », tools/deals-duo.json → deals-duo.js)
+const DUO = process.argv[2] === 'duo';
 const fs = require('fs'), path = require('path');
-const SRC = require('./deals-src.js').concat(fs.existsSync(path.join(__dirname, 'deals-robot.json')) ? require('./deals-robot.json') : []);
+const SRC = DUO ? require('./deals-duo.json') : require('./deals-src.js').concat(fs.existsSync(path.join(__dirname, 'deals-robot.json')) ? require('./deals-robot.json') : []);
 const SEATS = ['O', 'N', 'E', 'S'];          // ordre du jeu
 const SUITS = ['♠', '♥', '♦', '♣'];
 const RANKS = 'AKQJT98765432';
@@ -111,7 +113,7 @@ async function main() {
     const id = JSON.stringify([hands, trump, leader]);
     return { d, id, hands, trump, leader, guess: d.c.l + 6 };
   });
-  const todo = jobs.filter(j => cache[j.id] === undefined);
+  const todo = process.env.NODD ? [] : jobs.filter(j => cache[j.id] === undefined);
   if (todo.length) {
     const { fork } = require('child_process');
     const workers = Math.min(todo.length, Math.max(1, require('os').cpus().length - 1));
@@ -138,7 +140,7 @@ async function main() {
   // Solution : la ligne de jeu double mort complète (52 cartes), codée « joueur couleur rang » (ex. 02m).
   const solFile = path.join(__dirname, 'sol-cache.json');
   let sol = {}; try { sol = JSON.parse(fs.readFileSync(solFile, 'utf8')); } catch (e) { sol = {}; }
-  const solTodo = jobs.filter(j => j.d.dd !== undefined && sol[j.id] === undefined);
+  const solTodo = DUO ? [] : jobs.filter(j => j.d.dd !== undefined && sol[j.id] === undefined);
   if (solTodo.length) {
     const { fork } = require('child_process');
     const workers = Math.min(solTodo.length, Math.max(1, require('os').cpus().length - 1));
@@ -185,13 +187,13 @@ async function main() {
     const mine = score(d.c.l, d.c.s, d.dd);
     // À moins de 50 points du meilleur (ex. 4♥ = 420 contre 3SA = 430), le contrat joué compte comme le meilleur.
     d.best = best.sc - mine < 50 ? { c: d.c.l + d.c.s, by: d.c.by, t: d.dd } : { c: best.l + best.s, by: best.by, t: best.t };
-    if (d.n >= 100 && best.sc - mine >= 200) review.push(`n°${d.n} ${d.t} : ${d.c.l}${d.c.s} (${mine > 0 ? '+' : ''}${mine}) alors que ${d.best.c} par ${best.by} rapporte +${best.sc} — ${d.a.filter(x => x[0] !== 'P' || x[1]).map(x => x[0]).join(' ')}`);
+    if ((DUO || d.n >= 100) && best.sc - mine >= 200) review.push(`n°${d.n} ${d.t} : ${d.c.l}${d.c.s} (${mine > 0 ? '+' : ''}${mine}) alors que ${d.best.c} par ${best.by} rapporte +${best.sc} — ${d.a.filter(x => x[0] !== 'P' || x[1]).map(x => x[0]).join(' ')}`);
   }
-  fs.writeFileSync(path.join(__dirname, 'robot-review.txt'), review.join('\n') + '\n');
+  fs.writeFileSync(path.join(__dirname, DUO ? 'robot-review-duo.txt' : 'robot-review.txt'), review.join('\n') + '\n');
   if (Object.keys(par).length) console.log(`Meilleur contrat connu pour ${out.filter(d => d.best).length} donnes ; ${review.length} donne(s) robot nettement sous le meilleur contrat → tools/robot-review.txt`);
 
-  const body = `// GÉNÉRÉ par tools/build-deals.js à partir de tools/deals-src.js — ne pas éditer à la main.\nconst DEALS = ${JSON.stringify(out, null, 0).replace(/\},\{"n"/g, '},\n{"n"')};\n`;
-fs.writeFileSync(path.join(__dirname, '..', 'deals.js'), body);
-console.log(`${out.length} donnes écrites dans deals.js.`);
+  const body = `// GÉNÉRÉ par tools/build-deals.js${DUO ? ' duo' : ' à partir de tools/deals-src.js'} — ne pas éditer à la main.\nconst ${DUO ? 'DUO_DEALS' : 'DEALS'} = ${JSON.stringify(out, null, 0).replace(/\},\{"n"/g, '},\n{"n"')};\n`;
+fs.writeFileSync(path.join(__dirname, '..', DUO ? 'deals-duo.js' : 'deals.js'), body);
+console.log(`${out.length} donnes écrites dans ${DUO ? 'deals-duo.js' : 'deals.js'}.`);
 for (const d of out) console.log(`  n°${d.n} ${d.t} : ${d.c.l}${d.c.s} par ${d.c.by}, objectif ${d.dd} levées (${d.dd - d.c.l - 6 >= 0 ? 'fait' : 'chute ' + (d.c.l + 6 - d.dd)}) · ` + SEATS.map(s => `${s} ${hcpOf(parse(d.h[s]))}H`).join(', '));
 }

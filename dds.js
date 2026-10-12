@@ -76,7 +76,7 @@ function solve(handsIn, trump, leader, guess, maxNodes, trick, want) {
     let e = TT.get(k);
     if (e) { if (e.lb >= need) return true; if (e.ub < need) return false; }
     const res = play(0, lead, -1, -1, -1, -1, lead, ns, left, target);
-    if (!e) { e = { lb: 0, ub: left }; TT.set(k, e); }
+    if (!e) { if (TT.size > 1.5e7) TT.clear(); e = { lb: 0, ub: left }; TT.set(k, e); }
     if (res) e.lb = Math.max(e.lb, need); else e.ub = Math.min(e.ub, need - 1);
     return res;
   }

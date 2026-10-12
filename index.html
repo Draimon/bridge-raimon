@@ -38,6 +38,14 @@
   .fiche { scroll-margin-top: 64px; }
   header.top { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: -16px -16px 8px; padding: 6px 16px; position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
   .tobtn { border: 1px solid var(--line); background: var(--card); color: var(--accent); border-radius: 999px; padding: 6px 12px; font-size: 15px; cursor: pointer; }
+  .sheet { position: fixed; inset: 0; z-index: 100; background: var(--bg); color: var(--ink); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 16px calc(24px + env(safe-area-inset-bottom)); }
+  .sheet header.top { margin: 0 -16px 8px; padding-top: calc(6px + env(safe-area-inset-top)); }
+  .sheet .inner { max-width: 560px; margin: 0 auto; }
+  body.tablemode .sheet header.top, .sheet header.top { background: var(--bg); border-bottom-color: var(--line); }
+  body.tablemode .sheet header.top h1 { color: var(--ink); }
+  .sheet .toc { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .sheet .toc .pill { flex: none; }
+  body.tablemode .tobtn.sys { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.3); }
   header.top h1 { font-size: 18px; margin: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .back { border: 0; background: none; color: var(--accent); font-size: 17px; padding: 8px 4px; cursor: pointer; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
@@ -119,6 +127,11 @@
   .compass { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "n n" "o e" "s s"; gap: 10px; margin-top: 10px; }
   .cN { grid-area: n; justify-self: center; } .cO { grid-area: o; } .cE { grid-area: e; justify-self: end; } .cS { grid-area: s; justify-self: center; }
   .mini { font-size: 15px; font-weight: 600; line-height: 1.35; }
+  .msgs { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+  .msg { align-self: flex-start; max-width: 85%; background: var(--bg); border: 1px solid var(--line); border-radius: 12px 12px 12px 3px; padding: 6px 10px; font-size: 15px; }
+  .msg.me { align-self: flex-end; background: var(--ok-soft); border-radius: 12px 12px 3px 12px; }
+  .msg small { display: block; font-size: 11px; color: var(--muted); }
+  .talkbox { width: 100%; margin-top: 8px; font-size: 16px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); box-sizing: border-box; }
   .mini .who { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
   .cS .mini .who { color: var(--accent); }
   ol.expl { margin: 8px 0 0; padding-left: 22px; font-size: 15px; }
@@ -317,12 +330,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610130100"></script>
-<script src="fiche.js?v=202610130100"></script>
-<script src="deals.js?v=202610130100"></script>
-<script src="dds.js?v=202610130100"></script>
-<script src="jeu.js?v=202610130100"></script>
-<script src="adeux.js?v=202610130100"></script>
+<script src="questions.js?v=202610130144"></script>
+<script src="fiche.js?v=202610130144"></script>
+<script src="deals.js?v=202610130144"></script>
+<script src="deals-duo.js?v=202610130144"></script>
+<script src="dds.js?v=202610130144"></script>
+<script src="jeu.js?v=202610130144"></script>
+<script src="adeux.js?v=202610130144"></script>
 <script>
 (() => {
   'use strict';
@@ -398,7 +412,7 @@
 
   // ───── Navigation
   let session = null;
-  function go(view, arg) { window.scrollTo(0, 0); document.body.classList.toggle('tablemode', view === dealView); view(arg); }
+  function go(view, arg) { closeSheet(); window.scrollTo(0, 0); document.body.classList.toggle('tablemode', view === dealView); view(arg); }
 
   // Guide d'installation sur l'écran d'accueil (iPhone/iPad, hors appli déjà installée).
   function installHint() {
@@ -481,6 +495,25 @@
   function topbar(title, back, extra) {
     return `<header class="top"><button class="back" data-act="back">‹ ${back || 'Accueil'}</button><h1>${title}</h1>${extra || ''}</header>`;
   }
+  // Bouton « 📖 Système » : la fiche s'ouvre par-dessus l'écran en cours (enchères, jeu, analyse) sans rien perdre.
+  const SYS_BTN = '<button class="tobtn sys" data-sys>📖 Système</button>';
+  let sheetChapter = 'precisions';
+  function openSheet(chapter) {
+    if (chapter) sheetChapter = chapter;
+    const order = ['precisions', ...THEMES.map(t => t[0])].filter(id => FICHE[id]);
+    const title = id => fmt(id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id]);
+    let el = document.getElementById('sheet');
+    if (!el) { el = document.createElement('div'); el.id = 'sheet'; el.className = 'sheet'; document.body.appendChild(el); document.body.style.overflow = 'hidden'; }
+    el.innerHTML = `<div class="inner"><header class="top"><h1>Système Raimon</h1><button class="tobtn" data-close>✕ Fermer</button></header>
+      <div class="toc">${order.map(id => `<button class="pill ${id === sheetChapter ? 'on' : ''}" data-sch="${id}">${title(id)}</button>`).join('')}</div>
+      <div class="card fiche" id="schapter"><h2>${title(sheetChapter)}</h2><ul>${FICHE[sheetChapter].lignes.map(l => `<li>${suits(l)}</li>`).join('')}</ul></div>
+      <a class="btn center" href="convention2026.pdf" target="_blank" rel="noopener" style="text-decoration:none">📄 Fiche originale (PDF)</a></div>`;
+    el.querySelector('[data-close]').addEventListener('click', closeSheet);
+    const cur = el.querySelector('.pill.on'); if (cur) cur.parentNode.scrollLeft = cur.offsetLeft - 16;
+    el.querySelectorAll('[data-sch]').forEach(b => b.addEventListener('click', () => { openSheet(b.dataset.sch); document.getElementById('schapter').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+  }
+  function closeSheet() { const el = document.getElementById('sheet'); if (el) el.remove(); document.body.style.overflow = ''; }
+  document.addEventListener('click', e => { if (e.target.closest('[data-sys]')) openSheet(); });
 
   function themes() {
     const rows = THEMES.map(([id, name]) => {
@@ -739,7 +772,7 @@
   function dealList() {
     const played = DEALS.filter(d => progress[dealKey(d.n)]);
     const perfect = DEALS.filter(d => (progress[dealKey(d.n)] || {}).last === 1);
-    app.innerHTML = topbar('Jouer au bridge') + `
+    app.innerHTML = topbar('Jouer au bridge', null, SYS_BTN) + `
       <div class="card"><p style="margin:0 0 6px">Tu es <b>Sud</b>, ton partenaire robot est <b>Nord</b> : il connaît le système par cœur.
         Annonce tes enchères (une erreur est corrigée tout de suite), puis joue le contrat contre la défense robot.</p>
         <p class="muted" style="margin:0;font-size:14px">${played.length} / ${DEALS.length} jouées · ${perfect.length} réussies sans faute</p></div>
@@ -764,7 +797,7 @@
   }
 
   let play = null;
-  const DUO = createDuo({ app, topbar, on, go, fmt, bidLabel, bidRank, getPlayer: () => player, players: PLAYERS, home, SEAT_NAMES });
+  const DUO = createDuo({ app, topbar, SYS_BTN, on, go, fmt, bidLabel, bidRank, getPlayer: () => player, players: PLAYERS, home, SEAT_NAMES });
   const PLAY = createPlay({ app, fmt, topbar, on, go: v => v(), getProgress: () => progress, save, exit: () => go(dealList) });
   const biddingDone = n => { const p = progress[dealKey(n)]; return !!p && (p.won || p.last === 1); };
   function startDeal(deal, skipIntro) {
@@ -774,7 +807,7 @@
   }
   function dealIntro() {
     const deal = play.deal;
-    app.innerHTML = topbar('Donne n° ' + deal.n, 'Donnes') + `
+    app.innerHTML = topbar('Donne n° ' + deal.n, 'Donnes', SYS_BTN) + `
       <div class="card center"><div style="font-size:18px;font-weight:700">Tu as déjà réussi les enchères de cette donne.</div>
         <p class="muted" style="margin:6px 0 0">Contrat : <b>${fmt(deal.c.l + deal.c.s)}</b> joué par ${deal.c.by === 'S' ? 'toi' : 'ton partenaire'}</p></div>
       <button class="btn primary center" data-act="cardsnow">Jouer la carte directement</button>
@@ -849,7 +882,7 @@
     const history = '';
     const vul = { none: 'Personne vulnérable', NS: 'Vulnérables : N/S', EO: 'Vulnérables : E/O', all: 'Tous vulnérables' }[deal.v || 'none'];
     const plate = (seat, cls, name) => `<div class="plate ${cls} ${myTurn && seat === 'S' ? 'turn' : ''}"><span class="seat">${seat}</span>${name}${deal.d === seat ? ' · donneur' : ''}</div>`;
-    app.innerHTML = topbar('Donne n° ' + deal.n, 'Quitter') + `
+    app.innerHTML = topbar('Donne n° ' + deal.n, 'Quitter', SYS_BTN) + `
       <div class="frame bidframe">
         ${plate('N', 'top', 'Partenaire')}${plate('O', 'left', 'Ouest')}${plate('E', 'right', 'Est')}${plate('S', 'bottom', 'Toi')}
         ${tile('N')}${tile('E')}${tile('O')}${tile('S')}
@@ -938,7 +971,7 @@
     save();
     const mine = deal.a.filter((x, k) => seatAt(deal, k) === 'S').length;
     const nErr = p.errors.length;
-    app.innerHTML = topbar('Donne n° ' + deal.n, 'Donnes') + `
+    app.innerHTML = topbar('Donne n° ' + deal.n, 'Donnes', SYS_BTN) + `
       <div class="card center">
         <div style="font-size:15px" class="muted">Contrat final</div>
         <div style="font-size:24px;font-weight:700;margin:4px 0">${fmt(contractOf(deal))}</div>
