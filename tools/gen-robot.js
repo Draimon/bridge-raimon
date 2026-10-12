@@ -7,7 +7,10 @@ const R = require('../robot.js');
 const FILE = path.join(__dirname, 'deals-robot.json');
 const TOTAL = +process.argv[2] || 70;
 const RANKS = 'AKQJT98765432', SUITS = ['♠', '♥', '♦', '♣'];
-const QUOTA = { 'Stayman': 14, 'Texas': 16, 'Texas mineur': 3, 'Bicolore majeur': 4, 'Quantitatif': 3, 'Sur 1SA': 8, 'Puppet': 14, 'Texas sur 2SA': 5, 'Sur 2SA': 3 };
+const QUOTA = { 'Stayman': 14, 'Texas': 16, 'Texas mineur': 3, 'Bicolore majeur': 4, 'Quantitatif': 3, 'Sur 1SA': 8, 'Puppet': 14, 'Texas sur 2SA': 5, 'Sur 2SA': 3,
+  // tranche 2 : ouvertures d'1 à la couleur
+  'Soutien majeur': 6, 'Shadow fit': 8, 'Oklahoma': 6, '1♥ – 1♠': 5, 'Majeure – 1SA': 5, 'Ouverture majeure': 1, 'Mineure – majeure': 8,
+  'Roudy': 6, 'Check-Back Stayman': 5, '1♣ – 1♦': 4, 'Mineure – SA': 4, 'Soutien mineur': 3, 'Ouverture mineure': 1 };
 const MAX_SAME = 3;
 
 const old = fs.existsSync(FILE) ? JSON.parse(fs.readFileSync(FILE, 'utf8')) : [];

@@ -13,8 +13,12 @@ const jobs = [];
 for (const d of ctx.DEALS) {
   const hands = PLAY.map(s => toMask(d.h[s]));
   const ln = len(d.h.N), ls = len(d.h.S);
-  const strains = [-1, ...[0, 1, 2, 3].filter(s => ln[s] + ls[s] >= 7)];
-  for (const trump of strains) for (const decl of ['N', 'S']) {
+  const hcp = h => h.replace(/\./g, '').split('').reduce((t, c) => t + ({ A: 4, K: 3, Q: 2, J: 1 }[c] || 0), 0);
+  // SA + les fits de 8 cartes ou plus ; un seul déclarant : le plus long en atout (le plus fort à SA ou à égalité).
+  const strains = [-1, ...[0, 1, 2, 3].filter(s => ln[s] + ls[s] >= 8)];
+  for (const trump of strains) {
+    const nFirst = trump < 0 || ln[trump] === ls[trump] ? hcp(d.h.N) >= hcp(d.h.S) : ln[trump] > ls[trump];
+    const decl = nFirst ? 'N' : 'S';
     const leader = (PLAY.indexOf(decl) + 1) % 4;
     const id = JSON.stringify([hands, trump, leader]);
     jobs.push({ n: d.n, trump, decl, id, hands, leader });

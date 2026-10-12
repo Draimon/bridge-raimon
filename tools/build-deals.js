@@ -133,6 +133,34 @@ async function main() {
   }
   for (const j of jobs) j.d.dd = cache[j.id];
 
+  // Meilleur contrat Nord-Sud (double mort, non vulnérable), d'après tools/par.json (node tools/par.js).
+  let par = {}; try { par = JSON.parse(fs.readFileSync(path.join(__dirname, 'par.json'), 'utf8')); } catch (e) { par = {}; }
+  const VAL = { '♣': 20, '♦': 20, '♥': 30, '♠': 30, SA: 30 };
+  const score = (l, s, t) => {
+    if (t < l + 6) return -50 * (l + 6 - t);
+    const base = l * VAL[s] + (s === 'SA' ? 10 : 0);
+    return base + (base >= 100 ? 300 : 50) + (l === 6 ? 500 : l === 7 ? 1000 : 0) + (t - l - 6) * VAL[s];
+  };
+  const review = [];
+  for (const d of out) {
+    const p = par[d.n];
+    if (!p || !d.c || d.dd === undefined) continue;
+    let best = null;
+    for (const [s, { t, by }] of Object.entries(p)) {
+      if (t < 7) continue;
+      const game = s === 'SA' ? 3 : s === '♥' || s === '♠' ? 4 : 5;
+      const l = t >= 13 ? 7 : t >= 12 ? 6 : t >= game + 6 ? game : t - 6;
+      const sc = score(l, s, t);
+      if (!best || sc > best.sc) best = { l, s, by, t, sc };
+    }
+    if (!best) continue;
+    d.best = { c: best.l + best.s, by: best.by, t: best.t };
+    const mine = score(d.c.l, d.c.s, d.dd);
+    if (d.n >= 100 && best.sc - mine >= 200) review.push(`n°${d.n} ${d.t} : ${d.c.l}${d.c.s} (${mine > 0 ? '+' : ''}${mine}) alors que ${d.best.c} par ${best.by} rapporte +${best.sc} — ${d.a.filter(x => x[0] !== 'P' || x[1]).map(x => x[0]).join(' ')}`);
+  }
+  fs.writeFileSync(path.join(__dirname, 'robot-review.txt'), review.join('\n') + '\n');
+  if (Object.keys(par).length) console.log(`Meilleur contrat connu pour ${out.filter(d => d.best).length} donnes ; ${review.length} donne(s) robot nettement sous le meilleur contrat → tools/robot-review.txt`);
+
   const body = `// GÉNÉRÉ par tools/build-deals.js à partir de tools/deals-src.js — ne pas éditer à la main.\nconst DEALS = ${JSON.stringify(out, null, 0).replace(/\},\{"n"/g, '},\n{"n"')};\n`;
 fs.writeFileSync(path.join(__dirname, '..', 'deals.js'), body);
 console.log(`${out.length} donnes écrites dans deals.js.`);

@@ -1,4 +1,5 @@
-// Système Raimon — robot d'enchères à règles (tranche 1 : ouvertures de 1SA et 2SA, sans intervention).
+// Système Raimon — robot d'enchères à règles, sans intervention adverse :
+// tranche 1 = ouvertures de 1SA et 2SA ; tranche 2 = ouvertures d'1 à la couleur (11 à 19H).
 // Nord ouvre, Sud répond ; le robot enchérit pour les deux. Il renvoie null quand une situation sort de
 // ses règles sûres (chelems, cas non décrits par la fiche) : la donne est alors écartée.
 // Utilisable dans Node (génération des donnes) et dans le navigateur.
@@ -188,20 +189,262 @@
     add('3SA', 'La manche à SA'); add('P'); return A;
   }
 
+  // ═════ Tranche 2 : ouvertures d'1 à la couleur (11 à 19H), sans intervention ═════
+  const NAMES = ['♠', '♥', '♦', '♣'];
+  const keyCards = (e, t) => (e.parts.join('').split('').filter(c => c === 'A').length) + (e.parts[t].includes('K') ? 1 : 0);
+  const voidSuit = (e, t) => [0, 1, 2, 3].some(i => i !== t && e.len[i] === 0);
+
+  function openSuit(n) {
+    if (n.hcp < 11 || n.hcp > 19) return null;
+    if (n.balanced && n.hcp >= 15 && n.hcp <= 17 && n.s < 5 && n.h < 5) return null;   // 1SA
+    if (n.s >= 5 || n.h >= 5) return n.s >= n.h ? 0 : 1;
+    if (n.d >= 4 && n.d >= n.c) return 2;
+    if (n.c >= 4) return 3;
+    if (n.s === 4 && n.h === 4 && n.d === 3) return 2;
+    return 3;
+  }
+
+  function afterMajor(n, s, M) {
+    const Ms = NAMES[M], OM = NAMES[M === 0 ? 1 : 0];
+    const A = [['1' + Ms, `Ouverture, ${n.len[M]} cartes à ${Ms}`]];
+    const add = (b, why) => A.push([b, why || '']);
+    const fit = s.len[M];
+    if (fit >= 3) {
+      const h = hld(s, M);
+      if (h < 6) { add('P', 'Moins de 6 HLD : tu passes'); A.theme = 'Ouverture majeure'; return A; }
+      if (h <= 10) {
+        add('2' + Ms, `Soutien simple : fit ${Ms}, 6-10 HLD (${h})`);
+        if (hld(n, M) > 16) return null;                          // enchère d'essai : hors tranche 2
+        add('P', 'Zone minimum (11-16 HLD) : il passe'); A.theme = 'Soutien majeur'; return A;
+      }
+      if (h <= 12) {
+        if (s.hcp >= 8) add(fit >= 4 ? '3♦' : '3♣', `Shadow fit : fit ${Ms} par ${fit >= 4 ? 4 : 3} cartes, 8H et plus, zone 11-12 HLD`);
+        else add('3' + Ms, `Shadow fit : fit ${Ms} avec moins de 8H, zone 11-12 HLD`);
+        const on = hld(n, M);
+        if (on >= 20) return null;
+        if (on >= 14) add('4' + Ms, `${on} HLD face à 11-12 : la manche`);
+        else if (s.hcp >= 8) add('3' + Ms, `Minimum (${on} HLD) : il s'arrête à 3${Ms}`);
+        else { add('P', `Minimum (${on} HLD) : il passe`); A.theme = 'Shadow fit'; return A; }
+        add('P'); A.theme = 'Shadow fit'; return A;
+      }
+      if (h <= 15 && s.hcp >= 11) {
+        const k = keyCards(s, M), chic = voidSuit(s, M);
+        if (k > 2) return null;
+        let b, why;
+        if (chic) { if (k <= 1) { b = '3' + OM; why = `Oklahoma : fit ${Ms}, 0 ou 1 carte clé + une chicane`; } else { b = '4♣'; why = 'Oklahoma : fit, 2 cartes clés + une chicane'; } }
+        else if (k <= 1) { b = '4' + Ms; why = `Oklahoma : fit ${Ms}, 0 ou 1 carte clé`; }
+        else { b = '4♦'; why = 'Oklahoma : fit, 2 cartes clés'; }
+        add(b, why + ` (${h} HLD)`);
+        if (hld(n, M) + h >= 31) return null;                     // zone de chelem : hors tranche 2
+        if (b !== '4' + Ms) add('4' + Ms, 'Pas de chelem en vue : il conclut à la manche');
+        add('P'); A.theme = 'Oklahoma'; return A;
+      }
+      return null;
+    }
+    if (s.hcp < 6) { add('P', 'Moins de 6H et pas de fit : tu passes'); A.theme = 'Ouverture majeure'; return A; }
+    if (s.hcp > 10) return null;                                   // 2 sur 1 : tranche suivante
+    if (M === 1 && s.s >= 4) {
+      add('1♠', '4 cartes ou plus à ♠ : forcing');
+      A.theme = '1♥ – 1♠';
+      if (n.s >= 4) {
+        const on = hld(n, 0);
+        if (on >= 20) return null;
+        if (on >= 17) { add('3♠', `Fit ♠ et 17 HLD ou plus (${on})`); if (hld(s, 0) >= 8) { add('4♠', 'Tu acceptes la manche'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
+        add('2♠', `Fit ♠, 11-16 HLD (${on})`); add('P', 'Pas de manche possible : tu passes'); return A;
+      }
+      if (n.balanced) {
+        if (n.hcp <= 14) { add('1SA', 'Régulier, 12-14H'); add('P', 'Pas de manche : tu passes'); return A; }
+        return null;
+      }
+      if (n.h >= 6) {
+        if (n.hcp >= 15 && hld(n, 1) >= 17) { add('3♥', '6 cartes à ♥, 17-19 HLD'); if (s.h >= 3 || s.hcp >= 8) { add('4♥', 'Tu acceptes la manche'); add('P'); } else add('P', 'Minimum sans fit : tu passes'); return A; }
+        if (n.hcp > 16) return null;
+        add('2♥', '6 cartes à ♥, minimum'); add('P', 'Tu passes'); return A;
+      }
+      const m = n.d >= 4 && n.d >= n.c ? 2 : n.c >= 4 ? 3 : -1;
+      if (m < 0 || n.hcp > 16) return null;
+      add('2' + NAMES[m], `2e couleur : 4 cartes ou plus à ${NAMES[m]}`);
+      if (s.h >= 2 && s.h >= s.len[m]) { add('2♥', 'Préférence pour les ♥'); add('P'); } else add('P', `Tu préfères les ${NAMES[m]} : tu passes`);
+      return A;
+    }
+    add('1SA', 'Pas de fit, 6-10H');
+    A.theme = 'Majeure – 1SA';
+    if (n.hcp >= 17) return null;
+    if (n.len[M] >= 6) { add('2' + Ms, `6 cartes à ${Ms}`); add('P', 'Tu passes'); return A; }
+    const others = [0, 1, 2, 3].filter(i => i !== M && n.len[i] >= 4).sort((a, b) => n.len[b] - n.len[a] || a - b);
+    if (others.length) {
+      const x = others[0];
+      if (x < M) return null;                                       // 2♠ sur 1♥ = bicolore cher
+      add('2' + NAMES[x], `2e couleur : 4 cartes ou plus à ${NAMES[x]}`);
+      if (s.len[M] >= 2 && s.len[M] >= s.len[x]) { add('2' + Ms, `Préférence pour les ${Ms}`); add('P'); } else add('P', `Tu préfères les ${NAMES[x]} : tu passes`);
+      return A;
+    }
+    if (n.balanced) { add('P', 'Régulier minimum : il passe'); return A; }
+    return null;
+  }
+
+  function afterMinor(n, s, m) {
+    const ms = NAMES[m];
+    const why0 = m === 2 ? (n.d >= 4 ? 'Ouverture, 4 cartes ou plus à ♦' : '4-4 en majeures et 3 cartes à ♦ : 1♦') : 'Ouverture, meilleure mineure';
+    const A = [['1' + ms, why0]];
+    const add = (b, why) => A.push([b, why || '']);
+    const r = s.hcp;
+    if (r < 6) { add('P', 'Moins de 6H : tu passes'); A.theme = 'Ouverture mineure'; return A; }
+    // Réponse en majeure
+    if (s.h >= 4 || s.s >= 4) {
+      if (r >= 18) return null;
+      const M = s.h >= 4 && !(s.s >= 5 && s.s >= s.h) ? 1 : 0, Ms = NAMES[M], L = s.len[M];
+      add('1' + Ms, `${L} cartes à ${Ms}${s.h >= 4 && s.s >= 4 && L === 4 ? ' (avec 4-4 en majeures, les ♥ d’abord)' : ''}`);
+      A.theme = 'Mineure – majeure';
+      let reb;
+      if (n.len[M] >= 4) { const on = hld(n, M); if (on >= 20) return null; reb = on >= 17 ? ['3' + Ms, `Fit ${Ms}, 17 HLD ou plus (${on})`] : ['2' + Ms, `Fit ${Ms}, 11-16 HLD (${on})`]; }
+      else if (M === 1 && n.s >= 4) reb = ['1♠', '4 cartes à ♠'];
+      else if (n.balanced && n.hcp <= 14) reb = ['1SA', 'Régulier, 12-14H'];
+      else if (n.balanced && n.hcp >= 18) reb = ['2SA', '18-19H régulier, sans fit'];
+      else if (n.len[m] >= 6 && n.hcp >= 15 && hld(n, m) >= 17) reb = ['3' + ms, `6 cartes à ${ms}, 17-19 HLD`];
+      else if (n.len[m] >= 6 && n.hcp <= 16) reb = ['2' + ms, `6 cartes à ${ms}, minimum`];
+      else if (m === 2 && n.c >= 4 && n.hcp <= 16) reb = ['2♣', '2e couleur : 4 cartes ou plus à ♣'];
+      else if (m === 3 && n.c >= 5 && n.hcp <= 16) reb = ['2♣', '5 cartes à ♣, minimum'];
+      else return null;
+      add(reb[0], reb[1]);
+      const b = reb[0];
+      if (b === '2' + Ms) {
+        const h = hld(s, M);
+        if (h >= 18) return null;
+        if (h >= 13) { add('4' + Ms, `${h} HLD face à 11-16 : la manche`); add('P'); return A; }
+        if (h >= 11) { add('3' + Ms, `Proposition (${h} HLD)`); if (hld(n, M) >= 14) { add('4' + Ms, 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+        add('P', 'Pas de manche : tu passes'); return A;
+      }
+      if (b === '3' + Ms) { const h = hld(s, M); if (h >= 14) return null; if (h >= 8) { add('4' + Ms, 'Tu acceptes la manche'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
+      if (b === '1♠') {
+        if (s.s >= 4) {
+          const h = hld(s, 0);
+          if (h >= 18) return null;
+          if (h >= 13) { add('4♠', `Fit ♠ et ${h} HLD : la manche`); add('P'); return A; }
+          if (h >= 10) { add('3♠', `Fit ♠, proposition (${h} HLD)`); if (hld(n, 0) >= 14) { add('4♠', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+          add('2♠', `Fit ♠, ${h} HLD`); if (hld(n, 0) > 16) return null; add('P'); return A;
+        }
+        if (r >= 18) return null;
+        if (r >= 13) { add('3SA', 'Pas de fit, la manche'); add('P'); return A; }
+        if (r >= 11) { add('2SA', 'Pas de fit, proposition (11-12H)'); if (n.hcp >= 14) { add('3SA', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+        if (s.h >= 6) { add('2♥', '6 cartes à ♥, faible'); add('P'); return A; }
+        add('1SA', 'Pas de fit, 6-10H'); add('P'); return A;
+      }
+      if (b === '1SA') {
+        if (L >= 5 && r >= 11) {
+          if (r >= 18) return null;
+          A.theme = 'Roudy';
+          add('2♣', `Roudy : 5 cartes à ${Ms}, tu cherches le fit et la force`);
+          const mini = n.hcp <= 12, fitO = n.len[M] >= 3;
+          const ans = !fitO && mini ? ['2♦', 'Minimum, pas de fit'] : fitO && mini ? ['2' + Ms, 'Minimum avec fit (3 cartes)'] : fitO ? ['2' + NAMES[M === 0 ? 1 : 0], 'Maximum avec fit (3 cartes)'] : ['2SA', 'Maximum, pas de fit'];
+          add(ans[0], ans[1]);
+          const est = mini ? 12 : 14;
+          if (fitO) {
+            if (hld(s, M) + est >= 25) { add('4' + Ms, 'Fit et assez de points : la manche'); add('P'); return A; }
+            if (ans[0] === '2' + Ms) { add('P', 'Fit mais pas de manche : tu passes'); return A; }
+            add('3' + Ms, 'Fit, on s’arrête à 3'); add('P'); return A;
+          }
+          if (r + est >= 25) { add('3SA', 'Pas de fit, assez pour la manche'); add('P'); return A; }
+          if (ans[0] === '2♦') { add('2SA', 'Pas de fit, on s’arrête'); add('P'); return A; }
+          add('P', 'Pas de manche : tu passes'); return A;
+        }
+        if (r <= 10) { if (L >= 6) { add('2' + Ms, `6 cartes à ${Ms}, faible`); add('P'); } else add('P', 'Pas de manche : tu passes'); return A; }
+        if (r <= 12) { add('2SA', 'Proposition (11-12H)'); if (n.hcp >= 13) { add('3SA', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+        if (r >= 18) return null;
+        add('3SA', 'La manche'); add('P'); return A;
+      }
+      if (b === '2SA') {
+        if (r >= 13) return null;
+        if (M === 0 && (L >= 5 || s.h >= 4)) {
+          A.theme = 'Check-Back Stayman';
+          add('3♣', `Check-Back Stayman : ${L >= 5 ? '5 cartes à ♠' : ''}${L >= 5 && s.h >= 4 ? ' et ' : ''}${s.h >= 4 ? '4 cartes à ♥' : ''}`);
+          const fS = n.s >= 3, h4 = n.h >= 4;
+          const ans = fS && h4 ? ['3♦', 'Fit ♠ (3 cartes) et 4 cartes à ♥'] : h4 ? ['3♥', '4 cartes à ♥'] : fS ? ['3♠', 'Fit ♠ par 3 cartes'] : ['3SA', 'Rien : ni fit ♠, ni 4 cartes à ♥'];
+          add(ans[0], ans[1]);
+          if (L >= 5 && fS) { add('4♠', 'Fit ♠ : la manche à ♠'); add('P'); return A; }
+          if (s.h >= 4 && h4) { add('4♥', 'Fit 4-4 à ♥'); add('P'); return A; }
+          if (ans[0] === '3SA') { add('P', 'Pas de fit : 3SA'); return A; }
+          add('3SA', 'Pas de fit : 3SA'); add('P'); return A;
+        }
+        if (M === 1 && (L >= 5 || s.s >= 4)) return null;
+        add('3SA', 'Face à 18-19 : la manche'); add('P'); return A;
+      }
+      if (b === '2' + ms || b === '2♣') {
+        if (r >= 18) return null;
+        if (r >= 13) { add('3SA', 'La manche à SA'); add('P'); return A; }
+        if (r >= 11) { add('2SA', 'Proposition (11-12H)'); if (n.hcp >= 14) { add('3SA', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+        if (b === '2♣' && m === 2 && s.d >= s.c) { add('2♦', 'Préférence pour les ♦'); add('P'); return A; }
+        add('P', 'Pas de manche : tu passes'); return A;
+      }
+      if (b === '3' + ms) { if (r >= 14) return null; if (r >= 8) { add('3SA', 'Assez pour la manche'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
+      return null;
+    }
+    // Pas de majeure 4e
+    if (m === 3 && s.d >= 4) {
+      add('1♦', '4 cartes ou plus à ♦ (pas de majeure 4e)'); A.theme = '1♣ – 1♦';
+      let reb;
+      if (n.h >= 4) reb = ['1♥', '4 cartes à ♥'];
+      else if (n.s >= 4) reb = ['1♠', '4 cartes à ♠'];
+      else if (n.balanced && n.hcp <= 14) reb = ['1SA', 'Régulier, 12-14H'];
+      else if (n.balanced && n.hcp >= 18) reb = ['2SA', '18-19H régulier'];
+      else if (n.d >= 4 && n.hcp <= 16) reb = ['2♦', 'Fit ♦'];
+      else if (n.c >= 6 && n.hcp <= 16) reb = ['2♣', '6 cartes à ♣, minimum'];
+      else return null;
+      add(reb[0], reb[1]);
+      if (r >= 18) return null;
+      if (reb[0] === '2SA') { if (r >= 13) return null; add('3SA', 'Face à 18-19 : la manche'); add('P'); return A; }
+      if (r >= 13) { add('3SA', 'La manche à SA'); add('P'); return A; }
+      if (r >= 11) { add('2SA', 'Proposition (11-12H)'); if (n.hcp >= 14) { add('3SA', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+      if (reb[0] === '1♥' || reb[0] === '1♠') { add('1SA', 'Pas de fit, 6-10H'); add('P'); return A; }
+      add('P', 'Pas de manche : tu passes'); return A;
+    }
+    if (s.balanced) {
+      A.theme = 'Mineure – SA';
+      if (r <= 10) {
+        add('1SA', 'Régulier, 6-10H, pas de majeure 4e');
+        if (n.balanced && n.hcp <= 14) { add('P', 'Régulier minimum : il passe'); return A; }
+        if (n.balanced && n.hcp >= 18) { add('2SA', '18-19H régulier'); if (r >= 8) { add('3SA', 'Tu acceptes'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
+        if (n.len[m] >= 6 && n.hcp <= 16) { add('2' + ms, `6 cartes à ${ms}`); add('P'); return A; }
+        return null;
+      }
+      if (r === 12) { if (!n.balanced && n.len[m] >= 6) return null; add('2SA', '12H régulier, pas de majeure 4e'); if (n.hcp >= 13) { add('3SA', 'Assez pour la manche'); add('P'); } else add('P', 'Minimum : il passe'); return A; }
+      if (r >= 13 && r <= 15) { add('3SA', '13-15H régulier, pas de majeure 4e'); add('P'); return A; }
+      return null;
+    }
+    const raise = (m === 2 && s.d >= 4) || (m === 3 && s.c >= 5);
+    if (raise && r <= 12) {
+      A.theme = 'Soutien mineur';
+      if (r <= 10) { add('2' + ms, `Soutien ${ms}, 6-10H`); if (n.hcp > 16) return null; add('P', 'Il passe'); return A; }
+      add('3' + ms, `Soutien ${ms}, 11-12H, proposition`);
+      if (n.hcp >= 14) { add('3SA', 'Haut de zone : la manche à SA'); add('P'); } else add('P', 'Bas de zone : il passe');
+      return A;
+    }
+    return null;
+  }
+
   // Séquence complète, donneur Nord, adversaires qui passent. Renvoie null si hors règles.
   function auction(northStr, southStr) {
     const n = evalHand(northStr), s = evalHand(southStr);
     const op = opening(n);
-    if (!op) return null;
-    const ours = op[0] === '1SA' ? after1SA(n, s) : after2SA(n, s);
+    let ours;
+    if (op) ours = op[0] === '1SA' ? after1SA(n, s) : after2SA(n, s);
+    else {
+      const t = openSuit(n);
+      if (t === null) return null;
+      ours = t <= 1 ? afterMajor(n, s, t) : afterMinor(n, s, t);
+    }
     if (!ours) return null;
+    const th = ours.theme;
     // Nos enchères alternent N, S ; on intercale le passe de l'adversaire après chacune.
     // Notre séquence finit toujours par un passe : la donne se termine donc par 3 passes.
     if (ours[ours.length - 1][0] !== 'P') return null;
-    return ours.flatMap(x => [x, ['P']]);
+    const full = ours.flatMap(x => [x, ['P']]);
+    if (th) full.theme = th;
+    return full;
   }
 
   const theme = a => {
+    if (a.theme) return a.theme;
     const b = a.map(x => x[0]);
     if (b[0] === '2SA') return b[2] === '3♣' ? 'Puppet' : ['3♦', '3♥', '3♠', '4♣'].includes(b[2]) ? 'Texas sur 2SA' : 'Sur 2SA';
     const r = b[2];
