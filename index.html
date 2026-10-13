@@ -267,9 +267,10 @@
   .gb { height: 36px; font-size: 18px; } .gb span { font-size: 13px; }
   .gspecial .gb { height: 38px; }
   .bigbid-veil { position: absolute; inset: -6px; background: rgba(10, 40, 25, .55); border-radius: 10px; z-index: 7; }
-  .gb.bigbid { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 8; width: 150px; height: 110px; font-size: 46px; flex-direction: column; gap: 4px; border: 3px solid #ffe08a; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
-  .gb.bigbid span { font-size: 30px; } .gb.bigbid.gpass { font-size: 30px; }
-  .gb.bigbid small { font-size: 11px; font-weight: 600; opacity: .8; }
+  /* la carte d'enchère choisie, en grand : format carte (portrait), consigne dans un bandeau en bas */
+  .gb.bigbid { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 8; width: 128px; height: 184px; padding: 0 0 36px; border-radius: 14px; overflow: hidden; font-size: 64px; line-height: 1; flex-direction: column; justify-content: center; gap: 6px; border: 3px solid #ffe08a; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  .gb.bigbid span { font-size: 46px; } .gb.bigbid.gpass, .gb.bigbid.gx, .gb.bigbid.gxx { font-size: 30px; }
+  .gb.bigbid small { position: absolute; left: 0; right: 0; bottom: 0; padding: 7px 4px; background: rgba(0,0,0,.72); color: #fff; font-size: 12px; font-weight: 700; line-height: 1.2; white-space: normal; }
   .gb.bigbid span { display: inline; } .gb.bigbid > span { margin-left: 2px; }
   .chips .bidcard { min-width: 30px; height: 20px; font-size: 11px; }
   /* Boutons principaux sur le tapis : jaune, bien visibles */
@@ -332,13 +333,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610130637"></script>
-<script src="fiche.js?v=202610130637"></script>
-<script src="deals.js?v=202610130637"></script>
-<script src="deals-duo.js?v=202610130637"></script>
-<script src="dds.js?v=202610130637"></script>
-<script src="jeu.js?v=202610130637"></script>
-<script src="adeux.js?v=202610130637"></script>
+<script src="questions.js?v=202610130638"></script>
+<script src="fiche.js?v=202610130638"></script>
+<script src="deals.js?v=202610130638"></script>
+<script src="deals-duo.js?v=202610130638"></script>
+<script src="dds.js?v=202610130638"></script>
+<script src="jeu.js?v=202610130638"></script>
+<script src="adeux.js?v=202610130638"></script>
 <script>
 (() => {
   'use strict';
