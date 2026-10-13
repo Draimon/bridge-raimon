@@ -22,6 +22,7 @@ function createPlay(env) {
   const { app, fmt, topbar, on, go, getProgress, save, exit } = env;
   const ORDER = ['N', 'E', 'S', 'O'];
   const NAMES = { N: 'Nord', E: 'Est', S: 'Sud', O: 'Ouest' };
+  const vulCls = seat => { const v = G.deal.v; return v === 'all' || (v === 'NS' && 'NS'.includes(seat)) || (v === 'EO' && 'EO'.includes(seat)) ? '' : 'nv'; };
   const SYM = ['♠', '♥', '♦', '♣'];
   const RCH = 'AKQJT98765432';
   const RLAB = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'V', 'D', 'R', 'A'];
@@ -369,10 +370,10 @@ function createPlay(env) {
       ${G.dummyShown ? dummyHtml(M, toPlay === M) : '<p class="feltnote">Le mort sera étalé après l’entame</p>'}
       ${G.open ? `<div class="openhands">${[L, R].map(s => `<div class="ohand"><div class="sname">${NAMES[s]}</div>${DISPLAY_SUITS.map(x => `<div><span class="${red(x) ? 'red' : ''}">${SYM[x]}</span> ${G.hands[s][x].map(r => RLAB[r]).join(' ') || '—'}</div>`).join('')}</div>`).join('')}</div>` : ''}
       <div class="frame">
-        <div class="plate top ${isTurn(M) ? 'turn' : ''}"><span class="seat">${M}</span>Mort · ${M === 'S' ? 'ta main' : 'partenaire'}</div>
-        <div class="plate left ${isTurn(L) ? 'turn' : ''}"><span class="seat">${L === 'O' ? 'O' : 'E'}</span>${NAMES[L]} · ${G.hands[L].reduce((t, x) => t + x.length, 0)}</div>
-        <div class="plate right ${isTurn(R) ? 'turn' : ''}"><span class="seat">${R === 'O' ? 'O' : 'E'}</span>${NAMES[R]} · ${G.hands[R].reduce((t, x) => t + x.length, 0)}</div>
-        <div class="plate bottom ${isTurn(D) ? 'turn' : ''}"><span class="seat">${D}</span>Toi · déclarant<span class="contract">${c.l}${fmt(c.s)}</span></div>
+        <div class="plate top ${isTurn(M) ? 'turn' : ''}"><span class="seat ${vulCls(M)}">${M}</span>Mort · ${M === 'S' ? 'ta main' : 'partenaire'}</div>
+        <div class="plate left ${isTurn(L) ? 'turn' : ''}"><span class="seat ${vulCls(L)}">${L === 'O' ? 'O' : 'E'}</span>${NAMES[L]} · ${G.hands[L].reduce((t, x) => t + x.length, 0)}</div>
+        <div class="plate right ${isTurn(R) ? 'turn' : ''}"><span class="seat ${vulCls(R)}">${R === 'O' ? 'O' : 'E'}</span>${NAMES[R]} · ${G.hands[R].reduce((t, x) => t + x.length, 0)}</div>
+        <div class="plate bottom ${isTurn(D) ? 'turn' : ''}"><span class="seat ${vulCls(D)}">${D}</span>Toi · déclarant<span class="contract">${c.l}${fmt(c.s)}</span></div>
         <div class="corner cl">NS<br><b>${G.tricks.NS}/${G.need}</b></div>
         <div class="corner cr">EO<br><b>${G.tricks.EO}</b></div>
         ${trickHtml(M, L, R, D)}

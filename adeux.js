@@ -9,7 +9,7 @@ const FIRESTORE = {
 
 function createDuo(env) {
   'use strict';
-  const { app, topbar, SYS_BTN, on, go, fmt, bidLabel, bidRank, getPlayer, players, home, SEAT_NAMES } = env;
+  const { app, topbar, SYS_BTN, isVul, hcpOf, on, go, fmt, bidLabel, bidRank, getPlayer, players, home, SEAT_NAMES } = env;
   const SEATS = ['N', 'E', 'S', 'O'];
   const next = s => SEATS[(SEATS.indexOf(s) + 1) % 4];
   const partnerOf = s => SEATS[(SEATS.indexOf(s) + 2) % 4];
@@ -149,7 +149,7 @@ function createDuo(env) {
     });
     const name = s => (s === me ? 'Toi' : s === partnerOf(me) ? otherName(p) : SEAT_NAMES[s]);
     const POS = { bottom: 'S', top: 'N', left: 'O', right: 'E' };       // classes CSS de placement
-    const plate = s => `<div class="plate ${pos[s]} ${myTurn && s === me ? 'turn' : ''}"><span class="seat">${s}</span>${name(s)}${deal.d === s ? ' · donneur' : ''}</div>`;
+    const plate = s => `<div class="plate ${pos[s]} ${myTurn && s === me ? 'turn' : ''}"><span class="seat ${isVul(deal, s) ? '' : 'nv'}">${s}</span>${name(s)}${s === me ? ` · <span class="hcp">${hcpOf(deal.h[me])}H</span>` : ''}${deal.d === s ? ' · donneur' : ''}</div>`;
     const stack = s => (stacks[s].length ? `<div class="bidstack ${POS[pos[s]]}">${stacks[s].join('')}</div>` : '');
     const hand = deal.h[me].split('.');
     app.innerHTML = topbar('Donne n° ' + deal.n, 'Donnes', SYS_BTN) + `

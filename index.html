@@ -210,7 +210,9 @@
   .frame { position: relative; border: 2px solid #d8962b; border-radius: 4px; margin: 26px 34px 14px; min-height: 230px; padding: 30px 6px; }
   .plate { position: absolute; background: #1d2724; color: #fff; font-size: 13px; font-weight: 600; border-radius: 6px; padding: 4px 10px 4px 0; display: flex; align-items: center; gap: 8px; white-space: nowrap; z-index: 2; }
   .plate .seat { background: #b8322e; color: #fff; font-weight: 800; padding: 4px 8px; border-radius: 6px 0 0 6px; }
-  .plate.turn { background: #e08a1e; } .plate.turn .seat { background: #a3561a; }
+  .plate .seat.nv { background: #2f8a4e; }       /* vert = non vulnérable, rouge = vulnérable */
+  .plate .hcp { color: #f2c94c; font-weight: 800; }
+  .plate.turn { background: #e08a1e; } .plate.turn .hcp { color: #1d2724; }
   .plate.top { top: -15px; left: 50%; transform: translateX(-50%); }
   .plate.bottom { bottom: -15px; left: 50%; transform: translateX(-50%); }
   .plate.left { left: -30px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
@@ -330,13 +332,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610130254"></script>
-<script src="fiche.js?v=202610130254"></script>
-<script src="deals.js?v=202610130254"></script>
-<script src="deals-duo.js?v=202610130254"></script>
-<script src="dds.js?v=202610130254"></script>
-<script src="jeu.js?v=202610130254"></script>
-<script src="adeux.js?v=202610130254"></script>
+<script src="questions.js?v=202610130633"></script>
+<script src="fiche.js?v=202610130633"></script>
+<script src="deals.js?v=202610130633"></script>
+<script src="deals-duo.js?v=202610130633"></script>
+<script src="dds.js?v=202610130633"></script>
+<script src="jeu.js?v=202610130633"></script>
+<script src="adeux.js?v=202610130633"></script>
 <script>
 (() => {
   'use strict';
@@ -492,6 +494,9 @@
   }
 
   function on(act, fn) { app.querySelectorAll(`[data-act="${act}"]`).forEach(b => b.addEventListener('click', fn)); }
+  // Vulnérabilité d'une place, et points H d'une main « AK5.QJ2.… »
+  const isVul = (deal, seat) => deal.v === 'all' || (deal.v === 'NS' && (seat === 'N' || seat === 'S')) || (deal.v === 'EO' && (seat === 'E' || seat === 'O'));
+  const hcpOf = hand => hand.replace(/[^AKQJ]/g, '').split('').reduce((t, c) => t + { A: 4, K: 3, Q: 2, J: 1 }[c], 0);
   function topbar(title, back, extra) {
     return `<header class="top"><button class="back" data-act="back">‹ ${back || 'Accueil'}</button><h1>${title}</h1>${extra || ''}</header>`;
   }
@@ -797,7 +802,7 @@
   }
 
   let play = null;
-  const DUO = createDuo({ app, topbar, SYS_BTN, on, go, fmt, bidLabel, bidRank, getPlayer: () => player, players: PLAYERS, home, SEAT_NAMES });
+  const DUO = createDuo({ app, topbar, SYS_BTN, isVul, hcpOf, on, go, fmt, bidLabel, bidRank, getPlayer: () => player, players: PLAYERS, home, SEAT_NAMES });
   const PLAY = createPlay({ app, fmt, topbar, on, go: v => v(), getProgress: () => progress, save, exit: () => go(dealList) });
   const biddingDone = n => { const p = progress[dealKey(n)]; return !!p && (p.won || p.last === 1); };
   function startDeal(deal, skipIntro) {
@@ -881,7 +886,7 @@
     const tile = seat => (stacks[seat].length ? `<div class="bidstack ${seat}">${stacks[seat].join('')}</div>` : '');
     const history = '';
     const vul = { none: 'Personne vulnérable', NS: 'Vulnérables : N/S', EO: 'Vulnérables : E/O', all: 'Tous vulnérables' }[deal.v || 'none'];
-    const plate = (seat, cls, name) => `<div class="plate ${cls} ${myTurn && seat === 'S' ? 'turn' : ''}"><span class="seat">${seat}</span>${name}${deal.d === seat ? ' · donneur' : ''}</div>`;
+    const plate = (seat, cls, name) => `<div class="plate ${cls} ${myTurn && seat === 'S' ? 'turn' : ''}"><span class="seat ${isVul(deal, seat) ? '' : 'nv'}">${seat}</span>${name}${seat === 'S' ? ` · <span class="hcp">${hcpOf(deal.h.S)}H</span>` : ''}${deal.d === seat ? ' · donneur' : ''}</div>`;
     app.innerHTML = topbar('Donne n° ' + deal.n, 'Quitter', SYS_BTN) + `
       <div class="frame bidframe">
         ${plate('N', 'top', 'Partenaire')}${plate('O', 'left', 'Ouest')}${plate('E', 'right', 'Est')}${plate('S', 'bottom', 'Toi')}
