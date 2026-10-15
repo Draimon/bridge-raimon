@@ -17,6 +17,7 @@ function createDuo(env) {
   const dealOf = n => (typeof n === 'number' ? DEALS : DUO_DEALS).find(d => d.n === n);
   const seatAt = (deal, i) => SEATS[(SEATS.indexOf(deal.d) + i) % 4];
   let parties = [], everyParty = [], current = null, busy = false;
+  const shown = {};
 
   // ───── Firestore (REST) : chaque partie est un document { data: JSON }
   const enc = obj => ({ fields: { data: { stringValue: JSON.stringify(obj) } } });
@@ -123,20 +124,21 @@ function createDuo(env) {
       const st = statusOf(p, g);
       const t = talk(g);
       const lab = st === 'fini' ? (unread(g) ? `<b style="color:var(--accent)">💬 Message de ${otherName(p)}</b>` : t && !t.accord ? '💬 En discussion' : t ? '✓ Terminée · vous vous êtes mis d’accord' : '✓ Terminée : voir l’analyse') :st === 'moi' ? '<b style="color:var(--accent)">À toi d’enchérir</b>' : `Au tour de ${otherName(p)}`;
-      return `<button class="btn" data-g="${i}" ${st === 'lui' ? 'disabled' : ''}>Donne n° ${g.n}<small>${lab}</small></button>`;
+      return `<button class="btn ${st === 'lui' ? 'waiting' : ''}" data-g="${i}">Donne n° ${g.n}<small>${lab}${st === 'lui' && undoIndex(p, g) >= 0 ? ' · tu peux encore modifier ton enchère' : ''}</small></button>`;
     }).join('');
     app.innerHTML = topbar('Avec ' + otherName(p), 'Parties', SYS_BTN) + rows + '<p class="center"><button class="link" data-act="refresh">↻ Actualiser</button></p>';
     on('back', () => go(list));
     on('refresh', () => openParty(p.id));
     app.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => {
       const i = +b.dataset.g, g = p.donnes[i];
-      if (statusOf(p, g) === 'fini') go(() => analysis(i)); else go(() => bidView(i));
+      if (statusOf(p, g) === 'fini') go(() => analysis(i)); else go(() => bidView(i, null, { anim: true }));
     }));
   }
 
   // ───── Enchérir (table, toi en bas)
-  function bidView(i, choice) {
+  function bidView(i, choice, opts = {}) {
     const p = current, g = p.donnes[i], deal = dealOf(g.n);
+    shown[i] = g.calls.join(',');          // la séquence vue à l'écran (pour détecter une modification du partenaire)
     const me = seatOfPlayer(p), myTurn = statusOf(p, g) === 'moi';
     document.body.classList.add('tablemode');
     const pos = { [me]: 'bottom', [partnerOf(me)]: 'top', [next(me)]: 'left', [next(partnerOf(me))]: 'right' };
@@ -149,14 +151,16 @@ function createDuo(env) {
     });
     const name = s => (s === me ? 'Toi' : s === partnerOf(me) ? otherName(p) : SEAT_NAMES[s]);
     const POS = { bottom: 'S', top: 'N', left: 'O', right: 'E' };       // classes CSS de placement
-    const plate = s => `<div class="plate ${pos[s]} ${myTurn && s === me ? 'turn' : ''}"><span class="seat ${isVul(deal, s) ? '' : 'nv'}">${s}</span>${name(s)}${s === me ? ` · <span class="hcp">${hcpOf(deal.h[me])}H</span>` : ''}${deal.d === s ? ' · donneur' : ''}</div>`;
+    const plate = s => `<div class="plate ${pos[s]} ${myTurn && s === me ? 'turn' : ''}"><span class="seat ${isVul(deal, s) ? '' : 'nv'}">${s}</span>${name(s)}${s === me ? ` · <span class="hcp">${hcpOf(deal.h[me])}H</span>` : ''}${deal.d === s ? '<span class="dealer" title="Donneur">D</span>' : ''}</div>`;
     const stack = s => (stacks[s].length ? `<div class="bidstack ${POS[pos[s]]}">${stacks[s].join('')}</div>` : '');
     const hand = deal.h[me].split('.');
-    app.innerHTML = topbar('Donne n° ' + deal.n, 'Donnes', SYS_BTN) + `
-      <div class="frame bidframe">
+    const canUndo = !myTurn && undoIndex(p, g) >= 0;
+    app.innerHTML = topbar('Donne ' + deal.n, 'Donnes', SYS_BTN) + `
+      ${opts.notice ? `<div class="notice">${opts.notice}</div>` : ''}
+      <div class="frame bidframe ${opts.anim ? 'dealin' : ''}">${opts.anim ? `<div class="dealflash">Donne ${deal.n}<small>${myTurn ? 'À toi d’enchérir' : 'Au tour de ' + otherName(p)}</small></div>` : ''}
         ${SEATS.map(plate).join('')}${SEATS.map(stack).join('')}
-        <div class="bidcenter" id="fb">${myTurn ? gridHtml(g, deal, choice) : `<p class="feltnote">Au tour de ${otherName(p)}</p>`}</div>
-        <div class="vulnote">${{ none: 'Personne vulnérable', NS: 'Vulnérables : N/S', EO: 'Vulnérables : E/O', all: 'Tous vulnérables' }[deal.v || 'none']}</div>
+        <div class="bidcenter" id="fb">${myTurn ? gridHtml(g, deal, choice) : `<p class="feltnote">Au tour de ${otherName(p)}</p>${canUndo ? '<button class="btn center undo" data-act="undo">↶ Modifier mon enchère</button>' : ''}`}</div>
+        <div class="vulnote">Donneur : ${SEAT_NAMES[deal.d]} · ${{ none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none']}</div>
       </div>
       ${arcHtml([0, 1, 3, 2].flatMap(s => hand[s].replace('-', '').split('').filter(Boolean).map(ch => ({ s, label: ({ A: 'A', K: 'R', Q: 'D', J: 'V', T: '10' }[ch] || ch) }))))}`;
     on('back', () => go(partyView));
@@ -166,6 +170,7 @@ function createDuo(env) {
     }));
     on('announce', () => submit(i, choice));
     on('unpick', () => bidView(i));
+    on('undo', () => undo(i));
   }
   function tileHtml(b, cls) {
     const cols = ['SA', '♠', '♥', '♦', '♣'];
@@ -192,6 +197,7 @@ function createDuo(env) {
     if (busy || !choice) return; busy = true;
     for (let attempt = 0; attempt < 3; attempt++) {
       const p = current, g = p.donnes[i], deal = dealOf(g.n);
+      if (g.calls.join(',') !== shown[i]) { busy = false; return changedUnderMe(i); }
       if (statusOf(p, g) !== 'moi') break;
       g.calls.push(choice);
       autoOpponents(deal, g.calls);
@@ -207,8 +213,38 @@ function createDuo(env) {
     if (statusOf(current, g) === 'moi') return bidView(i);
     // au partenaire : on passe à la donne suivante qui m'attend
     const nextMine = current.donnes.findIndex(x => statusOf(current, x) === 'moi');
-    if (nextMine >= 0) return go(() => bidView(nextMine));
+    if (nextMine >= 0) return go(() => bidView(nextMine, null, { anim: true }));
     go(partyView);
+  }
+  // Le partenaire a modifié son enchère pendant que je choisissais la mienne : mon enchère n'est pas enregistrée.
+  function changedUnderMe(i) {
+    const g = current.donnes[i];
+    const notice = `<b>${otherName(current)} a modifié son enchère</b> pendant que tu choisissais : ton enchère n'a pas été enregistrée. Regarde la nouvelle séquence.`;
+    if (finished(g.calls)) return go(() => analysis(i));
+    go(() => bidView(i, null, { notice }));
+  }
+
+  // ───── Modifier sa dernière enchère tant que le partenaire n'a pas parlé après
+  // Renvoie l'indice de ma dernière enchère si, depuis, seuls les adversaires (robot) ont parlé ; sinon -1.
+  function undoIndex(p, g) {
+    if (talk(g)) return -1;
+    const deal = dealOf(g.n), me = seatOfPlayer(p);
+    let k = -1; g.calls.forEach((b, j) => { if (seatAt(deal, j) === me) k = j; });
+    if (k < 0) return -1;
+    for (let j = k + 1; j < g.calls.length; j++) if (seatAt(deal, j) === partnerOf(me)) return -1;
+    return k;
+  }
+  async function undo(i) {
+    if (busy) return; busy = true;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try { await openPartySilent(current.id); } catch (e) { busy = false; return showError(e); }
+      const g = current.donnes[i], k = undoIndex(current, g);
+      if (k < 0) { busy = false; return go(() => (finished(g.calls) ? analysis(i) : bidView(i, null, { notice: `Trop tard : ${otherName(current)} a déjà enchéri après toi.` }))); }
+      g.calls = g.calls.slice(0, k);
+      try { current = await saveParty(current); busy = false; return go(() => bidView(i, null, { notice: 'Ton enchère est retirée : choisis la bonne.' })); }
+      catch (e) { if (e.status === 400 || e.status === 409 || e.status === 412) continue; busy = false; return showError(e); }
+    }
+    busy = false; go(() => bidView(i));
   }
   async function openPartySilent(id) { await loadAll(); current = parties.find(p => p.id === id); }
 
@@ -234,16 +270,18 @@ function createDuo(env) {
       `Séquence jouée : ${g.calls.map(bidLabel).join(' – ')}`, `Séquence du système : ${exp.map(bidLabel).join(' – ')}`,
       diverged >= 0 ? `Premier écart : enchère n° ${diverged + 1} (${who(seatAt(deal, diverged))}) : ${bidLabel(g.calls[diverged])} au lieu de ${bidLabel(exp[diverged])}` : 'Aucun écart avec le système.',
       `Mains : N ${deal.h.N} · S ${deal.h.S} · E ${deal.h.E} · O ${deal.h.O}`].join('\n');
-    app.innerHTML = topbar('Analyse · n° ' + deal.n, 'Donnes', SYS_BTN) + `
+    app.innerHTML = topbar('Analyse ' + deal.n, 'Donnes', SYS_BTN) + `
       <div class="card center"><div class="feedback ${perfect ? 'ok' : 'ko'}"><h3 style="margin:0">${perfect ? 'Séquence conforme au système !' : 'Votre séquence s’écarte du système'}</h3></div>
         <p style="margin:10px 0 0">Votre contrat : <b>${fmt(contract(g.calls))}</b><br>Contrat du système : <b>${fmt(contract(exp))}</b>${deal.best ? `<br>Meilleur contrat possible : <b>${fmt(deal.best.c)}</b> (${deal.best.t} levées en double mort)` : ''}</p></div>
       <div class="card"><b>Enchère par enchère</b><ol class="expl">${rows}</ol>
         ${diverged >= 0 ? `<p class="muted" style="font-size:14px">Suite prévue par le système : ${fmt(exp.slice(diverged).map(bidLabel).join(' – '))}</p>` : ''}</div>
       <div class="card"><b>Les 4 mains</b><div class="compass"><div class="cN">${mini('N')}</div><div class="cO">${mini('O')}</div><div class="cE">${mini('E')}</div><div class="cS">${mini('S')}</div></div></div>
       <div id="talk">${talkHtml(p, g)}</div>
-      <div id="fix"><button class="btn center" data-act="fixopen">Pas d’accord avec l’analyse ?</button></div>`;
+      <div id="fix"><button class="btn center" data-act="fixopen">Pas d’accord avec l’analyse ?</button></div>
+      ${undoIndex(p, g) >= 0 ? '<button class="link" data-act="undo" style="display:block;margin:12px auto">↶ Modifier ma dernière enchère</button>' : ''}`;
     on('back', () => go(partyView));
-    wireFix({ type: 'donne à deux', donne: deal.n, partie: p.id, rapport: report });
+    wireFix({ type: 'donne à deux', donne: deal.n, partie: p.id, rapport: report, sent: 'Analyse envoyée' });
+    on('undo', () => undo(i));
     wireTalk(i, report);
     if (talk(g)) document.getElementById('talk').scrollIntoView({ block: 'start' });
   }
@@ -304,7 +342,11 @@ function createDuo(env) {
 
   // ───── « Pas d'accord ? Corriger » : la remarque part dans la base (collection corrections) pour analyse.
   const fixButtonHtml = () => '<button class="btn center" data-act="fixopen">Pas d’accord ? Corriger</button>';
+  const sentKey = ctx => `raimon-fix:${getPlayer()}:${ctx.type}:${ctx.donne || ctx.question}:${ctx.partie || ''}`;
+  const wasSent = ctx => { try { return !!localStorage.getItem(sentKey(ctx)); } catch (e) { return false; } };
   function wireFix(ctx) {
+    const box = document.getElementById('fix');
+    if (box && wasSent(ctx)) { box.innerHTML = `<button class="btn center" disabled>✓ ${ctx.sent || 'Remarque envoyée'}</button>`; return; }
     on('fixopen', () => {
       document.getElementById('fix').innerHTML = `<div class="card"><b>Qu’est-ce qui ne va pas ?</b>
         <textarea id="fixtext" rows="4" placeholder="Ex. : sur 1SA – 2♥, je dis 3♦ et non 2♠ parce que…" style="width:100%;margin-top:8px;font-size:16px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"></textarea>
@@ -318,10 +360,12 @@ function createDuo(env) {
     const msg = document.getElementById('fixmsg');
     if (!texte) { msg.textContent = 'Écris quelques mots d’explication.'; return; }
     msg.textContent = 'Envoi…';
-    const data = { ...ctx, texte, auteur: getPlayer(), date: Date.now(), statut: 'nouveau' };
+    const { sent, ...base } = ctx;
+    const data = { ...base, texte, auteur: getPlayer(), date: Date.now(), statut: 'nouveau' };
     try {
       await postCorrection(data);
-      document.getElementById('fix').innerHTML = '<div class="feedback ok"><h3 style="margin:0">Envoyé, merci !</h3><p style="margin:6px 0 0">Damien demandera à Claude de regarder les corrections.</p></div>';
+      try { localStorage.setItem(sentKey(ctx), String(Date.now())); } catch (e) { /* stockage indisponible */ }
+      document.getElementById('fix').innerHTML = `<button class="btn center" disabled>✓ ${ctx.sent || 'Remarque envoyée'}</button><p class="center muted" style="font-size:13px;margin:6px 0 0">Merci ! Damien demandera à Claude de regarder les corrections.</p>`;
     } catch (e) { msg.textContent = 'Envoi impossible pour l’instant (' + e.message + '). Réessaie plus tard.'; }
   }
 
@@ -331,5 +375,17 @@ function createDuo(env) {
     return parties.reduce((t, p) => t + p.donnes.filter(g => statusOf(p, g) === 'moi' || unread(g)).length, 0);
   }
 
-  return { list, waitingCount, wireFix, fixButtonHtml, _finished: finished, _auto: autoOpponents };
+  async function waitingDetail() {
+    const out = { total: 0, byPartner: {} };
+    try { await loadAll(); } catch (e) { return out; }
+    for (const p of parties) {
+      const bids = p.donnes.filter(g => statusOf(p, g) === 'moi').length, msgs = p.donnes.filter(unread).length;
+      if (!bids && !msgs) continue;
+      const x = out.byPartner[otherName(p)] || (out.byPartner[otherName(p)] = { bids: 0, msgs: 0 });
+      x.bids += bids; x.msgs += msgs; out.total += bids + msgs;
+    }
+    return out;
+  }
+
+  return { list, waitingCount, waitingDetail, wireFix, fixButtonHtml, _finished: finished, _auto: autoOpponents };
 }
