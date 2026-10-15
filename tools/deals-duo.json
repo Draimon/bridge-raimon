@@ -85,22 +85,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Pas de fit : proposition de 3SA"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum : il accepte"
+    "Pas de fit : 3SA"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "Il passe"
    ],
    [
     "P"
@@ -260,7 +253,7 @@
    ],
    [
     "4♠",
-    "Fit ♠ et 14 HLD : la manche"
+    "Fit ♠ et 15 HLD : la manche"
    ],
    [
     "P"
@@ -467,7 +460,7 @@
    ],
    [
     "2SA",
-    "Proposition de 3SA (8-9H)"
+    "Proposition de 3SA (8H)"
    ],
    [
     "P"
@@ -607,15 +600,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Pas de fit : proposition de 3SA"
+    "3SA",
+    "Pas de fit : 3SA"
    ],
    [
     "P"
    ],
    [
     "P",
-    "Minimum : il passe"
+    "Il passe"
    ],
    [
     "P"
@@ -876,7 +869,7 @@
    ],
    [
     "4♥",
-    "Fit 4-4 et la manche : 4♥"
+    "Fit 4-4 et 11 HLD : la manche"
    ],
    [
     "P"
@@ -977,7 +970,7 @@
    ],
    [
     "4♠",
-    "15 HLD face à 11-12 : la manche"
+    "14 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -1064,7 +1057,7 @@
    ],
    [
     "2♠",
-    "Fit ♠, 11-16 HLD (16)"
+    "Fit ♠, 11-16 HLD (15)"
    ],
    [
     "P"
@@ -1078,7 +1071,7 @@
    ],
    [
     "4♦",
-    "16 HLD, haut de zone : tu acceptes la manche et nommes ton 1er contrôle (♦)"
+    "15 HLD, haut de zone : tu acceptes la manche et nommes ton 1er contrôle (♦)"
    ],
    [
     "P"
@@ -1202,7 +1195,7 @@
  },
  {
   "n": "T027",
-  "t": "Enchère d’essai",
+  "t": "Soutien majeur",
   "d": "N",
   "v": "none",
   "N": "QJT83.A3.Q7542.K",
@@ -1219,28 +1212,21 @@
    ],
    [
     "2♠",
-    "Soutien simple : fit ♠, 6-10 HLD (8)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3♦",
-    "Essai : 5 cartes à ♦ (17 HLD)"
+    "Soutien simple : fit ♠, 6-10 HLD (7)"
    ],
    [
     "P"
    ],
    [
     "3♠",
-    "8 HLD, bas de zone : tu refuses"
+    "15 HLD : proposition de manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    "Refus : on joue 3♠"
+    "7 HLD : tu refuses"
    ],
    [
     "P"
@@ -1282,7 +1268,7 @@
  },
  {
   "n": "T029",
-  "t": "Enchère d’essai",
+  "t": "Mineure – majeure",
   "d": "N",
   "v": "EO",
   "N": "AJ53.AK97.Q432.3",
@@ -1305,29 +1291,15 @@
     "P"
    ],
    [
-    "2♠",
-    "Fit ♠, 11-16 HLD (16)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "2SA",
-    "Essai généralisé (12 HLD)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "4♣",
-    "16 HLD, haut de zone : tu acceptes la manche et nommes ton 1er contrôle (♣)"
+    "3♠",
+    "Fit ♠, 17 HLD ou plus (17)"
    ],
    [
     "P"
    ],
    [
     "4♠",
-    "La manche"
+    "Tu acceptes la manche"
    ],
    [
     "P"
@@ -1421,7 +1393,7 @@
    ],
    [
     "2SA",
-    "Essai généralisé (16 HLD)"
+    "Essai généralisé (15 HLD)"
    ],
    [
     "P"
@@ -1616,7 +1588,7 @@
    ],
    [
     "4♠",
-    "Oklahoma : fit ♠, 0 ou 1 carte clé (15 HLD)"
+    "Oklahoma : fit ♠, 0 ou 1 carte clé (14 HLD)"
    ],
    [
     "P"
@@ -1869,15 +1841,8 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition de 3SA (8-9H)"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum : il accepte"
+    "La manche à SA"
    ],
    [
     "P"
@@ -1924,7 +1889,7 @@
    ],
    [
     "4♠",
-    "Fit 4-4 et la manche : 4♠"
+    "Fit 4-4 et 14 HLD : la manche"
    ],
    [
     "P"
@@ -2072,7 +2037,7 @@
    ],
    [
     "2SA",
-    "Essai généralisé (16 HLD)"
+    "Essai généralisé (14 HLD)"
    ],
    [
     "P"
@@ -2354,7 +2319,7 @@
    ],
    [
     "2SA",
-    "Essai généralisé (18 HLD)"
+    "Essai généralisé (17 HLD)"
    ],
    [
     "P"
@@ -2367,8 +2332,8 @@
     "P"
    ],
    [
-    "4♠",
-    "Assez pour la manche"
+    "3♠",
+    "On s'arrête à 3♠"
    ],
    [
     "P"
@@ -2563,7 +2528,7 @@
    ],
    [
     "3♥",
-    "Essai : 5 cartes à ♥ (21 HLD)"
+    "Essai : 5 cartes à ♥ (19 HLD)"
    ],
    [
     "P"
@@ -2869,7 +2834,7 @@
    ],
    [
     "4♠",
-    "17 HLD face à 11-12 : la manche"
+    "16 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -3058,15 +3023,8 @@
     "P"
    ],
    [
-    "3♠",
-    "Fit 4-4 et 8-9H : proposition"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♠",
-    "Maximum : il accepte"
+    "Fit 4-4 et 11 HLD : la manche"
    ],
    [
     "P"
@@ -3153,7 +3111,7 @@
    ],
    [
     "3♥",
-    "16 HLD : proposition de manche"
+    "15 HLD : proposition de manche"
    ],
    [
     "P"
@@ -3341,7 +3299,7 @@
    ],
    [
     "4♥",
-    "17 HLD face à 11-12 : la manche"
+    "16 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -3357,7 +3315,7 @@
  },
  {
   "n": "T073",
-  "t": "Soutien majeur",
+  "t": "Shadow fit",
   "d": "N",
   "v": "NS",
   "N": "KQJ54.AJ5.T94.K8",
@@ -3373,22 +3331,22 @@
     "P"
    ],
    [
-    "2♠",
-    "Soutien simple : fit ♠, 6-10 HLD (9)"
+    "3♠",
+    "Shadow fit : fit ♠ avec moins de 8H, zone 11-12 HLD"
    ],
    [
     "P"
    ],
    [
-    "3♠",
-    "16 HLD : proposition de manche"
+    "4♠",
+    "15 HLD face à 11-12 : la manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    "9 HLD : tu refuses"
+    ""
    ],
    [
     "P"
@@ -3548,7 +3506,7 @@
    ],
    [
     "3♠",
-    "16 HLD : proposition de manche"
+    "15 HLD : proposition de manche"
    ],
    [
     "P"
@@ -3759,7 +3717,7 @@
    ],
    [
     "4♥",
-    "15 HLD face à 11-12 : la manche"
+    "14 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -3829,7 +3787,7 @@
  },
  {
   "n": "T084",
-  "t": "Chelem sur 1SA",
+  "t": "Texas",
   "d": "N",
   "v": "EO",
   "N": "K9.AK42.QJ6.QJ94",
@@ -3873,22 +3831,8 @@
     "P"
    ],
    [
-    "4SA",
-    "Tu recomptes ta main : 16 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
-   ],
-   [
-    "P"
-   ],
-   [
-    "5♦",
-    "1 ou 4 As"
-   ],
-   [
-    "P"
-   ],
-   [
-    "5♠",
-    "Il manque 2 As : on s'arrête à 5♠"
+    "4♠",
+    "Tu recomptes ta main : 14 HLD face à 15-17, pas de chelem, tu conclus à 4♠"
    ],
    [
     "P"
@@ -3993,8 +3937,14 @@
     "P"
    ],
    [
-    "P",
-    "Pas de manche : tu passes"
+    "4♥",
+    "15 HLD face à 8-10H avec 5 cartes : la manche"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P"
    ],
    [
     "P"
@@ -4152,7 +4102,7 @@
    ],
    [
     "4♥",
-    "16 HLD face à 8-10H avec 5 cartes : la manche"
+    "18 HLD face à 8-10H avec 5 cartes : la manche"
    ],
    [
     "P"
@@ -4212,7 +4162,7 @@
    ],
    [
     "4SA",
-    "Tu recomptes ta main : 18 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
+    "Tu recomptes ta main : 16 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
    ],
    [
     "P"
@@ -4259,7 +4209,7 @@
    ],
    [
     "4♦",
-    "Oklahoma : fit, 2 cartes clés (13 HLD)"
+    "Oklahoma : fit, 2 cartes clés (15 HLD)"
    ],
    [
     "P"
@@ -4336,7 +4286,7 @@
  },
  {
   "n": "T094",
-  "t": "Shadow fit",
+  "t": "Oklahoma",
   "d": "N",
   "v": "EO",
   "N": "4.KJ542.QT.AQJ96",
@@ -4352,15 +4302,8 @@
     "P"
    ],
    [
-    "3♦",
-    "Shadow fit : fit ♥ par 4 cartes, 8H et plus, zone 11-12 HLD"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♥",
-    "18 HLD face à 11-12 : la manche"
+    "Oklahoma : fit ♥, 0 ou 1 carte clé (13 HLD)"
    ],
    [
     "P"
@@ -4597,7 +4540,7 @@
    ],
    [
     "4♦",
-    "Oklahoma : fit, 2 cartes clés (15 HLD)"
+    "Oklahoma : fit, 2 cartes clés (14 HLD)"
    ],
    [
     "P"
@@ -4620,7 +4563,7 @@
  },
  {
   "n": "T101",
-  "t": "Soutien majeur",
+  "t": "Shadow fit",
   "d": "N",
   "v": "EO",
   "N": "J3.AQJ65.A3.J752",
@@ -4636,22 +4579,22 @@
     "P"
    ],
    [
-    "2♥",
-    "Soutien simple : fit ♥, 6-10 HLD (9)"
+    "3♦",
+    "Shadow fit : fit ♥ par 4 cartes, 8H et plus, zone 11-12 HLD"
    ],
    [
     "P"
    ],
    [
-    "3♥",
-    "16 HLD : proposition de manche"
+    "4♥",
+    "15 HLD face à 11-12 : la manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    "9 HLD : tu refuses"
+    ""
    ],
    [
     "P"
@@ -5396,8 +5339,8 @@
     "P"
    ],
    [
-    "4♥",
-    "14 HLD : la manche"
+    "3♥",
+    "13 HLD : il s'arrête à 3♥"
    ],
    [
     "P"
@@ -5552,7 +5495,7 @@
    ],
    [
     "3♦",
-    "Essai : 5 cartes à ♦ (17 HLD)"
+    "Essai : 5 cartes à ♦ (16 HLD)"
    ],
    [
     "P"
@@ -5582,7 +5525,7 @@
  },
  {
   "n": "T122",
-  "t": "Shadow fit",
+  "t": "Oklahoma",
   "d": "N",
   "v": "all",
   "N": "T7543.Q8.AKT9.A5",
@@ -5598,15 +5541,15 @@
     "P"
    ],
    [
-    "3♦",
-    "Shadow fit : fit ♠ par 4 cartes, 8H et plus, zone 11-12 HLD"
+    "4♦",
+    "Oklahoma : fit, 2 cartes clés (15 HLD)"
    ],
    [
     "P"
    ],
    [
     "4♠",
-    "16 HLD face à 11-12 : la manche"
+    "Pas de chelem en vue : il conclut à la manche"
    ],
    [
     "P"
@@ -5679,28 +5622,21 @@
    ],
    [
     "2♠",
-    "Soutien simple : fit ♠, 6-10 HLD (10)"
+    "Soutien simple : fit ♠, 6-10 HLD (9)"
    ],
    [
     "P"
    ],
    [
     "3♠",
-    "16 HLD : proposition de manche"
-   ],
-   [
-    "P"
-   ],
-   [
-    "4♠",
-    "10 HLD : tu acceptes"
+    "15 HLD : proposition de manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "9 HLD : tu refuses"
    ],
    [
     "P"
@@ -5857,7 +5793,7 @@
    ],
    [
     "2SA",
-    "Essai généralisé (19 HLD)"
+    "Essai généralisé (18 HLD)"
    ],
    [
     "P"
@@ -5934,7 +5870,7 @@
  },
  {
   "n": "T130",
-  "t": "Shadow fit",
+  "t": "Oklahoma",
   "d": "N",
   "v": "all",
   "N": "AKT75.K43.K6.KJ6",
@@ -5950,15 +5886,8 @@
     "P"
    ],
    [
-    "3♦",
-    "Shadow fit : fit ♠ par 4 cartes, 8H et plus, zone 11-12 HLD"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♠",
-    "19 HLD face à 11-12 : la manche"
+    "Oklahoma : fit ♠, 0 ou 1 carte clé (13 HLD)"
    ],
    [
     "P"
@@ -6005,7 +5934,7 @@
    ],
    [
     "3♣",
-    "Essai : 5 cartes à ♣ (13 HLD)"
+    "Essai : 5 cartes à ♣ (12 HLD)"
    ],
    [
     "P"
@@ -6106,7 +6035,7 @@
    ],
    [
     "4♠",
-    "19 HLD face à 11-12 : la manche"
+    "16 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -6667,15 +6596,8 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition de 3SA (8-9H)"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum : il accepte"
+    "La manche à SA"
    ],
    [
     "P"
@@ -6755,7 +6677,7 @@
    ],
    [
     "3♦",
-    "Essai : 5 cartes à ♦ (19 HLD)"
+    "Essai : 5 cartes à ♦ (17 HLD)"
    ],
    [
     "P"
@@ -6768,15 +6690,8 @@
     "P"
    ],
    [
-    "4♠",
-    "Assez pour la manche malgré le refus"
-   ],
-   [
-    "P"
-   ],
-   [
     "P",
-    ""
+    "Refus : on joue 3♠"
    ],
    [
     "P"
@@ -7010,8 +6925,8 @@
     "P"
    ],
    [
-    "4♠",
-    "15 HLD face à 11-12 : la manche"
+    "3♠",
+    "Minimum (13 HLD) : il s'arrête à 3♠"
    ],
    [
     "P"
@@ -7284,7 +7199,7 @@
    ],
    [
     "2SA",
-    "Essai généralisé (20 HLD)"
+    "Essai généralisé (19 HLD)"
    ],
    [
     "P"
@@ -7516,7 +7431,7 @@
    ],
    [
     "4♥",
-    "Tu recomptes ta main : 14 HLD face à 15-17, pas de chelem, tu conclus à 4♥"
+    "Tu recomptes ta main : 12 HLD face à 15-17, pas de chelem, tu conclus à 4♥"
    ],
    [
     "P"
@@ -7633,7 +7548,7 @@
  },
  {
   "n": "T168",
-  "t": "Oklahoma – chelem",
+  "t": "Oklahoma",
   "d": "N",
   "v": "all",
   "N": "AK9876.KJ.T872.K",
@@ -7650,14 +7565,14 @@
    ],
    [
     "4♦",
-    "Oklahoma : fit, 2 cartes clés (14 HLD)"
+    "Oklahoma : fit, 2 cartes clés (13 HLD)"
    ],
    [
     "P"
    ],
    [
-    "6♠",
-    "2 cartes clés + 2 en face : petit chelem"
+    "4♠",
+    "Pas de chelem en vue : il conclut à la manche"
    ],
    [
     "P"
@@ -7697,7 +7612,7 @@
    ],
    [
     "2SA",
-    "Essai généralisé (19 HLD)"
+    "Essai généralisé (18 HLD)"
    ],
    [
     "P"
@@ -7710,15 +7625,8 @@
     "P"
    ],
    [
-    "4♥",
-    "Assez pour la manche malgré le refus"
-   ],
-   [
-    "P"
-   ],
-   [
     "P",
-    ""
+    "Refus : on joue 3♥"
    ],
    [
     "P"
@@ -7871,7 +7779,7 @@
    ],
    [
     "2♥",
-    "Fit ♥, 11-16 HLD (14)"
+    "Fit ♥, 11-16 HLD (13)"
    ],
    [
     "P"
@@ -7885,7 +7793,7 @@
    ],
    [
     "3♥",
-    "14 HLD, milieu de zone sans force à montrer : 3♥"
+    "13 HLD, bas de zone : tu refuses"
    ],
    [
     "P"
@@ -7932,42 +7840,28 @@
    ],
    [
     "2♠",
-    "Fit ♠, 11-16 HLD (15)"
+    "Fit ♠, 11-16 HLD (14)"
    ],
    [
     "P"
    ],
    [
     "2SA",
-    "Essai généralisé (17 HLD)"
+    "Essai généralisé (16 HLD)"
    ],
    [
     "P"
    ],
    [
-    "4♣",
-    "15 HLD, haut de zone : tu acceptes la manche et nommes ton 1er contrôle (♣)"
+    "3♣",
+    "14 HLD, milieu de zone : une force à ♣"
    ],
    [
     "P"
    ],
    [
-    "4SA",
-    "Zone de chelem : Blackwood Lefèvre"
-   ],
-   [
-    "P"
-   ],
-   [
-    "5♦",
-    "1 ou 4 As"
-   ],
-   [
-    "P"
-   ],
-   [
-    "5♠",
-    "Il manque 2 As : on s'arrête à 5♠"
+    "4♠",
+    "Assez pour la manche"
    ],
    [
     "P"
@@ -8248,15 +8142,8 @@
     "P"
    ],
    [
-    "3♠",
-    "15 HLD : proposition de manche"
-   ],
-   [
-    "P"
-   ],
-   [
     "P",
-    "8 HLD : tu refuses"
+    "14 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -8539,15 +8426,8 @@
     "P"
    ],
    [
-    "3♠",
-    "15 HLD : proposition de manche"
-   ],
-   [
-    "P"
-   ],
-   [
     "P",
-    "9 HLD : tu refuses"
+    "14 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -8741,15 +8621,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Pas de fit : proposition de 3SA"
+    "3SA",
+    "Pas de fit : 3SA"
    ],
    [
     "P"
    ],
    [
     "P",
-    "Minimum : il passe"
+    "Il passe"
    ],
    [
     "P"
@@ -8974,8 +8854,8 @@
     "P"
    ],
    [
-    "3♠",
-    "Il choisit les ♠"
+    "4♠",
+    "Il choisit les ♠ et a de quoi jouer la manche"
    ],
    [
     "P"
@@ -9344,8 +9224,8 @@
     "P"
    ],
    [
-    "4♠",
-    "14 HLD : la manche"
+    "3♠",
+    "13 HLD : il s'arrête à 3♠"
    ],
    [
     "P"
@@ -9384,7 +9264,7 @@
    ],
    [
     "P",
-    "14 HLD : pas de manche, il passe"
+    "13 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -9510,15 +9390,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition avec 5 cartes à ♥ (8-9H)"
+    "3SA",
+    "5 cartes à ♥ et la manche : il choisit entre 3SA et 4♥"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "Maximum avec 3 cartes à ♥"
+    "3 cartes à ♥ : il choisit 4♥"
    ],
    [
     "P"
@@ -9768,22 +9648,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition de 3SA (et tu as 4 cartes à ♠)"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum : il accepte"
+    "Pas de fit ♥ : 3SA (ton Stayman montrait les ♠)"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "Il n’a pas 4 cartes à ♠ : il passe"
    ],
    [
     "P"
@@ -9948,7 +9821,7 @@
    ],
    [
     "4♥",
-    "18 HLD face à 8-10H : la manche"
+    "17 HLD face à 8-10H : la manche"
    ],
    [
     "P"
@@ -9963,7 +9836,7 @@
  },
  {
   "n": "T218",
-  "t": "Shadow fit",
+  "t": "Oklahoma",
   "d": "N",
   "v": "all",
   "N": "6.QJT853.AKQ2.84",
@@ -9979,15 +9852,8 @@
     "P"
    ],
    [
-    "3♦",
-    "Shadow fit : fit ♥ par 4 cartes, 8H et plus, zone 11-12 HLD"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♥",
-    "17 HLD face à 11-12 : la manche"
+    "Oklahoma : fit ♥, 0 ou 1 carte clé (13 HLD)"
    ],
    [
     "P"
@@ -10174,22 +10040,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition de 3SA (et tu as 4 cartes à ♠)"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum : il accepte"
+    "Pas de fit ♥ : 3SA (ton Stayman montrait les ♠)"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "Il n’a pas 4 cartes à ♠ : il passe"
    ],
    [
     "P"
@@ -10316,28 +10175,28 @@
    ],
    [
     "2♠",
-    "Fit ♠, 11-16 HLD (15)"
+    "Fit ♠, 11-16 HLD (14)"
    ],
    [
     "P"
    ],
    [
     "2SA",
-    "Essai généralisé (14 HLD)"
+    "Essai généralisé (13 HLD)"
    ],
    [
     "P"
    ],
    [
-    "4♣",
-    "15 HLD, haut de zone : tu acceptes la manche et nommes ton 1er contrôle (♣)"
+    "3♣",
+    "14 HLD, milieu de zone : une force à ♣"
    ],
    [
     "P"
    ],
    [
     "4♠",
-    "La manche"
+    "Assez pour la manche"
    ],
    [
     "P"
@@ -10478,7 +10337,7 @@
    ],
    [
     "3♥",
-    "Minimum (13 HLD) : il s'arrête à 3♥"
+    "Minimum (12 HLD) : il s'arrête à 3♥"
    ],
    [
     "P"
@@ -10494,7 +10353,7 @@
  },
  {
   "n": "T229",
-  "t": "Enchère d’essai",
+  "t": "Soutien majeur",
   "d": "N",
   "v": "NS",
   "N": "AQJ9754.-.82.AT65",
@@ -10511,35 +10370,21 @@
    ],
    [
     "2♠",
-    "Soutien simple : fit ♠, 6-10 HLD (9)"
+    "Soutien simple : fit ♠, 6-10 HLD (8)"
    ],
    [
     "P"
    ],
    [
-    "2SA",
-    "Essai généralisé (18 HLD)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3♥",
-    "9 HLD, milieu de zone : une force à ♥"
-   ],
-   [
-    "P"
-   ],
-   [
-    "4♠",
-    "Assez pour la manche"
+    "3♠",
+    "15 HLD : proposition de manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "8 HLD : tu refuses"
    ],
    [
     "P"
@@ -10611,15 +10456,8 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition de 3SA (8-9H)"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum : il accepte"
+    "La manche à SA"
    ],
    [
     "P"
@@ -10652,35 +10490,28 @@
    ],
    [
     "2♠",
-    "Soutien simple : fit ♠, 6-10 HLD (9)"
+    "Soutien simple : fit ♠, 6-10 HLD (8)"
    ],
    [
     "P"
    ],
    [
     "2SA",
-    "Essai généralisé (19 HLD)"
+    "Essai généralisé (17 HLD)"
    ],
    [
     "P"
    ],
    [
-    "3♦",
-    "9 HLD, milieu de zone : une force à ♦"
-   ],
-   [
-    "P"
-   ],
-   [
-    "4♠",
-    "Assez pour la manche"
+    "3♠",
+    "8 HLD, bas de zone : tu refuses"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "Refus : on joue 3♠"
    ],
    [
     "P"
@@ -10785,15 +10616,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition de 3SA (8-9H)"
+    "3SA",
+    "La manche à SA"
    ],
    [
     "P"
    ],
    [
     "P",
-    "Minimum : il passe"
+    ""
    ],
    [
     "P"
@@ -11158,7 +10989,7 @@
    ],
    [
     "2SA",
-    "Proposition de 3SA (8-9H)"
+    "Proposition de 3SA (8H)"
    ],
    [
     "P"
@@ -11467,7 +11298,7 @@
    ],
    [
     "4♥",
-    "Oklahoma : fit ♥, 0 ou 1 carte clé (15 HLD)"
+    "Oklahoma : fit ♥, 0 ou 1 carte clé (14 HLD)"
    ],
    [
     "P"
@@ -11716,7 +11547,7 @@
    ],
    [
     "3♠",
-    "Fit ♠ et 17 HLD ou plus (19)"
+    "Fit ♠ et 17 HLD ou plus (18)"
    ],
    [
     "P"
@@ -11784,7 +11615,7 @@
    ],
    [
     "4♠",
-    "Tu recomptes ta main : 14 HLD face à 15-17, pas de chelem, tu conclus à 4♠"
+    "Tu recomptes ta main : 12 HLD face à 15-17, pas de chelem, tu conclus à 4♠"
    ],
    [
     "P"
@@ -11866,7 +11697,7 @@
    ],
    [
     "4♠",
-    "16 HLD : la manche"
+    "15 HLD : la manche"
    ],
    [
     "P"
@@ -12134,7 +11965,7 @@
    ],
    [
     "4♥",
-    "16 HLD face à 11-12 : la manche"
+    "14 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -12368,7 +12199,7 @@
  },
  {
   "n": "T270",
-  "t": "Shadow fit",
+  "t": "Oklahoma",
   "d": "N",
   "v": "EO",
   "N": "AKJT32.K2.JT.J53",
@@ -12384,15 +12215,8 @@
     "P"
    ],
    [
-    "3♦",
-    "Shadow fit : fit ♠ par 4 cartes, 8H et plus, zone 11-12 HLD"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♠",
-    "17 HLD face à 11-12 : la manche"
+    "Oklahoma : fit ♠, 0 ou 1 carte clé (14 HLD)"
    ],
    [
     "P"
@@ -12408,7 +12232,7 @@
  },
  {
   "n": "T271",
-  "t": "Shadow fit",
+  "t": "Oklahoma",
   "d": "N",
   "v": "all",
   "N": "J9.AT984.Q97.A65",
@@ -12424,15 +12248,15 @@
     "P"
    ],
    [
-    "3♦",
-    "Shadow fit : fit ♥ par 4 cartes, 8H et plus, zone 11-12 HLD"
+    "4♦",
+    "Oklahoma : fit, 2 cartes clés (14 HLD)"
    ],
    [
     "P"
    ],
    [
-    "3♥",
-    "Minimum (13 HLD) : il s'arrête à 3♥"
+    "4♥",
+    "Pas de chelem en vue : il conclut à la manche"
    ],
    [
     "P"
@@ -12493,7 +12317,7 @@
    ],
    [
     "4♠",
-    "Tu recomptes ta main : 14 HLD face à 15-17, pas de chelem, tu conclus à 4♠"
+    "Tu recomptes ta main : 12 HLD face à 15-17, pas de chelem, tu conclus à 4♠"
    ],
    [
     "P"
@@ -12539,22 +12363,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Pas de fit : proposition de 3SA"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum : il accepte"
+    "Pas de fit : 3SA"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "Il passe"
    ],
    [
     "P"
@@ -12640,15 +12457,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition avec 5 cartes à ♥ (8-9H)"
+    "3SA",
+    "5 cartes à ♥ et la manche : il choisit entre 3SA et 4♥"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "Maximum avec 3 cartes à ♥"
+    "3 cartes à ♥ : il choisit 4♥"
    ],
    [
     "P"
@@ -12785,7 +12602,7 @@
  },
  {
   "n": "T279",
-  "t": "Shadow fit",
+  "t": "Oklahoma",
   "d": "N",
   "v": "all",
   "N": "AKT42.J9.K74.J94",
@@ -12801,15 +12618,8 @@
     "P"
    ],
    [
-    "3♦",
-    "Shadow fit : fit ♠ par 4 cartes, 8H et plus, zone 11-12 HLD"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♠",
-    "14 HLD face à 11-12 : la manche"
+    "Oklahoma : fit ♠, 0 ou 1 carte clé (14 HLD)"
    ],
    [
     "P"
@@ -12993,8 +12803,8 @@
     "P"
    ],
    [
-    "4♥",
-    "14 HLD : la manche"
+    "3♥",
+    "13 HLD : il s'arrête à 3♥"
    ],
    [
     "P"
@@ -13033,7 +12843,7 @@
    ],
    [
     "3♠",
-    "16 HLD : proposition de manche"
+    "15 HLD : proposition de manche"
    ],
    [
     "P"
@@ -13087,7 +12897,7 @@
    ],
    [
     "4♥",
-    "Fit 4-4 et la manche : 4♥"
+    "Fit 4-4 et 13 HLD : la manche"
    ],
    [
     "P"
@@ -13173,22 +12983,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition avec 5 cartes à ♠ (8-9H)"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum sans fit"
+    "5 cartes à ♠ et la manche : il choisit entre 3SA et 4♠"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "Seulement 2 cartes à ♠ : 3SA"
    ],
    [
     "P"
@@ -13402,7 +13205,7 @@
    ],
    [
     "4♦",
-    "Oklahoma : fit, 2 cartes clés (13 HLD)"
+    "Oklahoma : fit, 2 cartes clés (15 HLD)"
    ],
    [
     "P"
@@ -13470,7 +13273,7 @@
    ],
    [
     "4♠",
-    "Tu recomptes ta main : 15 HLD face à 15-17, pas de chelem, tu conclus à 4♠"
+    "Tu recomptes ta main : 12 HLD face à 15-17, pas de chelem, tu conclus à 4♠"
    ],
    [
     "P"
@@ -14172,7 +13975,7 @@
    ],
    [
     "P",
-    "14 HLD : pas de manche, il passe"
+    "13 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -14420,22 +14223,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Pas de fit : proposition de 3SA"
-   ],
-   [
-    "P"
-   ],
-   [
     "3SA",
-    "Maximum : il accepte"
+    "Pas de fit : 3SA"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "Il passe"
    ],
    [
     "P"
@@ -14562,21 +14358,21 @@
    ],
    [
     "2♥",
-    "Soutien simple : fit ♥, 6-10 HLD (7)"
+    "Soutien simple : fit ♥, 6-10 HLD (6)"
    ],
    [
     "P"
    ],
    [
     "3♥",
-    "16 HLD : proposition de manche"
+    "15 HLD : proposition de manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    "7 HLD : tu refuses"
+    "6 HLD : tu refuses"
    ],
    [
     "P"
@@ -14693,7 +14489,7 @@
  },
  {
   "n": "T321",
-  "t": "Soutien majeur",
+  "t": "Shadow fit",
   "d": "N",
   "v": "EO",
   "N": "52.AK873.K983.K5",
@@ -14709,22 +14505,22 @@
     "P"
    ],
    [
-    "2♥",
-    "Soutien simple : fit ♥, 6-10 HLD (9)"
+    "3♦",
+    "Shadow fit : fit ♥ par 4 cartes, 8H et plus, zone 11-12 HLD"
    ],
    [
     "P"
    ],
    [
-    "3♥",
-    "16 HLD : proposition de manche"
+    "4♥",
+    "15 HLD face à 11-12 : la manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    "9 HLD : tu refuses"
+    ""
    ],
    [
     "P"
@@ -14983,15 +14779,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition de 3SA (8-9H)"
+    "3SA",
+    "La manche à SA"
    ],
    [
     "P"
    ],
    [
     "P",
-    "Minimum : il passe"
+    ""
    ],
    [
     "P"
@@ -15045,7 +14841,7 @@
    ],
    [
     "4SA",
-    "Tu recomptes ta main : 21 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
+    "Tu recomptes ta main : 18 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
    ],
    [
     "P"
@@ -15075,7 +14871,7 @@
  },
  {
   "n": "T329",
-  "t": "Chelem sur 1SA",
+  "t": "Texas",
   "d": "N",
   "v": "all",
   "N": "Q8.A54.KQ63.AJ97",
@@ -15119,22 +14915,8 @@
     "P"
    ],
    [
-    "4SA",
-    "Tu recomptes ta main : 16 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
-   ],
-   [
-    "P"
-   ],
-   [
-    "5♠",
-    "2 As, 1 ou 4 Rois"
-   ],
-   [
-    "P"
-   ],
-   [
-    "6♥",
-    "Il ne manque qu’un As : petit chelem"
+    "4♥",
+    "Tu recomptes ta main : 14 HLD face à 15-17, pas de chelem, tu conclus à 4♥"
    ],
    [
     "P"
@@ -15206,15 +14988,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition de 3SA (8-9H)"
+    "3SA",
+    "La manche à SA"
    ],
    [
     "P"
    ],
    [
     "P",
-    "Minimum : il passe"
+    ""
    ],
    [
     "P"
@@ -15346,7 +15128,7 @@
    ],
    [
     "4♠",
-    "15 HLD face à 8-10H avec 5 cartes : la manche"
+    "17 HLD face à 8-10H avec 5 cartes : la manche"
    ],
    [
     "P"
@@ -16063,7 +15845,7 @@
    ],
    [
     "4SA",
-    "Tu recomptes ta main : 21 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
+    "Tu recomptes ta main : 17 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
    ],
    [
     "P"
@@ -16658,7 +16440,7 @@
    ],
    [
     "4SA",
-    "Tu recomptes ta main : 18 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
+    "Tu recomptes ta main : 16 HLD face à 15-17, zone de chelem : Blackwood Lefèvre"
    ],
    [
     "P"

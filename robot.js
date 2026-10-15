@@ -18,11 +18,17 @@
     const balanced = sorted[3] >= 2 && sorted[2] >= 3 || (sorted[0] === 5 && sorted[1] === 3 && sorted[3] === 2) || (sorted.join('') === '4432');
     return { parts, len, hcp, balanced, s: len[0], h: len[1], d: len[2], c: len[3] };
   }
-  // Points de longueur + distribution (HLD) avec un fit dans la couleur `fit`.
-  function hld(e, fit) {
+  // Points HLD (règles de Damien et Michèle, 15/10/2026) :
+  // - sans fit : H + 1 point par carte au-delà de la 4e dans chaque couleur ;
+  // - avec un fit, main de base (celle qui a nommé la couleur) : H + chicane 3 / singleton 2 / doubleton 1, sans points de longueur ;
+  // - avec un fit, main de soutien (celle qui soutient ; `known` = atouts promis par le partenaire) : H + chicane 5 / singleton 3 /
+  //   doubleton 1, et les atouts au-delà du fit de 8 : le 1er compte 2, les suivants 1 (6 cartes face à 1♠ 5e : 2 + 1 + 1 = 4).
+  function hld(e, fit, known) {
     let p = e.hcp;
-    e.len.forEach(l => { if (l > 4) p += l - 4; });
-    if (fit !== undefined) e.len.forEach((l, i) => { if (i !== fit) p += l === 0 ? 3 : l === 1 ? 2 : l === 2 ? 1 : 0; });
+    if (fit === undefined) { e.len.forEach(l => { if (l > 4) p += l - 4; }); return p; }
+    const sup = known !== undefined, short = sup ? [5, 3, 1] : [3, 2, 1];
+    e.len.forEach((l, i) => { if (i !== fit && l <= 2) p += short[l]; });
+    if (sup) { const extra = e.len[fit] + known - 8; if (extra > 0) p += 2 + (extra - 1); }
     return p;
   }
   const stop = (e, s) => { const p = e.parts[s]; return p.includes('A') || (p.includes('K') && p.length >= 2) || (p.includes('Q') && p.length >= 3); };
@@ -89,8 +95,8 @@
       }
       add('2' + M, 'Il exécute le Texas');
       if (s.hcp <= 5 || (s.hcp <= 7 && L < 6)) { add('P', 'Main faible : on joue la partielle'); return A; }
-      if (L === 5 && s.hcp <= 9) {
-        add('2SA', `Proposition avec 5 cartes à ${M} (8-9H)`);
+      if (L === 5 && s.hcp <= 8) {
+        add('2SA', `Proposition avec 5 cartes à ${M} (8H)`);
         if (n.hcp >= 16) { if (sup >= 3) add('4' + M, `Maximum avec 3 cartes à ${M}`); else add('3SA', 'Maximum sans fit'); add('P'); return A; }
         if (sup >= 3) { add('3' + M, `Minimum avec 3 cartes à ${M}`); add('P'); return A; }
         add('P', 'Minimum : il passe'); return A;
@@ -147,7 +153,7 @@
       add(ans, ans === '2♥' ? '4 cartes à ♥' : ans === '2♠' ? '4 cartes à ♠ (pas 4 cartes à ♥)' : 'Pas de majeure 4e');
       const fitM = ans === '2♥' && s.h >= 4 ? '♥' : ans === '2♠' && s.s >= 4 ? '♠' : null;
       if (fitM) {
-        const t = fitM === '♠' ? 0 : 1, p = hld(s, t);
+        const t = fitM === '♠' ? 0 : 1, p = hld(s, t, 4);
         if (p + 16 >= 32) {
           A.theme = 'Chelem sur 1SA';
           add('4SA', `Fit ${fitM} et ${p} HLD face à 15-17 : Blackwood Lefèvre`);
@@ -158,8 +164,8 @@
           if (tot === 4) return null;                                   // grand chelem : non géré
           add('6' + fitM, 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
         }
-        if (s.hcp <= 9) { add('3' + fitM, `Fit 4-4 et 8-9H : proposition`); if (n.hcp >= 16) { add('4' + fitM, 'Maximum : il accepte'); add('P'); } else add('P', 'Minimum : il passe'); return A; }
-        add('4' + fitM, `Fit 4-4 et la manche : 4${fitM}`); add('P'); return A;
+        if (p <= 10) { add('3' + fitM, `Fit 4-4 et ${p} HLD : proposition`); if (n.hcp >= 16) { add('4' + fitM, 'Maximum : il accepte'); add('P'); } else add('P', 'Minimum : il passe'); return A; }
+        add('4' + fitM, `Fit 4-4 et ${p} HLD : la manche`); add('P'); return A;
       }
       const has4S = ans === '2♥' && s.s >= 4;
       if (s.hcp >= 15) {
@@ -173,7 +179,7 @@
         }
         add('6SA', `Pas de fit et ${s.hcp}H face à 15-17 : petit chelem à SA`); add('P'); return A;
       }
-      if (s.hcp <= 9) {
+      if (s.hcp <= 8) {
         add('2SA', has4S ? 'Proposition de 3SA (et tu as 4 cartes à ♠)' : 'Pas de fit : proposition de 3SA');
         if (has4S && n.s >= 4) { if (n.hcp >= 16) { add('4♠', 'Les 4 cartes à ♠ et un maximum'); add('P'); } else { add('3♠', 'Les 4 cartes à ♠, minimum'); add('P'); } return A; }
         if (n.hcp >= 16) { add('3SA', 'Maximum : il accepte'); add('P'); } else add('P', 'Minimum : il passe');
@@ -185,7 +191,7 @@
     }
     // Sans majeure
     if (s.hcp <= 7) { add('P', 'Moins de 8H : tu passes'); return A; }
-    if (s.hcp <= 9) { add('2SA', 'Proposition de 3SA (8-9H)'); if (n.hcp >= 16) { add('3SA', 'Maximum : il accepte'); add('P'); } else add('P', 'Minimum : il passe'); return A; }
+    if (s.hcp <= 8) { add('2SA', 'Proposition de 3SA (8H)'); if (n.hcp >= 16) { add('3SA', 'Maximum : il accepte'); add('P'); } else add('P', 'Minimum : il passe'); return A; }
     if (s.hcp <= 14) { add('3SA', 'La manche à SA'); add('P'); return A; }
     if (s.hcp <= 16 && s.balanced) {
       add('4SA', 'Quantitatif (15-16H)');
@@ -271,8 +277,8 @@
     return xs.length ? ['3' + NAMES[xs[0]], 'Essai : 5 cartes à ' + NAMES[xs[0]], xs[0]] : ['2SA', 'Essai généralisé', -1];
   }
   // Réponse selon la zone [bas, milieu, haut] : refus 3M / force dans une couleur / 1er contrôle (manche acceptée)
-  function trialAnswer(e, M, zone, last) {
-    const p = hld(e, M), Ms = NAMES[M];
+  function trialAnswer(e, M, zone, last, known) {
+    const p = hld(e, M, known), Ms = NAMES[M];
     if (p <= zone[0]) return ['3' + Ms, p + ' HLD, bas de zone : tu refuses', 'non'];
     if (p === zone[1]) {
       const cands = [3, 2, 1, 0].filter(i => i !== M && rankOf('3' + NAMES[i]) > rankOf(last) && rankOf('3' + NAMES[i]) < rankOf('3' + Ms) && honPts(e, i) >= 3);
@@ -377,7 +383,7 @@
     const add = (b, why) => A.push([b, why || '']);
     const fit = s.len[M];
     if (fit >= 3) {
-      const h = hld(s, M);
+      const h = hld(s, M, 5);
       if (h < 6) { add('P', 'Moins de 6 HLD : tu passes'); A.theme = 'Ouverture majeure'; return A; }
       if (h <= 10) {
         add('2' + Ms, `Soutien simple : fit ${Ms}, 6-10 HLD (${h})`);
@@ -387,7 +393,7 @@
         if (on <= 16) { add('3' + Ms, on + ' HLD : proposition de manche'); if (h >= 10) { add('4' + Ms, h + ' HLD : tu acceptes'); add('P'); } else add('P', h + ' HLD : tu refuses'); return A; }
         A.theme = 'Enchère d’essai';
         const [tb, tw, tx] = trialBid(n, M); add(tb, tw + ' (' + on + ' HLD)');
-        const [ab, aw, at, af] = trialAnswer(s, M, [8, 9, 10], tb); add(ab, aw);
+        const [ab, aw, at, af] = trialAnswer(s, M, [8, 9, 10], tb, 5); add(ab, aw);
         return trialEnd(A, add, n, s, M, on, at, tx, af, ab, { refuse: 19, force: 18, low: 7, mid: 9, other: 10 });
       }
       if (h <= 12) {
@@ -400,7 +406,7 @@
         else { add('P', `Minimum (${on} HLD) : il passe`); A.theme = 'Shadow fit'; return A; }
         add('P'); A.theme = 'Shadow fit'; return A;
       }
-      if (h <= 15 && s.hcp >= 11) {
+      if (h <= 15) {
         const k = keyCards(s, M), chic = voidSuit(s, M);
         if (k > 2) return null;
         let b, why;
@@ -433,7 +439,7 @@
       add('1♠', '4 cartes ou plus à ♠ : forcing');
       A.theme = '1♥ – 1♠';
       if (n.s >= 4) {
-        const on = hld(n, 0);
+        const on = hld(n, 0, 4);
         if (on >= 20) return null;
         if (on >= 17) { add('3♠', `Fit ♠ et 17 HLD ou plus (${on})`); if (hld(s, 0) >= 8) { add('4♠', 'Tu acceptes la manche'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
         add('2♠', `Fit ♠, 11-16 HLD (${on})`); add('P', 'Pas de manche possible : tu passes'); return A;
@@ -443,7 +449,7 @@
         return null;
       }
       if (n.h >= 6) {
-        if (n.hcp >= 15 && hld(n, 1) >= 17) { add('3♥', '6 cartes à ♥, 17-19 HLD'); if (s.h >= 2 || s.hcp >= 8) { add('4♥', `${s.h >= 2 ? 'Fit ♥ (6 cartes en face)' : 'Assez de points'} : tu acceptes la manche`); add('P'); } else add('P', 'Singleton ♥ et minimum : tu passes'); return A; }
+        if (n.hcp >= 15 && hld(n) >= 17) { add('3♥', '6 cartes à ♥, 17-19 HLD'); if (s.h >= 2 || s.hcp >= 8) { add('4♥', `${s.h >= 2 ? 'Fit ♥ (6 cartes en face)' : 'Assez de points'} : tu acceptes la manche`); add('P'); } else add('P', 'Singleton ♥ et minimum : tu passes'); return A; }
         if (n.hcp > 16) return null;
         add('2♥', '6 cartes à ♥, minimum'); if (s.s >= 6 && s.h <= 1) { add('2♠', '6 cartes à ♠ et singleton ♥'); add('P'); return A; } add('P', 'Tu passes'); return A;
       }
@@ -484,11 +490,11 @@
       add('1' + Ms, `${L} cartes à ${Ms}${s.h >= 4 && s.s >= 4 && L === 4 ? ' (avec 4-4 en majeures, les ♥ d’abord)' : ''}`);
       A.theme = 'Mineure – majeure';
       let reb;
-      if (n.len[M] >= 4) { const on = hld(n, M); if (on >= 20) return null; reb = on >= 17 ? ['3' + Ms, `Fit ${Ms}, 17 HLD ou plus (${on})`] : ['2' + Ms, `Fit ${Ms}, 11-16 HLD (${on})`]; }
+      if (n.len[M] >= 4) { const on = hld(n, M, 4); if (on >= 20) return null; reb = on >= 17 ? ['3' + Ms, `Fit ${Ms}, 17 HLD ou plus (${on})`] : ['2' + Ms, `Fit ${Ms}, 11-16 HLD (${on})`]; }
       else if (M === 1 && n.s >= 4) reb = ['1♠', '4 cartes à ♠'];
       else if (n.balanced && n.hcp <= 14) reb = ['1SA', 'Régulier, 12-14H'];
       else if (n.balanced && n.hcp >= 18) reb = ['2SA', '18-19H régulier, sans fit'];
-      else if (n.len[m] >= 6 && n.hcp >= 15 && hld(n, m) >= 17) reb = ['3' + ms, `6 cartes à ${ms}, 17-19 HLD`];
+      else if (n.len[m] >= 6 && n.hcp >= 15 && hld(n) >= 17) reb = ['3' + ms, `6 cartes à ${ms}, 17-19 HLD`];
       else if (n.len[m] >= 6 && n.hcp <= 16) reb = ['2' + ms, `6 cartes à ${ms}, minimum`];
       else if (m === 2 && n.c >= 4 && n.hcp <= 16) reb = ['2♣', '2e couleur : 4 cartes ou plus à ♣'];
       else if (m === 3 && n.c >= 5 && n.hcp <= 16) reb = ['2♣', '5 cartes à ♣, minimum'];
@@ -500,13 +506,13 @@
         if (h <= 10) { add('P', 'Pas de manche : tu passes'); return A; }
         A.theme = 'Enchère d’essai';
         const [tb, tw, tx] = trialBid(s, M); add(tb, tw + ' (' + h + ' HLD)');
-        const [ab, aw, at, af] = trialAnswer(n, M, [13, 14, 16], tb); add(ab, aw);
+        const [ab, aw, at, af] = trialAnswer(n, M, [13, 14, 16], tb, 4); add(ab, aw);
         return trialEnd(A, add, s, n, M, h, at, tx, af, ab, { refuse: 13, force: 12, low: 12, mid: 14, other: 15.5 });
       }
       if (b === '3' + Ms) { const h = hld(s, M); if (h >= 14) return null; if (h >= 8) { add('4' + Ms, 'Tu acceptes la manche'); add('P'); } else add('P', 'Minimum : tu passes'); return A; }
       if (b === '1♠') {
         if (s.s >= 4) {
-          const h = hld(s, 0);
+          const h = hld(s, 0, 4);
           if (h >= 18) return null;
           if (h >= 13) { add('4♠', `Fit ♠ et ${h} HLD : la manche`); add('P'); return A; }
           if (h >= 10) { add('3♠', `Fit ♠, proposition (${h} HLD)`); if (hld(n, 0) >= 14) { add('4♠', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
@@ -696,7 +702,7 @@
       if (fit < 3 || s.len[1 - t] >= 4 || h >= 16) return null;
       if (h >= 13) { if (hld(n, t) + 14 >= 32) return null; A.push(['3SA', `Truscott : fit ${T}, 13-15H`]); P(); A.push(['4' + T, 'Il conclut la manche à la couleur']); P(); A.push(['P']); P(); return res(); }
       if (h >= 11) { A.push(['2SA', `Truscott : fit ${T}, 11-12H`]); P(); const on = hld(n, t); A.push([on >= 14 ? '4' + T : '3' + T, on >= 14 ? `${on} HLD : la manche` : `${on} HLD : il s'arrête à 3${T}`]); P(); A.push(['P']); P(); return res(); }
-      if (hld(s, t) >= 6 && h <= 10) {
+      if (hld(s, t, 5) >= 6 && h <= 10) {
         if (hld(n, t) >= 18) return null;
         A.push([fit >= 4 ? '3' + T : '2' + T, `Fit direct = barrage (${fit} cartes, moins de 11H)`]); P(); A.push(['P', 'Il passe']); P(); return res();
       }
@@ -735,7 +741,7 @@
       else if (n.len[M] === 4) { bid = (base + 1) + SUIT[M]; kind = 4; A.push([bid, `Palier 2 (saut) : 8-10H avec 4 cartes à ${SUIT[M]}`]); }
       else { bid = (base + 2) + SUIT[M]; kind = 5; A.push([bid, `Palier 3 : 8-10H avec 5 cartes à ${SUIT[M]}`]); }
       P();
-      const sm = hld(s, M);
+      const sm = hld(s, M, kind === 5 ? 5 : 4);
       if (kind === 0) { A.push(['P', 'Ton partenaire a 0-7H : tu passes']); P(); A.push(['P']); return res(); }
       if (kind === 4) {
         if (sm >= 16) { A.push(['4' + SUIT[M], `${sm} HLD face à 8-10H : la manche`]); P(); A.push(['P']); P(); return res(); }
@@ -773,7 +779,7 @@
     const res = () => ({ d: 'E', a: closeAuction(A), theme: 'Copenhague' });
     const pick = [pr[0], pr[1]].sort((a, b) => n.len[b] - n.len[a] || a - b)[0];
     const Y = SUIT[pick];
-    if (pick <= 1 && hld(n, pick) >= 12) { A.push(['4' + Y, `Il choisit les ${Y} et a de quoi jouer la manche`]); P(); A.push(['P']); P(); return res(); }
+    if (pick <= 1 && hld(n, pick, 5) >= 12) { A.push(['4' + Y, `Il choisit les ${Y} et a de quoi jouer la manche`]); P(); A.push(['P']); P(); return res(); }
     if (pr[2] === '2SA' && n.hcp >= 13) {
       A.push(['4SA', '« Choisis » : il jouera ta meilleure mineure au palier de 5']); P();
       const m = s.d >= s.c ? 2 : 3;

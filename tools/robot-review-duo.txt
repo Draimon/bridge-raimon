@@ -14,21 +14,23 @@ n°T077 Soutien majeur : 3♠ (+170) alors que 4♠ par N rapporte +420 — 1♠
 n°T079 Stayman : 3SA (+490) alors que 6SA par N rapporte +990 — 1SA 2♣ 2♠ 3SA P
 n°T080 1♥ – 1♠ : 2♠ (+170) alors que 3SA par N rapporte +430 — 1♥ 1♠ 2♥ 2♠
 n°T083 Stayman : 3♠ (+170) alors que 4♠ par N rapporte +420 — 1SA 2♣ 2♥ 2SA 3♠
-n°T084 Chelem sur 1SA : 5♠ (-50) alors que 4♠ par S rapporte +420 — 1SA 2♥ 2♠ 3♣ 3♠ 4SA 5♦ 5♠
 n°T087 Texas : 2♥ (+170) alors que 4♥ par S rapporte +420 — 1SA 2♦ 2♥ P
 n°T091 Chelem sur 1SA : 6♠ (-50) alors que 4♠ par S rapporte +450 — 1SA 2♥ 2♠ 3♥ 3♠ 4SA 5♠ 6♠
 n°T092 Oklahoma – chelem : 6♠ (+1010) alors que 7♠ par N rapporte +1510 — 1♠ 4♦ 6♠
 n°T097 Puppet : 3SA (+490) alors que 6SA par N rapporte +990 — 2SA 3♣ 3SA
 n°T100 Oklahoma – chelem : 6♥ (-50) alors que 4♥ par N rapporte +450 — 1♥ 4♦ 6♥
+n°T101 Shadow fit : 4♥ (-100) alors que 2♥ par N rapporte +110 — 1♥ 3♦ 4♥
 n°T104 Texas sur 2SA : 4♠ (+480) alors que 6SA par N rapporte +990 — 2SA 3♥ 3♠ 3SA 4♠
 n°T107 Sur 2SA : 3SA (-50) alors que 5♦ par S rapporte +400 — 2SA 3SA
 n°T110 Contre d’appel : 4♥ (-150) alors que 3♠ par S rapporte +140 — 1♦ X 2♥ 4♥
 n°T113 Lebelson : 3SA (-100) alors que 5♦ par N rapporte +400 — 1SA 2♥ 3♥ 3SA
 n°T114 Lebelson : 4♠ (-100) alors que 3SA par N rapporte +400 — 1SA 2♦ 2SA 3♣ 3♦ 3♠ 4♠
 n°T117 Texas mineur : 3♣ (+150) alors que 5♣ par S rapporte +400 — 1SA 2♠ 3♣ P
+n°T118 Truscott : 3♥ (+170) alors que 4♥ par N rapporte +420 — 1♥ X 2SA 3♥
 n°T119 Lebelson : 3SA (+460) alors que 6♦ par S rapporte +920 — 1SA 2♥ 2SA 3♣ 3♥ 3SA
 n°T121 Enchère d’essai : 4♥ (+480) alors que 6♥ par S rapporte +980 — 1♣ 1♥ 2♥ 3♦ 3♥ 4♥
 n°T123 Majeure – 1SA : 2♥ (+170) alors que 4♥ par N rapporte +420 — 1♠ 1SA 2♥ P
+n°T124 Soutien majeur : 3♠ (+170) alors que 4♠ par N rapporte +420 — 1♠ 2♠ 3♠ P
 n°T125 Mineure – majeure : 1SA (+120) alors que 5♣ par N rapporte +400 — 1♣ 1♥ 1♠ 1SA
 n°T126 Copenhague : 4♠ (+480) alors que 6♠ par S rapporte +980 — 1♥ 3♦ 4♠
 n°T127 Mineure – majeure : 1SA (-100) alors que 3♠ par S rapporte +140 — 1♦ 1♠ 1SA P
@@ -43,17 +45,14 @@ n°T152 Mineure – majeure : 3SA (+520) alors que 7SA par N rapporte +1520 — 
 n°T156 2 sur 1 : 3SA (+430) alors que 7♣ par S rapporte +1440 — 1♠ 2♣ 3♣ 3SA
 n°T164 2 sur 1 : 3SA (+460) alors que 6SA par N rapporte +990 — 1♠ 2♦ 2♠ 3SA
 n°T167 2 sur 1 : 2SA (-150) alors que 3♦ par S rapporte +110 — 1♥ 2♦ 2♥ 2SA P
-n°T168 Oklahoma – chelem : 6♠ (-50) alors que 3SA par N rapporte +460 — 1♠ 4♦ 6♠
-n°T169 Enchère d’essai : 4♥ (-100) alors que 2SA par N rapporte +120 — 1♥ 2♥ 2SA 3♥ 4♥
 n°T170 2 sur 1 : 3SA (-50) alors que 5♣ par N rapporte +400 — 1♠ 3SA
 n°T171 1♣ – 1♦ : 2SA (+150) alors que 3SA par N rapporte +400 — 1♣ 1♦ 1♥ 2SA P
 n°T172 1♥ – 1♠ : 2♣ (+170) alors que 6♣ par N rapporte +920 — 1♥ 1♠ 2♣ P
 n°T181 Roudy : 4♥ (+480) alors que 6♥ par S rapporte +980 — 1♦ 1♥ 1SA 2♣ 2♥ 4♥
 n°T183 Enchère d’essai : 4♥ (+480) alors que 6♥ par S rapporte +980 — 1♦ 1♥ 2♥ 2SA 3♦ 4♥
-n°T186 Soutien majeur : 3♠ (+170) alors que 4♠ par N rapporte +420 — 1♠ 2♠ 3♠ P
+n°T186 Soutien majeur : 2♠ (+170) alors que 4♠ par N rapporte +420 — 1♠ 2♠ P
 n°T188 1♥ – 1♠ : 4♠ (-100) alors que 2SA par N rapporte +120 — 1♥ 1♠ 3♠ 4♠
 n°T191 Texas : 3SA (+520) alors que 7SA par N rapporte +1520 — 1SA 2♥ 2♠ 3♥ 3SA
-n°T195 Copenhague : 3♠ (+200) alors que 4♠ par S rapporte +450 — 1♥ 3♣ 3♠
 n°T196 Mineure – SA : 1SA (+150) alors que 3SA par N rapporte +430 — 1♣ 1SA P
 n°T199 Texas : 3SA (+490) alors que 6SA par N rapporte +990 — 1SA 2♦ 2♥ 3♠ 3SA
 n°T202 Stayman : 4♠ (+510) alors que 7♠ par N rapporte +1510 — 1SA 2♣ 2♥ 3SA 4♠
@@ -62,9 +61,7 @@ n°T212 Stayman : 2SA (+150) alors que 3SA par N rapporte +400 — 1SA 2♣ 2♥
 n°T217 Contre d’appel : 4♥ (-100) alors que 2SA par S rapporte +120 — 1♦ X 2♥ 4♥
 n°T221 Oklahoma – chelem : 6♠ (-50) alors que 4♠ par N rapporte +450 — 1♠ 4♦ 6♠
 n°T224 Mineure – SA : 3SA (-50) alors que 5♦ par S rapporte +400 — 1♦ 1SA 2SA 3SA
-n°T229 Enchère d’essai : 4♠ (-100) alors que 2♠ par N rapporte +110 — 1♠ 2♠ 2SA 3♥ 4♠
 n°T233 Texas : 4♥ (+510) alors que 7♥ par S rapporte +1510 — 1SA 2♦ 3♥ 4♥
-n°T235 Sur 1SA : 2SA (+150) alors que 3SA par N rapporte +400 — 1SA 2SA P
 n°T239 2 sur 1 : 2SA (-100) alors que 3♣ par N rapporte +110 — 1♥ 2♦ 2♥ 2SA P
 n°T241 Roudy : 3SA (-100) alors que 3♣ par N rapporte +110 — 1♦ 1♠ 1SA 2♣ 2SA 3SA
 n°T244 Roudy : 3SA (-50) alors que 6♠ par S rapporte +980 — 1♦ 1♠ 1SA 2♣ 2SA 3SA
@@ -91,11 +88,9 @@ n°T309 1♥ – 1♠ : 2♥ (+170) alors que 3SA par N rapporte +430 — 1♥ 1
 n°T313 1♥ – 1♠ : 2♠ (+170) alors que 4♠ par S rapporte +420 — 1♥ 1♠ 2♥ 2♠
 n°T318 1♥ – 1♠ : 3♥ (+200) alors que 4♥ par N rapporte +450 — 1♥ 1♠ 3♥ P
 n°T319 Truscott : 3♠ (+170) alors que 4♠ par N rapporte +420 — 1♠ X 3♠ P
+n°T321 Shadow fit : 4♥ (-100) alors que 2♥ par N rapporte +110 — 1♥ 3♦ 4♥
 n°T323 Puppet : 4♥ (+480) alors que 6♥ par N rapporte +980 — 2SA 3♣ 3♦ 4♣ 4♥
 n°T324 Puppet : 3SA (+490) alors que 6SA par N rapporte +990 — 2SA 3♣ 3♦ 3♥ 3SA
-n°T327 Sur 1SA : 2SA (+180) alors que 3SA par N rapporte +430 — 1SA 2SA P
-n°T329 Chelem sur 1SA : 6♥ (-50) alors que 4♥ par S rapporte +450 — 1SA 2♦ 2♥ 3♦ 3♥ 4SA 5♠ 6♥
-n°T331 Sur 1SA : 2SA (+150) alors que 3SA par N rapporte +400 — 1SA 2SA P
 n°T333 Check-Back Stayman : 4♠ (+480) alors que 6♠ par S rapporte +980 — 1♣ 1♠ 2SA 3♣ 3♦ 4♠
 n°T334 Contre d’appel : 4♠ (-100) alors que 2♠ par N rapporte +110 — 1♦ X 3♠ 4♠
 n°T336 Lebelson : 4♥ (+480) alors que 7SA par N rapporte +1520 — 1SA 2♠ 2SA 3♣ 3♥ 4♥

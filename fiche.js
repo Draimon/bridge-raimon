@@ -7,6 +7,10 @@ const FICHE = {
     lignes: [
       'Base SEF, majeure 5e.',
       '1SA = 15-17H. Stayman à 3 réponses + petit Stayman (moins de 8H avec 4♥ et 4♠ : sur 2♦, 2♥ passe ou corrige).',
+      'Sur 1SA sans majeure : 2SA = 8H (proposition), 3SA = 9 à 14H.',
+      'HLD sans fit : les H + 1 point par carte au-delà de la 4e.',
+      'HLD avec un fit, main de base (celle qui a nommé la couleur) : les H + chicane 3, singleton 2, doubleton 1 ; on ne compte plus la longueur.',
+      'HLD avec un fit, main de soutien : les H + chicane 5, singleton 3, doubleton 1, et les atouts au-delà du fit de 8 : le 1er compte 2, les suivants 1 (6 cartes face à 1♠ = 2 + 1 + 1 = 4 points).',
       '2SA d’ouverture = 20-21H (les 22-23H passent par le 2♦ Multi).',
       '2♣ Albaran = forcing de manche (l’équivalent du 2♦ FM du SEF).',
       '« Fort » sur 2♥/2♠ = l’équivalent du 2♣ fort indéterminé du SEF ; « fort + singleton » = singleton non précisé.',
