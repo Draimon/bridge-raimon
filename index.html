@@ -228,8 +228,8 @@
   .btn.waiting small { color: var(--muted); } .bidcenter .undo { margin-top: 10px; width: auto; display: inline-block; padding: 8px 14px; font-size: 15px; }
   .dealin { animation: dealin .45s ease-out; } .dealin.back { animation-name: dealinback; }
   @keyframes dealinback { from { transform: translateX(-60px) rotate(-2deg); opacity: 0; } }
-  .dnav { display: flex; align-items: center; gap: 10px; margin: -2px 0 6px; }
-  .dnav-b { flex: none; width: 44px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--accent); font-size: 26px; line-height: 1; cursor: pointer; }
+  .dnav { display: flex; align-items: center; gap: 10px; margin: -4px 0 0; }
+  .dnav-b { flex: none; width: 40px; height: 32px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--accent); font-size: 22px; line-height: 1; cursor: pointer; }
   .dnav-b:disabled { opacity: .3; cursor: default; }
   .dnav-mid { flex: 1; text-align: center; font-size: 14px; line-height: 1.2; }
   .dnav-mid span { display: block; letter-spacing: 2px; font-size: 11px; color: var(--muted); } .dnav-mid i { font-style: normal; } .dnav-mid i.on { color: var(--accent); font-weight: 900; }
@@ -304,7 +304,7 @@
   body.tablemode .btn.primary { background: #ffd54f; color: #1d2320; border-color: #ffd54f; }
   body.tablemode .btn.primary:disabled { background: #7a8a7f; border-color: #7a8a7f; }
   /* Dernière enchère de chaque joueur, hors du cadre (façon Funbridge) */
-  .bidframe { margin: 64px 42px 60px; padding: 26px 24px 30px; }
+  .bidframe { margin: 60px 42px 50px; padding: 20px 24px 26px; }
   .bidframe .plate.left { left: -40px; } .bidframe .plate.right { right: -40px; }
   .bidframe .bidcenter { margin: 10px 0; }
   .bidstack { position: absolute; display: flex; gap: 4px; z-index: 3; }
@@ -320,8 +320,8 @@
   .gb.lastbid.O { left: -46px; bottom: 26px; } .gb.lastbid.S { bottom: -60px; left: -34px; }
   .gb.lastbid.last { outline: 3px solid #ffe08a; outline-offset: 1px; }
   .gb.lastbid.wasbad { outline: 3px dashed #ff8a80; outline-offset: 1px; }
-  .vulnote { bottom: 32px; }
-  .bidframe .gridhint { margin-bottom: 34px; }
+  .vulnote { bottom: 26px; }
+  .bidframe .gridhint { margin: 6px 0 28px; }
   .auctionline { text-align: left; color: #e8f5ec; font-size: 13px; margin: -50px 12px 18px 78px; min-height: 36px; opacity: .85; }
   .auctionline .red { color: #ff9c94; }
   .pcard.can { cursor: pointer; }
@@ -360,13 +360,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610150917"></script>
-<script src="fiche.js?v=202610150917"></script>
-<script src="deals.js?v=202610150917"></script>
-<script src="deals-duo.js?v=202610150917"></script>
-<script src="dds.js?v=202610150917"></script>
-<script src="jeu.js?v=202610150917"></script>
-<script src="adeux.js?v=202610150917"></script>
+<script src="questions.js?v=202610150923"></script>
+<script src="fiche.js?v=202610150923"></script>
+<script src="deals.js?v=202610150923"></script>
+<script src="deals-duo.js?v=202610150923"></script>
+<script src="dds.js?v=202610150923"></script>
+<script src="jeu.js?v=202610150923"></script>
+<script src="adeux.js?v=202610150923"></script>
 <script>
 (() => {
   'use strict';
@@ -989,7 +989,7 @@
     const st = auctionState(deal, p.i);
     const cols = ['SA', '♠', '♥', '♦', '♣'];
     let rows = '';
-    for (let l = 1; l <= 7; l++) rows += cols.map(c => { const b = l + c; const ok = bidRank(b) > st.last; return `<button class="gb g${cols.indexOf(c)} ${p.choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : suits(c)}</span></button>`; }).join('');
+    for (let l = 1; l <= 7; l++) if (bidRank(l + 'SA') > st.last) rows += cols.map(c => { const b = l + c; const ok = bidRank(b) > st.last; return `<button class="gb g${cols.indexOf(c)} ${p.choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : suits(c)}</span></button>`; }).join('');
     // 1er toucher : l'enchère grossit au milieu ; 2e toucher (sur elle, ou sur la même case) : on l'annonce.
     const big = p.choice ? (() => {
       const k = p.choice === 'P' ? 'gpass' : p.choice === 'X' ? 'gx' : p.choice === 'XX' ? 'gxx' : 'g' + cols.indexOf(p.choice.slice(1));

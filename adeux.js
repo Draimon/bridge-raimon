@@ -202,7 +202,7 @@ function createDuo(env) {
     const canX = opp && dbl === 0, canXX = lastSeat && !opp && dbl === 1;
     const cols = ['SA', '♠', '♥', '♦', '♣'];
     let rows = '';
-    for (let l = 1; l <= 7; l++) rows += cols.map(c => { const b = l + c; const ok = bidRank(b) > last; return `<button class="gb g${cols.indexOf(c)} ${choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : fmt(c)}</span></button>`; }).join('');
+    for (let l = 1; l <= 7; l++) if (bidRank(l + 'SA') > last) rows += cols.map(c => { const b = l + c; const ok = bidRank(b) > last; return `<button class="gb g${cols.indexOf(c)} ${choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : fmt(c)}</span></button>`; }).join('');
     const big = choice ? `<div class="bigbid-veil" data-act="unpick"></div><button class="gb bigbid ${choice === 'P' ? 'gpass' : choice === 'X' ? 'gx' : choice === 'XX' ? 'gxx' : 'g' + cols.indexOf(choice.slice(1))}" data-act="announce">${choice === 'P' ? 'PASSE' : choice === 'X' || choice === 'XX' ? choice : choice[0] + `<span>${choice.slice(1) === 'SA' ? 'SA' : fmt(choice.slice(1))}</span>`}<small>Touche pour annoncer</small></button>` : '';
     return `<div class="gridwrap"><div class="gridbox">${rows}</div>
       <div class="gspecial"><button class="gb gpass ${choice === 'P' ? 'sel' : ''}" data-gb="P">PASSE</button><button class="gb gx ${choice === 'X' ? 'sel' : ''}" ${canX ? 'data-gb="X"' : 'disabled'}>X</button><button class="gb gxx ${choice === 'XX' ? 'sel' : ''}" ${canXX ? 'data-gb="XX"' : 'disabled'}>XX</button></div>${big}</div>
