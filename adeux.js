@@ -155,9 +155,9 @@ function createDuo(env) {
     const stack = s => (stacks[s].length ? `<div class="bidstack ${POS[pos[s]]}">${stacks[s].join('')}</div>` : '');
     const hand = deal.h[me].split('.');
     const canUndo = !myTurn && undoIndex(p, g) >= 0;
-    app.innerHTML = topbar('Donne ' + deal.n, 'Donnes', SYS_BTN) + `
+    app.innerHTML = topbar('Donne ' + deal.n, 'Donnes', SYS_BTN) + navHtml(i) + `
       ${opts.notice ? `<div class="notice">${opts.notice}</div>` : ''}
-      <div class="frame bidframe ${opts.anim ? 'dealin' : ''}">${opts.anim ? `<div class="dealflash">Donne ${deal.n}<small>${myTurn ? 'À toi d’enchérir' : 'Au tour de ' + otherName(p)}</small></div>` : ''}
+      <div class="frame bidframe ${opts.anim ? (opts.dir < 0 ? 'dealin back' : 'dealin') : ''}">${opts.anim ? `<div class="dealflash">Donne ${deal.n}<small>${myTurn ? 'À toi d’enchérir' : 'Au tour de ' + otherName(p)}</small></div>` : ''}
         ${SEATS.map(plate).join('')}${SEATS.map(stack).join('')}
         <div class="bidcenter" id="fb">${myTurn ? gridHtml(g, deal, choice) : `<p class="feltnote">Au tour de ${otherName(p)}</p>${canUndo ? '<button class="btn center undo" data-act="undo">↶ Modifier mon enchère</button>' : ''}`}</div>
         <div class="vulnote">Donneur : ${SEAT_NAMES[deal.d]} · ${{ none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none']}</div>
@@ -171,6 +171,22 @@ function createDuo(env) {
     on('announce', () => submit(i, choice));
     on('unpick', () => bidView(i));
     on('undo', () => undo(i));
+    wireNav(i);
+  }
+  // ───── Navigation entre les donnes de la partie
+  function navHtml(i) {
+    const p = current, n = p.donnes.length;
+    const dot = g => { const st = statusOf(p, g); return st === 'fini' ? '✓' : st === 'moi' ? '●' : '○'; };
+    return `<div class="dnav"><button class="dnav-b" data-nav="-1" ${i === 0 ? 'disabled' : ''} aria-label="Donne précédente">‹</button>
+      <div class="dnav-mid"><b>${i + 1} / ${n}</b><span>${p.donnes.map((g, k) => `<i class="${k === i ? 'on' : ''}">${dot(g)}</i>`).join('')}</span></div>
+      <button class="dnav-b" data-nav="1" ${i === n - 1 ? 'disabled' : ''} aria-label="Donne suivante">›</button></div>`;
+  }
+  function openDeal(j, dir) {
+    const g = current.donnes[j];
+    if (statusOf(current, g) === 'fini') go(() => analysis(j)); else go(() => bidView(j, null, { anim: true, dir }));
+  }
+  function wireNav(i) {
+    app.querySelectorAll('[data-nav]').forEach(b => b.addEventListener('click', () => openDeal(i + +b.dataset.nav, +b.dataset.nav)));
   }
   function tileHtml(b, cls) {
     const cols = ['SA', '♠', '♥', '♦', '♣'];
@@ -270,7 +286,7 @@ function createDuo(env) {
       `Séquence jouée : ${g.calls.map(bidLabel).join(' – ')}`, `Séquence du système : ${exp.map(bidLabel).join(' – ')}`,
       diverged >= 0 ? `Premier écart : enchère n° ${diverged + 1} (${who(seatAt(deal, diverged))}) : ${bidLabel(g.calls[diverged])} au lieu de ${bidLabel(exp[diverged])}` : 'Aucun écart avec le système.',
       `Mains : N ${deal.h.N} · S ${deal.h.S} · E ${deal.h.E} · O ${deal.h.O}`].join('\n');
-    app.innerHTML = topbar('Analyse ' + deal.n, 'Donnes', SYS_BTN) + `
+    app.innerHTML = topbar('Analyse ' + deal.n, 'Donnes', SYS_BTN) + navHtml(i) + `
       <div class="card center"><div class="feedback ${perfect ? 'ok' : 'ko'}"><h3 style="margin:0">${perfect ? 'Séquence conforme au système !' : 'Votre séquence s’écarte du système'}</h3></div>
         <p style="margin:10px 0 0">Votre contrat : <b>${fmt(contract(g.calls))}</b><br>Contrat du système : <b>${fmt(contract(exp))}</b>${deal.best ? `<br>Meilleur contrat possible : <b>${fmt(deal.best.c)}</b> (${deal.best.t} levées en double mort)` : ''}</p></div>
       <div class="card"><b>Enchère par enchère</b><ol class="expl">${rows}</ol>
@@ -282,6 +298,7 @@ function createDuo(env) {
     on('back', () => go(partyView));
     wireFix({ type: 'donne à deux', donne: deal.n, partie: p.id, rapport: report, sent: 'Analyse envoyée' });
     on('undo', () => undo(i));
+    wireNav(i);
     wireTalk(i, report);
     if (talk(g)) document.getElementById('talk').scrollIntoView({ block: 'start' });
   }

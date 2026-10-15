@@ -38,6 +38,13 @@
   .fiche { scroll-margin-top: 64px; }
   header.top { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: -16px -16px 8px; padding: 6px 16px; position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
   .tobtn { border: 1px solid var(--line); background: var(--card); color: var(--accent); border-radius: 999px; padding: 6px 12px; font-size: 15px; cursor: pointer; }
+  .fsearch input { width: 100%; box-sizing: border-box; font-size: 16px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); margin: 4px 0 10px; }
+  .fsearch .fnone { margin: -4px 0 10px; font-size: 14px; } .toc .pill[hidden] { display: none; }
+  .pdfview { position: fixed; inset: 0; z-index: 120; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 12px calc(24px + env(safe-area-inset-bottom)); }
+  .pdfview header.top { margin: 0 -12px 0; padding-top: calc(6px + env(safe-area-inset-top)); background: var(--bg); }
+  body.tablemode .pdfview header.top h1 { color: var(--ink); }
+  .pdfpage { overflow-x: auto; margin: 0 auto 12px; max-width: 900px; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.15); background: #fff; }
+  .pdfpage img { display: block; width: 100%; } .pdfpage.zoom img { width: 250%; max-width: none; }
   .popveil { position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; animation: fadein .2s; }
   .pop { background: var(--card); color: var(--ink); border-radius: 18px; padding: 20px 18px 14px; width: 100%; max-width: 360px; box-shadow: 0 12px 40px rgba(0,0,0,.35); text-align: center; animation: popin .25s ease-out; }
   .pop h3 { margin: 4px 0 8px; } .pop ul { text-align: left; margin: 0 0 14px; padding-left: 20px; } .pop-ico { font-size: 34px; color: var(--accent); }
@@ -219,7 +226,15 @@
   .plate .dealer { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: #f2c94c; color: #1d2724; font-size: 11px; font-weight: 900; margin-left: 6px; }
   .notice { background: #fff4d6; color: #5b4300; border-radius: 10px; padding: 8px 12px; margin: 0 0 10px; font-size: 14px; }
   .btn.waiting small { color: var(--muted); } .bidcenter .undo { margin-top: 10px; width: auto; display: inline-block; padding: 8px 14px; font-size: 15px; }
-  .dealin { animation: dealin .45s ease-out; }
+  .dealin { animation: dealin .45s ease-out; } .dealin.back { animation-name: dealinback; }
+  @keyframes dealinback { from { transform: translateX(-60px) rotate(-2deg); opacity: 0; } }
+  .dnav { display: flex; align-items: center; gap: 10px; margin: -2px 0 6px; }
+  .dnav-b { flex: none; width: 44px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--accent); font-size: 26px; line-height: 1; cursor: pointer; }
+  .dnav-b:disabled { opacity: .3; cursor: default; }
+  .dnav-mid { flex: 1; text-align: center; font-size: 14px; line-height: 1.2; }
+  .dnav-mid span { display: block; letter-spacing: 2px; font-size: 11px; color: var(--muted); } .dnav-mid i { font-style: normal; } .dnav-mid i.on { color: var(--accent); font-weight: 900; }
+  body.tablemode .dnav-b { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; }
+  body.tablemode .dnav-mid, body.tablemode .dnav-mid span { color: #fff; } body.tablemode .dnav-mid i.on { color: #ffe08a; }
   @keyframes dealin { from { transform: translateX(60px) rotate(2deg); opacity: 0; } }
   .dealflash { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 20; background: #1d2724; color: #fff; border: 2px solid #ffe08a; border-radius: 14px; padding: 12px 22px; font-size: 24px; font-weight: 800; text-align: center; pointer-events: none; animation: dealflash 1.6s ease-in forwards; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
   .dealflash small { display: block; font-size: 13px; font-weight: 600; color: #ffe08a; margin-top: 2px; }
@@ -345,13 +360,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610150901"></script>
-<script src="fiche.js?v=202610150901"></script>
-<script src="deals.js?v=202610150901"></script>
-<script src="deals-duo.js?v=202610150901"></script>
-<script src="dds.js?v=202610150901"></script>
-<script src="jeu.js?v=202610150901"></script>
-<script src="adeux.js?v=202610150901"></script>
+<script src="questions.js?v=202610150917"></script>
+<script src="fiche.js?v=202610150917"></script>
+<script src="deals.js?v=202610150917"></script>
+<script src="deals-duo.js?v=202610150917"></script>
+<script src="dds.js?v=202610150917"></script>
+<script src="jeu.js?v=202610150917"></script>
+<script src="adeux.js?v=202610150917"></script>
 <script>
 (() => {
   'use strict';
@@ -535,13 +550,42 @@
     let el = document.getElementById('sheet');
     if (!el) { el = document.createElement('div'); el.id = 'sheet'; el.className = 'sheet'; document.body.appendChild(el); document.body.style.overflow = 'hidden'; }
     el.innerHTML = `<div class="inner"><header class="top"><h1>Système Raimon</h1><button class="tobtn" data-close>✕ Fermer</button></header>
-      <div class="toc">${order.map(id => `<button class="pill ${id === sheetChapter ? 'on' : ''}" data-sch="${id}">${title(id)}</button>`).join('')}</div>
+      ${SEARCH_BOX}
+      <div class="toc">${order.map(id => `<button class="pill ${id === sheetChapter ? 'on' : ''}" data-sch="${id}" data-t="${plainTitle(id)}">${title(id)}</button>`).join('')}</div>
       <div class="card fiche" id="schapter"><h2>${title(sheetChapter)}</h2><ul>${FICHE[sheetChapter].lignes.map(l => `<li>${suits(l)}</li>`).join('')}</ul></div>
-      <a class="btn center" href="convention2026.pdf" target="_blank" rel="noopener" style="text-decoration:none">📄 Fiche originale (PDF)</a></div>`;
+      <button class="btn center" data-pdf>📄 Fiche originale (PDF)</button></div>`;
     el.querySelector('[data-close]').addEventListener('click', closeSheet);
+    wireSearch(el);
     const cur = el.querySelector('.pill.on'); if (cur) cur.parentNode.scrollLeft = cur.offsetLeft - 16;
     el.querySelectorAll('[data-sch]').forEach(b => b.addEventListener('click', () => { openSheet(b.dataset.sch); document.getElementById('schapter').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
   }
+  // Recherche (titres des chapitres seulement) : la saisie est gardée quand on change de chapitre.
+  let ficheQuery = '';
+  const SEARCH_BOX = '<div class="fsearch"><input type="search" id="fsearch" placeholder="🔎 Rechercher un chapitre (ex. Texas, Landy…)" autocomplete="off"><p class="muted fnone" hidden>Aucun chapitre ne correspond.</p></div>';
+  const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const plainTitle = id => (id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id]).replace(/"/g, '');
+  function wireSearch(root) {
+    const input = root.querySelector('#fsearch'); if (!input) return;
+    const filter = () => {
+      const q = norm(ficheQuery.trim());
+      let shown = 0;
+      root.querySelectorAll('.toc .pill').forEach(p => { const ok = !q || norm(p.dataset.t).includes(q); p.hidden = !ok; if (ok) shown++; });
+      root.querySelector('.fnone').hidden = shown > 0;
+    };
+    input.value = ficheQuery;
+    input.addEventListener('input', () => { ficheQuery = input.value; filter(); });
+    filter();
+  }
+  // Visionneuse de la fiche PDF (2 pages en images) : ✕ pour revenir là où on était ; toucher une page pour zoomer.
+  function openPdf() {
+    const v = document.createElement('div'); v.className = 'pdfview';
+    v.innerHTML = '<header class="top"><h1>Fiche originale</h1><button class="tobtn" data-pclose>✕ Fermer</button></header><p class="muted center" style="font-size:13px;margin:4px 0 8px">Touche une page pour zoomer</p>'
+      + [1, 2].map(k => `<div class="pdfpage"><img src="fiche-pdf/page${k}.jpg" alt="Page ${k} de la fiche"></div>`).join('');
+    document.body.appendChild(v); document.body.style.overflow = 'hidden';
+    v.querySelector('[data-pclose]').addEventListener('click', () => { v.remove(); if (!document.getElementById('sheet')) document.body.style.overflow = ''; });
+    v.querySelectorAll('.pdfpage').forEach(p => p.addEventListener('click', () => p.classList.toggle('zoom')));
+  }
+  document.addEventListener('click', e => { if (e.target.closest('[data-pdf]')) openPdf(); });
   function closeSheet() { const el = document.getElementById('sheet'); if (el) el.remove(); document.body.style.overflow = ''; }
   document.addEventListener('click', e => { if (e.target.closest('[data-sys]')) openSheet(); });
 
@@ -582,15 +626,17 @@
     const order = ['precisions', ...THEMES.map(t => t[0])].filter(id => FICHE[id]);
     const sel = chapter || (anchor && FICHE[anchor] ? anchor : 'precisions');
     const title = id => fmt(id === 'precisions' ? FICHE.precisions.titre : THEME_NAME[id]);
-    const pills = order.map(id => `<button class="pill ${id === sel ? 'on' : ''}" data-ch="${id}">${title(id)}</button>`).join('');
+    const pills = order.map(id => `<button class="pill ${id === sel ? 'on' : ''}" data-ch="${id}" data-t="${plainTitle(id)}">${title(id)}</button>`).join('');
     app.innerHTML = topbar('Fiche système', fromQuestion ? 'Question' : 'Accueil', fromQuestion ? '<button class="tobtn" data-act="home">Accueil</button>' : '') + `
-      <a class="btn center" href="convention2026.pdf" target="_blank" rel="noopener" style="text-decoration:none">📄 Voir la fiche originale (PDF)</a>
+      <button class="btn center" data-pdf>📄 Voir la fiche originale (PDF)</button>
+      ${SEARCH_BOX}
       <div class="toc">${pills}</div>
       <div class="card fiche" id="chapter"><h2>${title(sel)}</h2>
         <ul>${FICHE[sel].lignes.map(l => `<li>${suits(l)}</li>`).join('')}</ul></div>
       ${fromQuestion ? '<div style="height:70px"></div><button class="btn primary center" data-act="back" style="position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:auto;max-width:528px;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,.2)">‹ Retour à la question</button>' : ''}`;
     on('back', () => fromQuestion ? go(question) : go(home));
     on('home', () => { session = null; go(home); });
+    wireSearch(app);
     app.querySelectorAll('[data-ch]').forEach(b => b.addEventListener('click', () => {
       fiche(anchor, b.dataset.ch);
       document.getElementById('chapter').scrollIntoView({ behavior: 'smooth', block: 'start' });
