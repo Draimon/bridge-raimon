@@ -364,13 +364,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610160829"></script>
-<script src="fiche.js?v=202610160829"></script>
-<script src="deals.js?v=202610160829"></script>
-<script src="deals-duo.js?v=202610160829"></script>
-<script src="dds.js?v=202610160829"></script>
-<script src="jeu.js?v=202610160829"></script>
-<script src="adeux.js?v=202610160829"></script>
+<script src="questions.js?v=202610160850"></script>
+<script src="fiche.js?v=202610160850"></script>
+<script src="deals.js?v=202610160850"></script>
+<script src="deals-duo.js?v=202610160850"></script>
+<script src="dds.js?v=202610160850"></script>
+<script src="jeu.js?v=202610160850"></script>
+<script src="adeux.js?v=202610160850"></script>
 <script>
 (() => {
   'use strict';
@@ -584,7 +584,7 @@
   function openPdf() {
     const v = document.createElement('div'); v.className = 'pdfview';
     v.innerHTML = '<header class="top"><h1>Fiche originale</h1><button class="tobtn" data-pclose>✕ Fermer</button></header><p class="muted center" style="font-size:13px;margin:4px 0 8px">Touche une page pour zoomer</p>'
-      + [1, 2].map(k => `<div class="pdfpage"><img src="fiche-pdf/page${k}.jpg" alt="Page ${k} de la fiche"></div>`).join('');
+      + [1, 2].map(k => `<div class="pdfpage"><img src="fiche-pdf/page${k}.jpg?v=2026-10" alt="Page ${k} de la fiche"></div>`).join('');
     document.body.appendChild(v); document.body.style.overflow = 'hidden';
     v.querySelector('[data-pclose]').addEventListener('click', () => { v.remove(); if (!document.getElementById('sheet')) document.body.style.overflow = ''; });
     v.querySelectorAll('.pdfpage').forEach(p => p.addEventListener('click', () => p.classList.toggle('zoom')));
