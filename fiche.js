@@ -8,6 +8,7 @@ const FICHE = {
       'Base SEF, majeure 5e.',
       '1SA = 15-17H. Stayman à 3 réponses + petit Stayman (moins de 8H avec 4♥ et 4♠ : sur 2♦, 2♥ passe ou corrige).',
       'Sur 1SA sans majeure : 2SA = 8H (proposition), 3SA = 9 à 14H.',
+      '1♥ – 1♠ puis 3♠ (saut) = 6 cartes à ♠ et 9-10H, non forcing ; 1♥ – 1♠ puis 2♠ = faible.',
       'HLD sans fit : les H + 1 point par carte au-delà de la 4e.',
       'HLD avec un fit, main de base (celle qui a nommé la couleur) : les H + chicane 3, singleton 2, doubleton 1 ; on ne compte plus la longueur.',
       'HLD avec un fit, main de soutien : les H + chicane 5, singleton 3, doubleton 1, et les atouts au-delà du fit de 8 : le 1er compte 2, les suivants 1 (6 cartes face à 1♠ = 2 + 1 + 1 = 4 points).',
@@ -84,7 +85,8 @@ const FICHE = {
   },
   okla: {
     lignes: [
-      'Le répondant (13-15 HLD, 11H) sur 1♥/1♠. Cartes clés = 4 As + Roi d’atout.',
+      'Le répondant (13-15 HLD, 11H au plus) sur 1♥/1♠. Cartes clés = 4 As + Roi d’atout.',
+      'L’Oklahoma dénie une main de plus de 11H : avec 12H et plus, on fait un changement de couleur, puis on montre le fit.',
       '3♥/3♠ (autre majeure) = 0/1 carte clé + 1 chicane',
       '4♣ = 2 cartes clés + 1 chicane',
       '4♦ = 2 cartes clés',
@@ -223,6 +225,7 @@ const FICHE = {
       '1♦ – 1♠ – 1SA – 2♣ = Roudy',
       '2SA = transformation pour 3♣ (6 ou 7 ♣ / 4♠, moins de 6-7H)',
       '<b>Sur 2♣ Roudy</b> : 2♦ = mini pas fitté ; 2 même couleur = mini fitté ; 2 autre couleur = maxi fitté ; 2SA = maxi pas fitté.',
+      'Pas de Roudy quand on connaît déjà le contrat : avec 6 cartes en majeure et la manche face à 12-14, on dit directement 4 dans la majeure (inutile de renseigner l’adversaire).',
     ],
   },
   paupiette: {

@@ -3095,7 +3095,7 @@
  },
  {
   "n": 171,
-  "t": "Robot · Roudy",
+  "t": "Robot · Mineure – majeure",
   "d": "N",
   "N": "Q97.J765.K74.AQ3",
   "E": "T43.932.A985.J72",
@@ -3124,22 +3124,8 @@
     "P"
    ],
    [
-    "2♣",
-    "Roudy : 5 cartes à ♠, tu cherches le fit et la force"
-   ],
-   [
-    "P"
-   ],
-   [
-    "2♠",
-    "Minimum avec fit (3 cartes)"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♠",
-    "Fit et assez de points : la manche"
+    "6 cartes à ♠ et la manche face à 12-14 : tu conclus directement (inutile de renseigner l’adversaire)"
    ],
    [
     "P"
@@ -4367,7 +4353,7 @@
  },
  {
   "n": 202,
-  "t": "Robot · Oklahoma",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "KT9.KQT98.85.KT4",
   "E": "Q654.-.AJ63.A9863",
@@ -4382,15 +4368,22 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (14 HLD)"
+    "2♦",
+    "Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Minimum (peut être régulier)"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "Pas de chelem en vue : il conclut à la manche"
+    "Tu montres le fit ♥ : la manche"
    ],
    [
     "P"
@@ -4576,7 +4569,7 @@
  },
  {
   "n": 207,
-  "t": "Robot · Roudy",
+  "t": "Robot · Mineure – majeure",
   "d": "N",
   "N": "K53.K642.KQ96.T4",
   "E": "7.AT75.JT53.K985",
@@ -4605,22 +4598,8 @@
     "P"
    ],
    [
-    "2♣",
-    "Roudy : 5 cartes à ♠, tu cherches le fit et la force"
-   ],
-   [
-    "P"
-   ],
-   [
-    "2♠",
-    "Minimum avec fit (3 cartes)"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♠",
-    "Fit et assez de points : la manche"
+    "6 cartes à ♠ et la manche face à 12-14 : tu conclus directement (inutile de renseigner l’adversaire)"
    ],
    [
     "P"
@@ -4668,7 +4647,7 @@
  },
  {
   "n": 209,
-  "t": "Robot · Roudy",
+  "t": "Robot · Mineure – majeure",
   "d": "N",
   "N": "A83.K3.KJ7.QJ753",
   "E": "95.72.QT862.A986",
@@ -4697,22 +4676,8 @@
     "P"
    ],
    [
-    "2♣",
-    "Roudy : 5 cartes à ♥, tu cherches le fit et la force"
-   ],
-   [
-    "P"
-   ],
-   [
-    "2SA",
-    "Maximum, pas de fit"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3SA",
-    "Pas de fit, assez pour la manche"
+    "4♥",
+    "7 cartes à ♥ et la manche face à 12-14 : tu conclus directement (inutile de renseigner l’adversaire)"
    ],
    [
     "P"
@@ -4760,7 +4725,7 @@
  },
  {
   "n": 211,
-  "t": "Robot · Oklahoma",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "T9653.87.K3.AKJ8",
   "E": "4.932.AT76.Q9752",
@@ -4775,15 +4740,22 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (15 HLD)"
+    "2♥",
+    "Changement de couleur : fit ♠ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Minimum (peut être régulier)"
    ],
    [
     "P"
    ],
    [
     "4♠",
-    "Pas de chelem en vue : il conclut à la manche"
+    "Tu montres le fit ♠ : la manche"
    ],
    [
     "P"
@@ -5102,7 +5074,7 @@
    ],
    [
     "2♠",
-    "5 cartes à ♠ et pas de préférence ♥"
+    "5 cartes à ♠ et pas de préférence ♥ (faible)"
    ],
    [
     "P"
@@ -5118,7 +5090,7 @@
  },
  {
   "n": 220,
-  "t": "Robot · Oklahoma",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "KT85.KJ862.K8.Q9",
   "E": "Q74.A97.76.KT862",
@@ -5133,15 +5105,22 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (14 HLD)"
+    "2♦",
+    "Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Minimum (peut être régulier)"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "Pas de chelem en vue : il conclut à la manche"
+    "Tu montres le fit ♥ : la manche"
    ],
    [
     "P"
@@ -5157,7 +5136,7 @@
  },
  {
   "n": 221,
-  "t": "Robot · Oklahoma",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "KJ6.QT987.J.AT98",
   "E": "Q953.A4.864.J542",
@@ -5172,15 +5151,22 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (14 HLD)"
+    "2♦",
+    "Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Minimum (peut être régulier)"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "Pas de chelem en vue : il conclut à la manche"
+    "Tu montres le fit ♥ : la manche"
    ],
    [
     "P"
@@ -5366,7 +5352,7 @@
  },
  {
   "n": 226,
-  "t": "Robot · Oklahoma",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "AQT753.Q.JT4.Q84",
   "E": "-.T8653.Q87.KJ532",
@@ -5381,15 +5367,22 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (14 HLD)"
+    "2♥",
+    "Changement de couleur : fit ♠ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "6 cartes à ♠"
    ],
    [
     "P"
    ],
    [
     "4♠",
-    "Pas de chelem en vue : il conclut à la manche"
+    "Tu montres le fit ♠ : la manche"
    ],
    [
     "P"
@@ -5709,7 +5702,7 @@
  },
  {
   "n": 233,
-  "t": "Robot · Oklahoma – chelem",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "AKQ62.Q2.KJ742.3",
   "E": "T3.JT76.A98.K762",
@@ -5724,15 +5717,36 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (15 HLD)"
+    "2♥",
+    "Changement de couleur : fit ♠ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Minimum (peut être régulier)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4SA",
+    "Fit ♠ et zone de chelem (15 HLD) : Blackwood Lefèvre"
+   ],
+   [
+    "P"
+   ],
+   [
+    "5♦",
+    "1 ou 4 As"
    ],
    [
     "P"
    ],
    [
     "6♠",
-    "2 cartes clés + 2 en face : petit chelem"
+    "Il ne manque qu’un As : petit chelem"
    ],
    [
     "P"
@@ -5748,7 +5762,7 @@
  },
  {
   "n": 234,
-  "t": "Robot · Oklahoma – chelem",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "AQJ94.AJ5.T8.AJ4",
   "E": "652.K732.J94.QT6",
@@ -5763,15 +5777,22 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (14 HLD)"
+    "2♥",
+    "Changement de couleur : fit ♠ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
    ],
    [
     "P"
    ],
    [
-    "6♠",
-    "3 cartes clés + 2 en face : petit chelem"
+    "2SA",
+    "15-17H régulier"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♠",
+    "Tu montres le fit ♠ : la manche"
    ],
    [
     "P"
@@ -5787,7 +5808,7 @@
  },
  {
   "n": 235,
-  "t": "Robot · Oklahoma – chelem",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "J96.KT865.AK.AK2",
   "E": "QT872.-.9832.Q643",
@@ -5802,15 +5823,22 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (15 HLD)"
+    "2♦",
+    "Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
    ],
    [
     "P"
    ],
    [
-    "6♥",
-    "3 cartes clés + 2 en face : petit chelem"
+    "2♥",
+    "Minimum (peut être régulier)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "Tu montres le fit ♥ : la manche"
    ],
    [
     "P"
@@ -5904,7 +5932,7 @@
  },
  {
   "n": 238,
-  "t": "Robot · Oklahoma – chelem",
+  "t": "Robot · 2 sur 1",
   "d": "N",
   "N": "-.Q9643.AK7.AJ942",
   "E": "T542.T2.QJ5.QT86",
@@ -5919,15 +5947,36 @@
     "P"
    ],
    [
-    "4♦",
-    "Oklahoma : fit, 2 cartes clés (15 HLD)"
+    "2♦",
+    "Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♥",
+    "Minimum (peut être régulier)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4SA",
+    "Fit ♥ et zone de chelem (17 HLD) : Blackwood Lefèvre"
+   ],
+   [
+    "P"
+   ],
+   [
+    "5♠",
+    "2 As, 1 ou 4 Rois"
    ],
    [
     "P"
    ],
    [
     "6♥",
-    "2 cartes clés + 2 en face : petit chelem"
+    "Il ne manque qu’un As : petit chelem"
    ],
    [
     "P"

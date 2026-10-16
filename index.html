@@ -45,6 +45,10 @@
   body.tablemode .pdfview header.top h1 { color: var(--ink); }
   .pdfpage { overflow-x: auto; margin: 0 auto 12px; max-width: 900px; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.15); background: #fff; }
   .pdfpage img { display: block; width: 100%; } .pdfpage.zoom img { width: 250%; max-width: none; }
+  .dsearch { display: flex; align-items: center; gap: 8px; } .dsearch span { font-size: 22px; font-weight: 800; color: var(--accent); }
+  .dsearch input { flex: 1; min-width: 0; font-size: 20px; letter-spacing: 2px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  .dsearch .btn { width: auto; margin: 0; padding: 10px 18px; }
+  .archives { margin-top: 14px; } .archives summary { cursor: pointer; font-weight: 700; padding: 10px 0; color: var(--muted); }
   .popveil { position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; animation: fadein .2s; }
   .pop { background: var(--card); color: var(--ink); border-radius: 18px; padding: 20px 18px 14px; width: 100%; max-width: 360px; box-shadow: 0 12px 40px rgba(0,0,0,.35); text-align: center; animation: popin .25s ease-out; }
   .pop h3 { margin: 4px 0 8px; } .pop ul { text-align: left; margin: 0 0 14px; padding-left: 20px; } .pop-ico { font-size: 34px; color: var(--accent); }
@@ -360,13 +364,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610150923"></script>
-<script src="fiche.js?v=202610150923"></script>
-<script src="deals.js?v=202610150923"></script>
-<script src="deals-duo.js?v=202610150923"></script>
-<script src="dds.js?v=202610150923"></script>
-<script src="jeu.js?v=202610150923"></script>
-<script src="adeux.js?v=202610150923"></script>
+<script src="questions.js?v=202610160829"></script>
+<script src="fiche.js?v=202610160829"></script>
+<script src="deals.js?v=202610160829"></script>
+<script src="deals-duo.js?v=202610160829"></script>
+<script src="dds.js?v=202610160829"></script>
+<script src="jeu.js?v=202610160829"></script>
+<script src="adeux.js?v=202610160829"></script>
 <script>
 (() => {
   'use strict';

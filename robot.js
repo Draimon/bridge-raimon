@@ -406,6 +406,29 @@
         else { add('P', `Minimum (${on} HLD) : il passe`); A.theme = 'Shadow fit'; return A; }
         add('P'); A.theme = 'Shadow fit'; return A;
       }
+      if (s.hcp >= 12) {
+        const x = [3, 2, 1].filter(i => i !== M && rankOf('2' + NAMES[i]) < rankOf('2' + Ms)).sort((p, q) => s.len[q] - s.len[p] || p - q)[0];
+        if (x === undefined) return null;
+        const X = NAMES[x];
+        add('2' + X, `Changement de couleur : fit ${Ms} et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite`);
+        A.theme = '2 sur 1';
+        let reb;
+        if (n.len[M] >= 6) reb = ['2' + Ms, `6 cartes à ${Ms}`];
+        else if (n.len[x] >= 4 && x >= 2) reb = ['3' + X, `Fit ${X} (4 cartes)`];
+        else if (n.balanced && n.hcp >= 15 && n.hcp <= 17) reb = ['2SA', '15-17H régulier'];
+        else reb = ['2' + Ms, 'Minimum (peut être régulier)'];
+        add(reb[0], reb[1]);
+        if (hld(n, M) + h >= 32) {                                     // zone de chelem : Blackwood Lefèvre
+          add('4SA', `Fit ${Ms} et zone de chelem (${h} HLD) : Blackwood Lefèvre`);
+          const [b, why, opts] = lefevre(n, M); add(b, why);
+          const pa = readAces(opts, aces(s)); if (pa === null) return null;
+          const tot = pa + aces(s);
+          if (tot <= 2) { if (rankOf('5' + Ms) <= rankOf(b)) return null; add('5' + Ms, `Il manque 2 As : on s'arrête à 5${Ms}`); add('P'); return A; }
+          if (tot === 4) return null;
+          add('6' + Ms, 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
+        }
+        add('4' + Ms, `Tu montres le fit ${Ms} : la manche`); add('P'); return A;
+      }
       if (h <= 15) {
         const k = keyCards(s, M), chic = voidSuit(s, M);
         if (k > 2) return null;
@@ -445,18 +468,19 @@
         add('2♠', `Fit ♠, 11-16 HLD (${on})`); add('P', 'Pas de manche possible : tu passes'); return A;
       }
       if (n.balanced) {
-        if (n.hcp <= 14) { add('1SA', 'Régulier, 12-14H'); if (s.s >= 6) { add('2♠', '6 cartes à ♠, main faible'); add('P'); return A; } add('P', 'Pas de manche : tu passes'); return A; }
+        if (n.hcp <= 14) { add('1SA', 'Régulier, 12-14H'); if (s.s >= 6 && s.hcp >= 9 && s.hcp <= 10) { add('3♠', 'Saut à 3♠ non forcing : 6 cartes à ♠ et 9-10H (2♠ serait faible)'); if (n.hcp >= 15 || (n.hcp >= 13 && n.s >= 2)) { add('4♠', n.s >= 2 ? 'Haut de zone ou fit ♠ : il accepte la manche' : 'Haut de zone : il accepte la manche'); add('P'); } else add('P', 'Minimum : il passe'); return A; } if (s.s >= 6) { add('2♠', '6 cartes à ♠, main faible'); add('P'); return A; } add('P', 'Pas de manche : tu passes'); return A; }
         return null;
       }
       if (n.h >= 6) {
         if (n.hcp >= 15 && hld(n) >= 17) { add('3♥', '6 cartes à ♥, 17-19 HLD'); if (s.h >= 2 || s.hcp >= 8) { add('4♥', `${s.h >= 2 ? 'Fit ♥ (6 cartes en face)' : 'Assez de points'} : tu acceptes la manche`); add('P'); } else add('P', 'Singleton ♥ et minimum : tu passes'); return A; }
         if (n.hcp > 16) return null;
-        add('2♥', '6 cartes à ♥, minimum'); if (s.s >= 6 && s.h <= 1) { add('2♠', '6 cartes à ♠ et singleton ♥'); add('P'); return A; } add('P', 'Tu passes'); return A;
+        add('2♥', '6 cartes à ♥, minimum'); if (s.h <= 1 && s.s >= 6 && s.hcp >= 9 && s.hcp <= 10) { add('3♠', 'Saut à 3♠ non forcing : 6 cartes à ♠ et 9-10H (2♠ serait faible)'); if (n.hcp >= 15 || (n.hcp >= 13 && n.s >= 2)) { add('4♠', n.s >= 2 ? 'Haut de zone ou fit ♠ : il accepte la manche' : 'Haut de zone : il accepte la manche'); add('P'); } else add('P', 'Minimum : il passe'); return A; } if (s.s >= 6 && s.h <= 1) { add('2♠', '6 cartes à ♠ et singleton ♥'); add('P'); return A; } add('P', 'Tu passes'); return A;
       }
       const m = n.d >= 4 && n.d >= n.c ? 2 : n.c >= 4 ? 3 : -1;
       if (m < 0 || n.hcp > 16) return null;
       add('2' + NAMES[m], `2e couleur : 4 cartes ou plus à ${NAMES[m]}`);
-      if (s.s >= 5 && s.h <= 1) { add('2♠', `${s.s} cartes à ♠ et pas de préférence ♥`); add('P'); }
+      if (s.s >= 6 && s.hcp >= 9 && s.hcp <= 10) { add('3♠', 'Saut à 3♠ non forcing : 6 cartes à ♠ et 9-10H (2♠ serait faible)'); if (n.hcp >= 15 || (n.hcp >= 13 && n.s >= 2)) { add('4♠', n.s >= 2 ? 'Haut de zone ou fit ♠ : il accepte la manche' : 'Haut de zone : il accepte la manche'); add('P'); } else add('P', 'Minimum : il passe'); return A; }
+      if (s.s >= 5 && s.h <= 1) { add('2♠', `${s.s} cartes à ♠ et pas de préférence ♥ (faible)`); add('P'); }
       else if (s.h >= 2 && s.h >= s.len[m]) { add('2♥', 'Préférence pour les ♥'); add('P'); } else add('P', `Tu préfères les ${NAMES[m]} : tu passes`);
       return A;
     }
@@ -525,6 +549,7 @@
         add('1SA', 'Pas de fit, 6-10H'); add('P'); return A;
       }
       if (b === '1SA') {
+        if (L >= 6 && hld(s) >= 13 && r < 18) { add('4' + Ms, `${L} cartes à ${Ms} et la manche face à 12-14 : tu conclus directement (inutile de renseigner l’adversaire)`); add('P'); return A; }
         if (L >= 5 && r >= 11) {
           if (r >= 18) return null;
           A.theme = 'Roudy';

@@ -72,24 +72,47 @@ function createDuo(env) {
     on('back', () => go(home));
     try { await loadAll(); } catch (e) { return showError(e); }
     const me = getPlayer();
-    const rows = parties.map(p => {
+    // Une partie dont les 10 donnes sont finies (et sans message en attente) passe dans les archives.
+    const archived = p => p.donnes.every(g => statusOf(p, g) === 'fini') && !p.donnes.some(unread);
+    const row = p => {
       const st = p.donnes.map(g => statusOf(p, g));
       const mine = st.filter(s => s === 'moi').length, done = st.filter(s => s === 'fini').length, msgs = p.donnes.filter(unread).length;
       return `<button class="btn" data-party="${p.id}">Avec <b>${otherName(p)}</b> (toi ${seatOfPlayer(p) === 'N' ? 'Nord' : 'Sud'})
         <small>${done}/${p.donnes.length} terminées${mine ? ` · <b style="color:var(--accent)">${mine} à toi</b>` : ''}${msgs ? ` · <b style="color:var(--accent)">💬 ${msgs} message${msgs > 1 ? 's' : ''}</b>` : ''} · ${new Date(p.created).toLocaleDateString('fr-FR')}</small></button>`;
-    }).join('');
+    };
+    const rows = parties.filter(p => !archived(p)).map(row).join('');
+    const arch = parties.filter(archived);
     app.innerHTML = topbar('Jouer à deux', null, SYS_BTN) + `
       <div class="card"><p style="margin:0">Enchères au tour par tour, chacun sur son téléphone. Celui qui lance la partie est <b>Nord</b>, son partenaire <b>Sud</b>.
         À la fin de chaque donne : l'analyse de votre séquence par rapport au système.</p></div>
       <div class="section-title">Nouvelle partie (10 donnes)</div>
       <div class="row2">${players.filter(x => x !== me).map(x => `<button class="btn primary center" data-new="${x}">Jouer avec ${x}</button>`).join('')}</div>
-      <div class="section-title">Tes parties</div>
-      ${rows || '<p class="muted">Aucune partie pour l’instant.</p>'}
+      <div class="section-title">Retrouver une donne</div>
+      <div class="dsearch"><span>T</span><input id="dfind" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="045" autocomplete="off"><button class="btn primary" data-act="dfind">Voir</button></div>
+      <p class="muted" id="dfindmsg" style="font-size:14px;margin:4px 0 0"></p>
+      <div class="section-title">Tes parties en cours</div>
+      ${rows || '<p class="muted">Aucune partie en cours.</p>'}
+      ${arch.length ? `<details class="archives"><summary>🗄️ Archives (${arch.length} partie${arch.length > 1 ? 's' : ''} terminée${arch.length > 1 ? 's' : ''})</summary>${arch.map(row).join('')}</details>` : ''}
       <p class="center"><button class="link" data-act="refresh">↻ Actualiser</button></p>`;
     on('back', () => go(home));
     on('refresh', () => list());
     app.querySelectorAll('[data-new]').forEach(b => b.addEventListener('click', () => create(b.dataset.new)));
     app.querySelectorAll('[data-party]').forEach(b => b.addEventListener('click', () => openParty(b.dataset.party)));
+    // Recherche : on tape le numéro, le T est déjà mis
+    const input = document.getElementById('dfind'), msg = document.getElementById('dfindmsg');
+    const find = () => {
+      const num = input.value.replace(/\D/g, '');
+      if (!num) { msg.textContent = 'Tape le numéro de la donne.'; return; }
+      const n = 'T' + num.padStart(3, '0');
+      const hits = [];
+      parties.forEach(p => p.donnes.forEach((g, i) => { if (g.n === n) hits.push({ p, i }); }));
+      if (!hits.length) { msg.textContent = DUO_DEALS.some(d => d.n === n) ? `Tu n'as pas encore joué la donne ${n}.` : `La donne ${n} n'existe pas.`; return; }
+      const { p, i } = hits[0];                       // une donne n'est jamais rejouée : une seule partie
+      current = p;
+      if (statusOf(p, p.donnes[i]) === 'fini') go(() => analysis(i)); else go(() => bidView(i, null, { anim: true }));
+    };
+    on('dfind', find);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') find(); });
   }
 
   function showError(e) {
