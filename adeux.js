@@ -42,12 +42,22 @@ function createDuo(env) {
   const CHUNK = 700000;
   let voxAll = [];
   const val = f => (f ? f.stringValue ?? (f.integerValue !== undefined ? +f.integerValue : f.booleanValue) : undefined);
+  // Les vocaux s'effacent d'eux-mêmes au bout de 30 jours (n'importe quel téléphone fait le ménage en ouvrant l'appli).
+  const VOX_DAYS = 30;
   async function voxLoad() {
     try {
-      const r = await fetch(VOX + '?pageSize=300&' + META.map(m => 'mask.fieldPaths=' + m).join('&') + '&key=' + FIRESTORE.key);
-      if (!r.ok) { voxAll = []; return; }
-      const j = await r.json();
-      voxAll = (j.documents || []).map(d => ({ id: d.name.split('/').pop(), ...Object.fromEntries(META.map(m => [m, val((d.fields || {})[m])])) })).filter(v => !v.chunkOf);
+      let docs = [], token = '';
+      do {
+        const r = await fetch(VOX + '?pageSize=300&' + META.map(m => 'mask.fieldPaths=' + m).join('&') + (token ? '&pageToken=' + token : '') + '&key=' + FIRESTORE.key);
+        if (!r.ok) { voxAll = []; return; }
+        const j = await r.json();
+        docs = docs.concat(j.documents || []); token = j.nextPageToken || '';
+      } while (token);
+      const all = docs.map(d => ({ id: d.name.split('/').pop(), ...Object.fromEntries(META.map(m => [m, val((d.fields || {})[m])])) }));
+      const limit = Date.now() - VOX_DAYS * 864e5;
+      const old = all.filter(v => (v.date || 0) < limit);         // messages et morceaux expirés (un morceau sans date est orphelin)
+      old.forEach(v => fetch(`${VOX}/${v.id}?key=${FIRESTORE.key}`, { method: 'DELETE' }).catch(() => {}));
+      voxAll = all.filter(v => !v.chunkOf && (v.date || 0) >= limit);
     } catch (e) { voxAll = []; }
   }
   const voxFor = (p, g) => voxAll.filter(v => v.partie === p.id && v.donne === g.n).sort((x, y) => x.date - y.date);
@@ -60,7 +70,8 @@ function createDuo(env) {
       const r = await fetch(`${VOX}?documentId=${docId}&key=${FIRESTORE.key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
       if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
     };
-    for (let k = 1; k < pieces.length; k++) await put(`${id}_${k}`, { chunkOf: { stringValue: id }, audio: { stringValue: pieces[k] } });
+    const now = { integerValue: String(Date.now()) };
+    for (let k = 1; k < pieces.length; k++) await put(`${id}_${k}`, { chunkOf: { stringValue: id }, date: now, audio: { stringValue: pieces[k] } });
     // le message n'apparaît qu'une fois tous les morceaux envoyés
     await put(id, { partie: { stringValue: p.id }, donne: { stringValue: g.n }, auteur: { stringValue: getPlayer() }, pour: { stringValue: otherName(p) },
       date: { integerValue: String(Date.now()) }, duree: { integerValue: String(duree) }, ecoute: { booleanValue: false }, parts: { integerValue: String(pieces.length) },
@@ -86,7 +97,7 @@ function createDuo(env) {
     const list = voxFor(p, g).map(v => `<div class="msg ${v.auteur === getPlayer() ? 'me' : ''}"><small>${v.auteur === getPlayer() ? 'Toi' : v.auteur} · ${when(v.date)} · ${mmss(v.duree || 0)}${v.pour === getPlayer() && !v.ecoute ? ' · <b style="color:var(--accent)">nouveau</b>' : ''}</small>
       <button class="btn voxplay" data-play="${v.id}">▶︎ Écouter</button></div>`).join('');
     box.innerHTML = `<div class="card"><b>🎙️ Messages vocaux avec ${other}</b><div class="msgs">${list || '<p class="muted" style="margin:4px 0">Pas encore de message sur cette donne.</p>'}</div>
-      <button class="btn primary center voxrec" data-act="rec">🎙️ Parler à ${other}</button><p class="muted center" id="voxmsg" style="font-size:13px;margin:6px 0 0">Touche, parle, puis retouche pour envoyer.</p></div>`;
+      <button class="btn primary center voxrec" data-act="rec">🎙️ Parler à ${other}</button><p class="muted center" id="voxmsg" style="font-size:13px;margin:6px 0 0">Touche, parle, puis retouche pour envoyer. Les vocaux s’effacent au bout de 30 jours.</p></div>`;
     const audio = new Audio();
     box.querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', async () => {
       const v = voxAll.find(x => x.id === b.dataset.play);
