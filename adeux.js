@@ -608,9 +608,29 @@ function createDuo(env) {
   const fixButtonHtml = () => '<button class="btn center" data-act="fixopen">Pas d’accord ? Corriger</button>';
   const sentKey = ctx => `raimon-fix:${getPlayer()}:${ctx.type}:${ctx.donne || ctx.question}:${ctx.partie || ''}`;
   const wasSent = ctx => { try { return !!localStorage.getItem(sentKey(ctx)); } catch (e) { return false; } };
+  // Remarque déjà envoyée : bouton grisé + « voir ma remarque » (texte et état, relus dans la base)
+  function sentView(ctx, note) {
+    const box = document.getElementById('fix'); if (!box) return;
+    box.innerHTML = `<button class="btn center" disabled>✓ ${ctx.sent || 'Remarque envoyée'}</button>
+      <p class="center" style="font-size:13px;margin:6px 0 0">${note ? `<span class="muted">${note}</span><br>` : ''}<button class="link" data-act="fixsee" style="font-size:14px">Voir ma remarque</button></p><div id="fixsee"></div>`;
+    on('fixsee', async () => {
+      const out = document.getElementById('fixsee');
+      if (out.innerHTML) { out.innerHTML = ''; return; }
+      out.innerHTML = '<p class="muted center" style="font-size:13px">Chargement…</p>';
+      try {
+        const r = await (await fetch(FIRESTORE.base.replace('/parties', '/corrections') + '?pageSize=300&key=' + FIRESTORE.key)).json();
+        const mine = (r.documents || []).map(d => JSON.parse(d.fields.data.stringValue))
+          .filter(c => c.auteur === getPlayer() && c.type === ctx.type && String(c.donne || c.question) === String(ctx.donne || ctx.question) && (c.partie || '') === (ctx.partie || ''))
+          .sort((x, y) => x.date - y.date);
+        const esc = s => String(s).replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
+        out.innerHTML = mine.length ? mine.map(c => `<div class="card" style="margin-top:8px"><small class="muted">${new Date(c.date).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · ${c.statut === 'traité' ? '<b style="color:var(--accent)">✓ traitée</b>' : 'pas encore traitée'}</small>
+          <p style="margin:6px 0 0;white-space:pre-wrap">${esc(c.texte)}</p></div>`).join('') : '<p class="muted center" style="font-size:13px">Remarque introuvable dans la base.</p>';
+      } catch (e) { out.innerHTML = '<p class="muted center" style="font-size:13px">Lecture impossible pour l’instant.</p>'; }
+    });
+  }
   function wireFix(ctx) {
     const box = document.getElementById('fix');
-    if (box && wasSent(ctx)) { box.innerHTML = `<button class="btn center" disabled>✓ ${ctx.sent || 'Remarque envoyée'}</button>`; return; }
+    if (box && wasSent(ctx)) { sentView(ctx); return; }
     on('fixopen', () => {
       document.getElementById('fix').innerHTML = `<div class="card"><b>Qu’est-ce qui ne va pas ?</b>
         <textarea id="fixtext" rows="4" placeholder="Ex. : sur 1SA – 2♥, je dis 3♦ et non 2♠ parce que…" style="width:100%;margin-top:8px;font-size:16px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)"></textarea>
@@ -629,7 +649,7 @@ function createDuo(env) {
     try {
       await postCorrection(data);
       try { localStorage.setItem(sentKey(ctx), String(Date.now())); } catch (e) { /* stockage indisponible */ }
-      document.getElementById('fix').innerHTML = `<button class="btn center" disabled>✓ ${ctx.sent || 'Remarque envoyée'}</button><p class="center muted" style="font-size:13px;margin:6px 0 0">Merci ! Damien demandera à Claude de regarder les corrections.</p>`;
+      sentView(ctx, 'Merci ! Damien demandera à Claude de regarder les corrections.');
     } catch (e) { msg.textContent = 'Envoi impossible pour l’instant (' + e.message + '). Réessaie plus tard.'; }
   }
 
