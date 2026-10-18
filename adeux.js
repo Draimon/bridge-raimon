@@ -314,16 +314,101 @@ function createDuo(env) {
         <p style="margin:10px 0 0">Votre contrat : <b>${fmt(contract(g.calls))}</b><br>Contrat du système : <b>${fmt(contract(exp))}</b>${deal.best ? `<br>Meilleur contrat possible : <b>${fmt(deal.best.c)}</b> (${deal.best.t} levées en double mort)` : ''}</p></div>
       <div class="card"><b>Enchère par enchère</b><ol class="expl">${rows}</ol>
         ${diverged >= 0 ? `<p class="muted" style="font-size:14px">Suite prévue par le système : ${fmt(exp.slice(diverged).map(bidLabel).join(' – '))}</p>` : ''}</div>
+      <div class="card"><b>Séquence complète du système</b>${auctionGridHtml(deal, exp, diverged, 'sys')}
+        <ol class="expl">${deal.a.map((e, k) => e[1] ? `<li value="${k + 1}" class="${k === diverged ? 'bad' : ''}"><b>${who(seatAt(deal, k))} : ${fmt(bidLabel(e[0]))}</b><br><span class="muted">${fmt(e[1])}</span></li>` : '').join('')}</ol></div>
       <div class="card"><b>Les 4 mains</b><div class="compass"><div class="cN">${mini('N')}</div><div class="cO">${mini('O')}</div><div class="cE">${mini('E')}</div><div class="cS">${mini('S')}</div></div></div>
-      <div id="talk">${talkHtml(p, g)}</div>
+      <button class="btn primary center" data-act="share">📤 Envoyer la donne à ${otherName(p)}</button>
+      <p class="muted center" style="font-size:13px;margin:4px 0 12px">Une image de la donne (mains et séquences complètes) part dans Messages ou WhatsApp : tu écris ton avis avant d’envoyer.</p>
+      ${talk(g) ? `<div id="talk">${talkHtml(p, g)}</div>` : ''}
       <div id="fix"><button class="btn center" data-act="fixopen">Pas d’accord avec l’analyse ?</button></div>
       ${undoIndex(p, g) >= 0 ? '<button class="link" data-act="undo" style="display:block;margin:12px auto">↶ Modifier ma dernière enchère</button>' : ''}`;
     on('back', () => go(partyView));
     wireFix({ type: 'donne à deux', donne: deal.n, partie: p.id, rapport: report, sent: 'Analyse envoyée' });
     on('undo', () => undo(i));
     wireNav(i);
-    wireTalk(i, report);
-    if (talk(g)) document.getElementById('talk').scrollIntoView({ block: 'start' });
+    if (talk(g)) wireTalk(i, report);
+    on('share', () => shareDeal(p, g, deal, exp, diverged));
+  }
+
+  // Grille d'enchères à 4 colonnes O N E S, comme sur une feuille de marque
+  function auctionGridHtml(deal, calls, mark, kind) {
+    const cols = ['O', 'N', 'E', 'S'], start = cols.indexOf(deal.d);
+    const cells = Array(start).fill('').concat(calls.map((b, k) => `<span class="${k === mark ? (kind === 'sys' ? 'ag-sys' : 'ag-bad') : ''}">${fmt(bidLabel(b))}</span>`));
+    return `<div class="agrid">${cols.map(c => `<b>${c}</b>`).join('')}${cells.map(c => `<div>${c}</div>`).join('')}</div>`;
+  }
+
+  // ───── Envoyer la donne par message : image (mains + séquence jouée + séquence complète du système) via le menu de partage
+  async function shareDeal(p, g, deal, exp, diverged) {
+    const W = 1080, PAD = 48, RED = '#c62828', INK = '#1d2320', MUTED = '#66706b', GREEN = '#1f6b45';
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = 4200;
+    const c = cv.getContext('2d');
+    c.fillStyle = '#fff'; c.fillRect(0, 0, W, cv.height);
+    const FONT = '-apple-system, "Segoe UI", Helvetica, Arial, sans-serif';
+    const font = (px, w) => { c.font = `${w || 400} ${px}px ${FONT}`; };
+    // texte avec ♥ ♦ en rouge ; renvoie la largeur
+    const text = (s, x, y, color) => { let cx = x; for (const ch of s) { c.fillStyle = '♥♦'.includes(ch) ? RED : (color || INK); c.fillText(ch, cx, y); cx += c.measureText(ch).width; } return cx - x; };
+    const width = s => c.measureText(s).width;
+    const wrap = (s, x, y, maxW, lh, color) => {
+      let line = '';
+      for (const word of s.split(' ')) { const t = line ? line + ' ' + word : word; if (width(t) > maxW && line) { text(line, x, y, color); y += lh; line = word; } else line = t; }
+      if (line) { text(line, x, y, color); y += lh; }
+      return y;
+    };
+    const who = s => (s === 'N' ? p.nord : s === 'S' ? p.sud : SEAT_NAMES[s]);
+    const vul = { none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none'];
+    let y = PAD + 40;
+    font(44, 800); c.fillStyle = GREEN; c.fillText('Système Raimon · Donne ' + deal.n, PAD, y); y += 46;
+    font(28); text(`${p.nord} (Nord) – ${p.sud} (Sud) · donneur ${SEAT_NAMES[deal.d]} · ${vul}`, PAD, y, MUTED); y += 40;
+    // les 4 mains en croix
+    const hand = (s, x, y0) => {
+      font(26, 700); text(who(s) + ' (' + s + ')', x, y0, s === 'N' || s === 'S' ? GREEN : MUTED);
+      font(30); deal.h[s].split('.').forEach((pt, j) => text(['♠', '♥', '♦', '♣'][j] + ' ' + (pt === '-' ? '—' : pt.split('').map(ch => ({ A: 'A', K: 'R', Q: 'D', J: 'V', T: '10' }[ch] || ch)).join(' ')), x, y0 + 38 + j * 36));
+      return y0 + 38 + 4 * 36;
+    };
+    const top = y + 10;
+    hand('N', W / 2 - 130, top);
+    hand('O', PAD, top + 175); hand('E', W - PAD - 300, top + 175);
+    y = hand('S', W / 2 - 130, top + 350) + 20;
+    // grilles d'enchères
+    const grid = (title, calls, mark, markColor) => {
+      font(32, 800); c.fillStyle = INK; c.fillText(title, PAD, y); y += 16;
+      const cols = ['O', 'N', 'E', 'S'], cw = (W - 2 * PAD) / 4, rh = 46, start = cols.indexOf(deal.d);
+      c.fillStyle = '#eef3ef'; c.fillRect(PAD, y, W - 2 * PAD, rh);
+      font(28, 700); cols.forEach((s, k) => { c.fillStyle = INK; c.fillText(s + ' · ' + who(s), PAD + k * cw + 12, y + 32); });
+      y += rh;
+      const cells = Array(start).fill(null).concat(calls);
+      font(30, 600);
+      for (let r = 0; r * 4 < cells.length; r++) {
+        for (let k = 0; k < 4; k++) {
+          const idx = r * 4 + k, b = cells[idx]; if (b == null) continue;
+          const callIdx = idx - start, x = PAD + k * cw;
+          if (callIdx === mark) { c.fillStyle = markColor; c.fillRect(x + 4, y + 4, cw - 8, rh - 8); }
+          text(bidLabel(b), x + 14, y + 33);
+        }
+        y += rh;
+      }
+      c.strokeStyle = '#d5dbd6'; c.lineWidth = 2; c.strokeRect(PAD, y - rh * Math.ceil(cells.length / 4) - rh, W - 2 * PAD, rh * (Math.ceil(cells.length / 4) + 1));
+      y += 34;
+    };
+    grid('Notre séquence', g.calls, diverged, '#ffd9d6');
+    grid('Séquence du système', exp, diverged, '#d6f0dd');
+    if (diverged >= 0) { font(28, 700); y = wrap(`Premier écart : enchère n° ${diverged + 1} (${who(seatAt(deal, diverged))}) : ${bidLabel(g.calls[diverged])} au lieu de ${bidLabel(exp[diverged])}`, PAD, y, W - 2 * PAD, 38, RED) + 6; }
+    font(30, 800); c.fillStyle = INK; c.fillText('Explications du système', PAD, y); y += 42;
+    deal.a.forEach((e, k) => { if (!e[1]) return; font(27, k === diverged ? 700 : 400); y = wrap(`${k + 1}. ${who(seatAt(deal, k))} ${bidLabel(e[0])} : ${e[1]}`, PAD, y, W - 2 * PAD, 36, k === diverged ? RED : INK) + 4; });
+    if (deal.best) { y += 10; font(27); y = wrap(`Meilleur contrat possible : ${deal.best.c} (${deal.best.t} levées en double mort)`, PAD, y, W - 2 * PAD, 36, MUTED); }
+    y += PAD;
+    const out = document.createElement('canvas'); out.width = W; out.height = y;
+    out.getContext('2d').drawImage(cv, 0, 0);
+    const blob = await new Promise(r => out.toBlob(r, 'image/png'));
+    const file = new File([blob], `donne-${deal.n}.png`, { type: 'image/png' });
+    const msg = `Donne ${deal.n} — notre séquence : ${g.calls.map(bidLabel).join(' ')} — système : ${exp.map(bidLabel).join(' ')}\nMon avis : `;
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text: msg }); return; }
+    } catch (e) { if (e.name === 'AbortError') return; }
+    // Sans menu de partage (ordinateur) : on télécharge l'image
+    const url = URL.createObjectURL(blob), link = document.createElement('a');
+    link.href = url; link.download = file.name; document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
   }
 
   // ───── « Pas d'accord avec mon partenaire » : une discussion sur la donne, jusqu'à « on s'est mis d'accord ».

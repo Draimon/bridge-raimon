@@ -49,6 +49,9 @@
   .dsearch input { flex: 1; min-width: 0; font-size: 20px; letter-spacing: 2px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
   .dsearch .btn { width: auto; margin: 0; padding: 10px 18px; }
   .archives { margin-top: 14px; } .archives summary { cursor: pointer; font-weight: 700; padding: 10px 0; color: var(--muted); }
+  .agrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px 6px; margin: 8px 0; font-size: 15px; text-align: center; }
+  .agrid b { font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+  .agrid .ag-bad { background: #ffd9d6; border-radius: 6px; padding: 0 6px; } .agrid .ag-sys { background: #d6f0dd; border-radius: 6px; padding: 0 6px; }
   .popveil { position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; animation: fadein .2s; }
   .pop { background: var(--card); color: var(--ink); border-radius: 18px; padding: 20px 18px 14px; width: 100%; max-width: 360px; box-shadow: 0 12px 40px rgba(0,0,0,.35); text-align: center; animation: popin .25s ease-out; }
   .pop h3 { margin: 4px 0 8px; } .pop ul { text-align: left; margin: 0 0 14px; padding-left: 20px; } .pop-ico { font-size: 34px; color: var(--accent); }
@@ -364,13 +367,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610181044"></script>
-<script src="fiche.js?v=202610181044"></script>
-<script src="deals.js?v=202610181044"></script>
-<script src="deals-duo.js?v=202610181044"></script>
-<script src="dds.js?v=202610181044"></script>
-<script src="jeu.js?v=202610181044"></script>
-<script src="adeux.js?v=202610181044"></script>
+<script src="questions.js?v=202610181057"></script>
+<script src="fiche.js?v=202610181057"></script>
+<script src="deals.js?v=202610181057"></script>
+<script src="deals-duo.js?v=202610181057"></script>
+<script src="dds.js?v=202610181057"></script>
+<script src="jeu.js?v=202610181057"></script>
+<script src="adeux.js?v=202610181057"></script>
 <script>
 (() => {
   'use strict';
