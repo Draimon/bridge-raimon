@@ -367,13 +367,13 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202610181057"></script>
-<script src="fiche.js?v=202610181057"></script>
-<script src="deals.js?v=202610181057"></script>
-<script src="deals-duo.js?v=202610181057"></script>
-<script src="dds.js?v=202610181057"></script>
-<script src="jeu.js?v=202610181057"></script>
-<script src="adeux.js?v=202610181057"></script>
+<script src="questions.js?v=202610181101"></script>
+<script src="fiche.js?v=202610181101"></script>
+<script src="deals.js?v=202610181101"></script>
+<script src="deals-duo.js?v=202610181101"></script>
+<script src="dds.js?v=202610181101"></script>
+<script src="jeu.js?v=202610181101"></script>
+<script src="adeux.js?v=202610181101"></script>
 <script>
 (() => {
   'use strict';
@@ -412,6 +412,7 @@
       player = b.dataset.who;
       try { localStorage.setItem('raimon-player', player); } catch (e) { /* stockage indisponible */ }
       loadProgress(); go(home);
+      if (pendingDeal) { const n = pendingDeal; pendingDeal = null; DUO.openDeal(n); }
     }));
   }
   function record(n, ok) {
@@ -1113,7 +1114,13 @@
   checkUpdate();
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(); });
 
-  if (player) { loadProgress(); home(); } else whoAmI();
+  // Lien reçu par texto : ?donne=T078 ouvre directement la donne
+  let pendingDeal = null;
+  try {
+    const q = new URLSearchParams(location.search).get('donne');
+    if (q && /^T\d{3}$/.test(q)) { pendingDeal = q; history.replaceState(null, '', location.pathname); try { sessionStorage.setItem('raimon-duo-pop', player || ''); } catch (e) { /* stockage indisponible */ } }
+  } catch (e) { /* adresse illisible */ }
+  if (player) { loadProgress(); home(); if (pendingDeal) { const n = pendingDeal; pendingDeal = null; DUO.openDeal(n); } } else whoAmI();
 })();
 </script>
 </body>

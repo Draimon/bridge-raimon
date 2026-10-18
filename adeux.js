@@ -317,8 +317,9 @@ function createDuo(env) {
       <div class="card"><b>Séquence complète du système</b>${auctionGridHtml(deal, exp, diverged, 'sys')}
         <ol class="expl">${deal.a.map((e, k) => e[1] ? `<li value="${k + 1}" class="${k === diverged ? 'bad' : ''}"><b>${who(seatAt(deal, k))} : ${fmt(bidLabel(e[0]))}</b><br><span class="muted">${fmt(e[1])}</span></li>` : '').join('')}</ol></div>
       <div class="card"><b>Les 4 mains</b><div class="compass"><div class="cN">${mini('N')}</div><div class="cO">${mini('O')}</div><div class="cE">${mini('E')}</div><div class="cS">${mini('S')}</div></div></div>
-      <button class="btn primary center" data-act="share">📤 Envoyer la donne à ${otherName(p)}</button>
-      <p class="muted center" style="font-size:13px;margin:4px 0 12px">Une image de la donne (mains et séquences complètes) part dans Messages ou WhatsApp : tu écris ton avis avant d’envoyer.</p>
+      <div id="sms"><button class="btn primary center" data-act="sms">📱 Texto à ${otherName(p)}</button></div>
+      <p class="muted center" style="font-size:13px;margin:4px 0 12px">Le texto est déjà écrit avec le lien de la donne : tu ajoutes ton avis et tu envoies.<br>
+        <button class="link" data-act="share" style="font-size:13px">ou envoyer une image de la donne</button> · <button class="link" data-act="telchange" style="font-size:13px">numéro de ${otherName(p)}</button></p>
       ${talk(g) ? `<div id="talk">${talkHtml(p, g)}</div>` : ''}
       <div id="fix"><button class="btn center" data-act="fixopen">Pas d’accord avec l’analyse ?</button></div>
       ${undoIndex(p, g) >= 0 ? '<button class="link" data-act="undo" style="display:block;margin:12px auto">↶ Modifier ma dernière enchère</button>' : ''}`;
@@ -328,6 +329,8 @@ function createDuo(env) {
     wireNav(i);
     if (talk(g)) wireTalk(i, report);
     on('share', () => shareDeal(p, g, deal, exp, diverged));
+    on('sms', () => smsDeal(p, g, deal, exp));
+    on('telchange', () => askTel(p, g, deal, exp));
   }
 
   // Grille d'enchères à 4 colonnes O N E S, comme sur une feuille de marque
@@ -335,6 +338,45 @@ function createDuo(env) {
     const cols = ['O', 'N', 'E', 'S'], start = cols.indexOf(deal.d);
     const cells = Array(start).fill('').concat(calls.map((b, k) => `<span class="${k === mark ? (kind === 'sys' ? 'ag-sys' : 'ag-bad') : ''}">${fmt(bidLabel(b))}</span>`));
     return `<div class="agrid">${cols.map(c => `<b>${c}</b>`).join('')}${cells.map(c => `<div>${c}</div>`).join('')}</div>`;
+  }
+
+  // ───── Texto au partenaire : Messages s'ouvre avec le bon destinataire et le texte prêt (lien vers la donne).
+  // Le numéro est gardé sur ce téléphone seulement (jamais dans l'appli publique ni dans la base).
+  const telKey = other => `raimon-tel:${getPlayer()}:${other}`;
+  const getTel = other => { try { return localStorage.getItem(telKey(other)) || ''; } catch (e) { return ''; } };
+  function smsDeal(p, g, deal, exp) {
+    const other = otherName(p), tel = getTel(other);
+    if (!tel) return askTel(p, g, deal, exp);
+    const link = location.origin + location.pathname + '?donne=' + deal.n;
+    const body = `Donne ${deal.n}\nNous : ${g.calls.map(bidLabel).join(' ')}\nSystème : ${exp.map(bidLabel).join(' ')}\nVoir la donne : ${link}\n\nMon avis : `;
+    location.href = `sms:${tel}&body=${encodeURIComponent(body)}`;
+  }
+  function askTel(p, g, deal, exp) {
+    const other = otherName(p), box = document.getElementById('sms');
+    box.innerHTML = `<div class="card"><b>Numéro de portable de ${other}</b><p class="muted" style="font-size:13px;margin:4px 0 8px">Une seule fois : il reste enregistré sur ce téléphone.</p>
+      <input id="telin" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" value="${getTel(other)}" class="talkbox" style="margin-top:0">
+      <button class="btn primary center" data-act="telsave" style="margin-top:8px">Enregistrer et écrire le texto</button><p class="muted" id="telmsg" style="font-size:13px;margin:4px 0 0"></p></div>`;
+    const input = document.getElementById('telin'); input.focus();
+    on('telsave', () => {
+      let t = input.value.replace(/[^\d+]/g, '');
+      if (t.length < 10) { document.getElementById('telmsg').textContent = 'Numéro incomplet.'; return; }
+      try { localStorage.setItem(telKey(other), t); } catch (e) { /* stockage indisponible */ }
+      box.innerHTML = `<button class="btn primary center" data-act="sms">📱 Texto à ${other}</button>`;
+      on('sms', () => smsDeal(p, g, deal, exp));
+      smsDeal(p, g, deal, exp);
+    });
+  }
+  // Ouvrir une donne depuis le lien d'un texto (?donne=T078)
+  async function openDeal(n) {
+    try { await loadAll(); } catch (e) { return showError(e); }
+    for (const p of parties) {
+      const i = p.donnes.findIndex(g => g.n === n);
+      if (i < 0) continue;
+      current = p;
+      return go(() => (statusOf(p, p.donnes[i]) === 'fini' ? analysis(i) : bidView(i, null, { anim: true })));
+    }
+    await list();
+    const msg = document.getElementById('dfindmsg'); if (msg) msg.textContent = `La donne ${n} n’est pas dans tes parties.`;
   }
 
   // ───── Envoyer la donne par message : image (mains + séquence jouée + séquence complète du système) via le menu de partage
@@ -512,5 +554,5 @@ function createDuo(env) {
     return out;
   }
 
-  return { list, waitingCount, waitingDetail, wireFix, fixButtonHtml, _finished: finished, _auto: autoOpponents };
+  return { list, openDeal, waitingCount, waitingDetail, wireFix, fixButtonHtml, _finished: finished, _auto: autoOpponents };
 }
