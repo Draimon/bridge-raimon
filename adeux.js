@@ -31,7 +31,92 @@ function createDuo(env) {
     const r = await api('?pageSize=300');
     everyParty = (r.documents || []).map(dec);
     parties = everyParty.filter(p => p.nord === getPlayer() || p.sud === getPlayer()).sort((a, b) => b.created - a.created);
+    await voxLoad();
     return parties;
+  }
+
+  // ───── Messages vocaux sur une donne (collection « vocaux » : un document par message, le son en base64)
+  const VOX = FIRESTORE.base.replace('/parties', '/vocaux');
+  // un document Firestore est limité à 1 Mo : le son est découpé en morceaux (documents « <id>_1 », « <id>_2 »…)
+  const META = ['partie', 'donne', 'auteur', 'pour', 'date', 'duree', 'ecoute', 'parts', 'chunkOf'];
+  const CHUNK = 700000;
+  let voxAll = [];
+  const val = f => (f ? f.stringValue ?? (f.integerValue !== undefined ? +f.integerValue : f.booleanValue) : undefined);
+  async function voxLoad() {
+    try {
+      const r = await fetch(VOX + '?pageSize=300&' + META.map(m => 'mask.fieldPaths=' + m).join('&') + '&key=' + FIRESTORE.key);
+      if (!r.ok) { voxAll = []; return; }
+      const j = await r.json();
+      voxAll = (j.documents || []).map(d => ({ id: d.name.split('/').pop(), ...Object.fromEntries(META.map(m => [m, val((d.fields || {})[m])])) })).filter(v => !v.chunkOf);
+    } catch (e) { voxAll = []; }
+  }
+  const voxFor = (p, g) => voxAll.filter(v => v.partie === p.id && v.donne === g.n).sort((x, y) => x.date - y.date);
+  const voxNew = (p, g) => voxFor(p, g).filter(v => v.pour === getPlayer() && !v.ecoute).length;
+  async function voxSend(p, g, blob, duree) {
+    const b64 = await new Promise((ok, ko) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(',')[1]); fr.onerror = ko; fr.readAsDataURL(blob); });
+    const id = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    const pieces = []; for (let k = 0; k < b64.length; k += CHUNK) pieces.push(b64.slice(k, k + CHUNK));
+    const put = async (docId, fields) => {
+      const r = await fetch(`${VOX}?documentId=${docId}&key=${FIRESTORE.key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
+      if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
+    };
+    for (let k = 1; k < pieces.length; k++) await put(`${id}_${k}`, { chunkOf: { stringValue: id }, audio: { stringValue: pieces[k] } });
+    // le message n'apparaît qu'une fois tous les morceaux envoyés
+    await put(id, { partie: { stringValue: p.id }, donne: { stringValue: g.n }, auteur: { stringValue: getPlayer() }, pour: { stringValue: otherName(p) },
+      date: { integerValue: String(Date.now()) }, duree: { integerValue: String(duree) }, ecoute: { booleanValue: false }, parts: { integerValue: String(pieces.length) },
+      mime: { stringValue: blob.type || 'audio/mp4' }, audio: { stringValue: pieces[0] } });
+  }
+  async function voxPlay(v, audio) {
+    const get = async docId => (await (await fetch(`${VOX}/${docId}?mask.fieldPaths=audio&mask.fieldPaths=mime&key=${FIRESTORE.key}`)).json()).fields;
+    const first = await get(v.id);
+    let b64 = first.audio.stringValue;
+    for (let k = 1; k < (v.parts || 1); k++) b64 += (await get(`${v.id}_${k}`)).audio.stringValue;
+    audio.src = `data:${first.mime.stringValue};base64,${b64}`;
+    await audio.play();
+    if (v.pour === getPlayer() && !v.ecoute) {
+      v.ecoute = true;
+      fetch(`${VOX}/${v.id}?updateMask.fieldPaths=ecoute&key=${FIRESTORE.key}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: { ecoute: { booleanValue: true } } }) }).catch(() => {});
+    }
+  }
+  const mmss = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  // La zone « vocaux » de la donne : les messages, et un gros bouton pour parler (toucher pour commencer, retoucher pour envoyer)
+  function renderVox(p, g) {
+    const box = document.getElementById('vox'); if (!box) return;
+    const other = otherName(p), when = d => new Date(d).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const list = voxFor(p, g).map(v => `<div class="msg ${v.auteur === getPlayer() ? 'me' : ''}"><small>${v.auteur === getPlayer() ? 'Toi' : v.auteur} · ${when(v.date)} · ${mmss(v.duree || 0)}${v.pour === getPlayer() && !v.ecoute ? ' · <b style="color:var(--accent)">nouveau</b>' : ''}</small>
+      <button class="btn voxplay" data-play="${v.id}">▶︎ Écouter</button></div>`).join('');
+    box.innerHTML = `<div class="card"><b>🎙️ Messages vocaux avec ${other}</b><div class="msgs">${list || '<p class="muted" style="margin:4px 0">Pas encore de message sur cette donne.</p>'}</div>
+      <button class="btn primary center voxrec" data-act="rec">🎙️ Parler à ${other}</button><p class="muted center" id="voxmsg" style="font-size:13px;margin:6px 0 0">Touche, parle, puis retouche pour envoyer.</p></div>`;
+    const audio = new Audio();
+    box.querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', async () => {
+      const v = voxAll.find(x => x.id === b.dataset.play);
+      b.textContent = '… chargement';
+      try { await voxPlay(v, audio); b.textContent = '▶︎ Réécouter'; } catch (e) { b.textContent = '▶︎ Écouter'; document.getElementById('voxmsg').textContent = 'Lecture impossible (' + e.message + ').'; }
+    }));
+    box.querySelector('[data-act="rec"]').addEventListener('click', () => voxRecord(p, g));
+  }
+  let rec = null;
+  async function voxRecord(p, g) {
+    const btn = document.querySelector('[data-act="rec"]'), msg = document.getElementById('voxmsg');
+    if (rec) { rec.stop(); return; }                                   // 2e toucher : on arrête et on envoie
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) { msg.textContent = 'Micro refusé : autorise le micro pour Safari dans les réglages de l’iPhone.'; return; }
+    const mime = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'].find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || '';
+    const chunks = [], t0 = Date.now(), MAX = 120;
+    rec = new MediaRecorder(stream, { ...(mime ? { mimeType: mime } : {}), audioBitsPerSecond: 32000 });
+    rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const tick = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000); btn.textContent = `■ Envoyer (${mmss(s)})`; if (s >= MAX) rec && rec.stop(); }, 250);
+    rec.onstop = async () => {
+      clearInterval(tick); stream.getTracks().forEach(t => t.stop()); rec = null;
+      const duree = Math.round((Date.now() - t0) / 1000);
+      if (duree < 1) { renderVox(p, g); return; }
+      btn.disabled = true; btn.textContent = 'Envoi…';
+      try { await voxSend(p, g, new Blob(chunks, { type: chunks[0] ? chunks[0].type : mime || 'audio/mp4' }), duree); await voxLoad(); renderVox(p, g); document.getElementById('voxmsg').textContent = '✓ Envoyé à ' + otherName(p) + '.'; }
+      catch (e) { btn.disabled = false; btn.textContent = '🎙️ Parler à ' + otherName(p); msg.textContent = e.status === 403 ? 'La base refuse les vocaux : il manque la règle « vocaux » dans Firestore.' : 'Envoi impossible (' + e.message + ').'; }
+    };
+    rec.start(1000);
+    btn.classList.add('recording'); btn.textContent = '■ Envoyer (0:00)'; msg.textContent = 'Je t’écoute… retouche pour envoyer (2 minutes maximum).';
   }
   async function saveParty(p) {
     const { id, updateTime, ...data } = p;
@@ -73,12 +158,12 @@ function createDuo(env) {
     try { await loadAll(); } catch (e) { return showError(e); }
     const me = getPlayer();
     // Une partie dont les 10 donnes sont finies (et sans message en attente) passe dans les archives.
-    const archived = p => p.donnes.every(g => statusOf(p, g) === 'fini') && !p.donnes.some(unread);
+    const archived = p => p.donnes.every(g => statusOf(p, g) === 'fini') && !p.donnes.some(g => unread(g) || voxNew(p, g));
     const row = p => {
       const st = p.donnes.map(g => statusOf(p, g));
-      const mine = st.filter(s => s === 'moi').length, done = st.filter(s => s === 'fini').length, msgs = p.donnes.filter(unread).length;
+      const mine = st.filter(s => s === 'moi').length, done = st.filter(s => s === 'fini').length, msgs = p.donnes.filter(unread).length + p.donnes.reduce((t, g) => t + voxNew(p, g), 0);
       return `<button class="btn" data-party="${p.id}">Avec <b>${otherName(p)}</b> (toi ${seatOfPlayer(p) === 'N' ? 'Nord' : 'Sud'})
-        <small>${done}/${p.donnes.length} terminées${mine ? ` · <b style="color:var(--accent)">${mine} à toi</b>` : ''}${msgs ? ` · <b style="color:var(--accent)">💬 ${msgs} message${msgs > 1 ? 's' : ''}</b>` : ''} · ${new Date(p.created).toLocaleDateString('fr-FR')}</small></button>`;
+        <small>${done}/${p.donnes.length} terminées${mine ? ` · <b style="color:var(--accent)">${mine} à toi</b>` : ''}${msgs ? ` · <b style="color:var(--accent)">🎙️ ${msgs} message${msgs > 1 ? 's' : ''}</b>` : ''} · ${new Date(p.created).toLocaleDateString('fr-FR')}</small></button>`;
     };
     const rows = parties.filter(p => !archived(p)).map(row).join('');
     const arch = parties.filter(archived);
@@ -146,7 +231,8 @@ function createDuo(env) {
     const rows = p.donnes.map((g, i) => {
       const st = statusOf(p, g);
       const t = talk(g);
-      const lab = st === 'fini' ? (unread(g) ? `<b style="color:var(--accent)">💬 Message de ${otherName(p)}</b>` : t && !t.accord ? '💬 En discussion' : t ? '✓ Terminée · vous vous êtes mis d’accord' : '✓ Terminée : voir l’analyse') :st === 'moi' ? '<b style="color:var(--accent)">À toi d’enchérir</b>' : `Au tour de ${otherName(p)}`;
+      const nv = voxNew(p, g);
+      const lab = st === 'fini' && nv ? `<b style="color:var(--accent)">🎙️ ${nv} message${nv > 1 ? 's' : ''} vocal${nv > 1 ? 'aux' : ''} de ${otherName(p)}</b>` : st === 'fini' ? (unread(g) ? `<b style="color:var(--accent)">💬 Message de ${otherName(p)}</b>` : t && !t.accord ? '💬 En discussion' : t ? '✓ Terminée · vous vous êtes mis d’accord' : '✓ Terminée : voir l’analyse') :st === 'moi' ? '<b style="color:var(--accent)">À toi d’enchérir</b>' : `Au tour de ${otherName(p)}`;
       return `<button class="btn ${st === 'lui' ? 'waiting' : ''}" data-g="${i}">Donne n° ${g.n}<small>${lab}${st === 'lui' && undoIndex(p, g) >= 0 ? ' · tu peux encore modifier ton enchère' : ''}</small></button>`;
     }).join('');
     app.innerHTML = topbar('Avec ' + otherName(p), 'Parties', SYS_BTN) + rows + '<p class="center"><button class="link" data-act="refresh">↻ Actualiser</button></p>';
@@ -317,9 +403,9 @@ function createDuo(env) {
       <div class="card"><b>Séquence complète du système</b>${auctionGridHtml(deal, exp, diverged, 'sys')}
         <ol class="expl">${deal.a.map((e, k) => e[1] ? `<li value="${k + 1}" class="${k === diverged ? 'bad' : ''}"><b>${who(seatAt(deal, k))} : ${fmt(bidLabel(e[0]))}</b><br><span class="muted">${fmt(e[1])}</span></li>` : '').join('')}</ol></div>
       <div class="card"><b>Les 4 mains</b><div class="compass"><div class="cN">${mini('N')}</div><div class="cO">${mini('O')}</div><div class="cE">${mini('E')}</div><div class="cS">${mini('S')}</div></div></div>
-      <div id="sms"><button class="btn primary center" data-act="sms">📱 Texto à ${otherName(p)}</button></div>
-      <p class="muted center" style="font-size:13px;margin:4px 0 12px">Le texto est déjà écrit avec le lien de la donne : tu ajoutes ton avis et tu envoies.<br>
-        <button class="link" data-act="share" style="font-size:13px">ou envoyer une image de la donne</button> · <button class="link" data-act="telchange" style="font-size:13px">numéro de ${otherName(p)}</button></p>
+      <div id="vox"></div>
+      <div id="sms"></div>
+      <p class="muted center" style="font-size:13px;margin:4px 0 12px"><button class="link" data-act="sms" style="font-size:13px">📱 texto</button> · <button class="link" data-act="share" style="font-size:13px">image de la donne</button> · <button class="link" data-act="telchange" style="font-size:13px">numéro de ${otherName(p)}</button></p>
       ${talk(g) ? `<div id="talk">${talkHtml(p, g)}</div>` : ''}
       <div id="fix"><button class="btn center" data-act="fixopen">Pas d’accord avec l’analyse ?</button></div>
       ${undoIndex(p, g) >= 0 ? '<button class="link" data-act="undo" style="display:block;margin:12px auto">↶ Modifier ma dernière enchère</button>' : ''}`;
@@ -328,6 +414,7 @@ function createDuo(env) {
     on('undo', () => undo(i));
     wireNav(i);
     if (talk(g)) wireTalk(i, report);
+    renderVox(p, g);
     on('share', () => shareDeal(p, g, deal, exp, diverged));
     on('sms', () => smsDeal(p, g, deal, exp));
     on('telchange', () => askTel(p, g, deal, exp));
@@ -361,8 +448,7 @@ function createDuo(env) {
       let t = input.value.replace(/[^\d+]/g, '');
       if (t.length < 10) { document.getElementById('telmsg').textContent = 'Numéro incomplet.'; return; }
       try { localStorage.setItem(telKey(other), t); } catch (e) { /* stockage indisponible */ }
-      box.innerHTML = `<button class="btn primary center" data-act="sms">📱 Texto à ${other}</button>`;
-      on('sms', () => smsDeal(p, g, deal, exp));
+      box.innerHTML = '';
       smsDeal(p, g, deal, exp);
     });
   }
@@ -539,12 +625,15 @@ function createDuo(env) {
   // Nombre de donnes qui attendent le joueur (pour l'accueil)
   async function waitingCount() {
     try { await loadAll(); } catch (e) { return 0; }
-    return parties.reduce((t, p) => t + p.donnes.filter(g => statusOf(p, g) === 'moi' || unread(g)).length, 0);
+    return parties.reduce((t, p) => t + p.donnes.filter(g => statusOf(p, g) === 'moi' || unread(g) || voxNew(p, g)).length, 0);
   }
 
   async function waitingDetail() {
-    const out = { total: 0, byPartner: {} };
+    const out = { total: 0, byPartner: {}, vox: [] };
     try { await loadAll(); } catch (e) { return out; }
+    const seen = new Set();
+    voxAll.filter(v => v.pour === getPlayer() && !v.ecoute).forEach(v => { const k = v.auteur + v.donne; if (!seen.has(k)) { seen.add(k); out.vox.push({ from: v.auteur, n: v.donne }); } });
+    out.total += out.vox.length;
     for (const p of parties) {
       const bids = p.donnes.filter(g => statusOf(p, g) === 'moi').length, msgs = p.donnes.filter(unread).length;
       if (!bids && !msgs) continue;
