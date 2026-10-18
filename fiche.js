@@ -12,6 +12,7 @@ const FICHE = {
       'HLD sans fit : les H + 1 point par carte au-delà de la 4e.',
       'HLD avec un fit, main de base (celle qui a nommé la couleur) : les H + chicane 3, singleton 2, doubleton 1 ; on ne compte plus la longueur.',
       'HLD avec un fit, main de soutien : les H + chicane 5, singleton 3, doubleton 1, et les atouts au-delà du fit de 8 : le 1er compte 2, les suivants 1 (6 cartes face à 1♠ = 2 + 1 + 1 = 4 points).',
+      'Honneur prenable dans une courte (Roi sec, Dame sèche, Valet second… ; pas l’As ni le Roi de AR) : on compte soit les points de l’honneur, soit ceux de la courte, le plus élevé des deux, jamais les deux (Dame sèche en main de soutien = 3, Dame seconde = 2).',
       '2SA d’ouverture = 20-21H (les 22-23H passent par le 2♦ Multi).',
       '2♣ Albaran = forcing de manche (l’équivalent du 2♦ FM du SEF).',
       '« Fort » sur 2♥/2♠ = l’équivalent du 2♣ fort indéterminé du SEF ; « fort + singleton » = singleton non précisé.',
@@ -54,6 +55,7 @@ const FICHE = {
       'À l’ouverture avec 4♣/4♦ = 1♦. En majeure et en mineure, à égalité de longueur : la plus chère.',
       '<b>Copenhague</b> (bicolore du n°2, ou du n°4 après 1x – passe – 1SA) : 2SA = les 2 moins chères, 3♣ = les extrêmes, 3♦ = les 2 plus chères.',
       'Sur 2SA Copenhague, 4SA du partenaire = « choisis » (en général les mineures au palier de 5).',
+      'Sur Copenhague, sans fit (2 cartes au plus dans les deux couleurs promises) et avec les arrêts dans les deux autres : 3SA.',
     ],
   },
   multi: {

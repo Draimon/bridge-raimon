@@ -56,7 +56,7 @@
    ],
    [
     "3♠",
-    "Fit 4-4 et 10 HLD : proposition"
+    "Fit 4-4 et 9 HLD : proposition"
    ],
    [
     "P"
@@ -4131,7 +4131,7 @@
    ],
    [
     "2♠",
-    "Soutien simple : fit ♠, 6-10 HLD (10)"
+    "Soutien simple : fit ♠, 6-10 HLD (9)"
    ],
    [
     "P"
@@ -4227,7 +4227,7 @@
    ],
    [
     "4♠",
-    "Oklahoma : fit ♠, 0 ou 1 carte clé (15 HLD)"
+    "Oklahoma : fit ♠, 0 ou 1 carte clé (14 HLD)"
    ],
    [
     "P"
@@ -4454,21 +4454,14 @@
    ],
    [
     "2♠",
-    "Soutien simple : fit ♠, 6-10 HLD (8)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3♠",
-    "15 HLD : proposition de manche"
+    "Soutien simple : fit ♠, 6-10 HLD (7)"
    ],
    [
     "P"
    ],
    [
     "P",
-    "8 HLD : tu refuses"
+    "13 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -4716,7 +4709,7 @@
    ],
    [
     "P",
-    "13 HLD : pas de manche, il passe"
+    "12 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -4865,45 +4858,6 @@
    ],
    [
     "4♥",
-    "15 HLD face à 11-12 : la manche"
-   ],
-   [
-    "P"
-   ],
-   [
-    "P",
-    ""
-   ],
-   [
-    "P"
-   ]
-  ]
- },
- {
-  "n": 215,
-  "t": "Robot · Shadow fit",
-  "d": "N",
-  "N": "KJ543.92.AJ3.A62",
-  "E": "AQ.Q854.T5.QT975",
-  "S": "T86.763.KQ9842.K",
-  "O": "972.AKJT.76.J843",
-  "a": [
-   [
-    "1♠",
-    "Ouverture, 5 cartes à ♠"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3♣",
-    "Shadow fit : fit ♠ par 3 cartes, 8H et plus, zone 11-12 HLD"
-   ],
-   [
-    "P"
-   ],
-   [
-    "4♠",
     "14 HLD face à 11-12 : la manche"
    ],
    [
@@ -4919,8 +4873,40 @@
   ]
  },
  {
+  "n": 215,
+  "t": "Robot · Soutien majeur",
+  "d": "N",
+  "N": "KJ543.92.AJ3.A62",
+  "E": "AQ.Q854.T5.QT975",
+  "S": "T86.763.KQ9842.K",
+  "O": "972.AKJT.76.J843",
+  "a": [
+   [
+    "1♠",
+    "Ouverture, 5 cartes à ♠"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2♠",
+    "Soutien simple : fit ♠, 6-10 HLD (8)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "P",
+    "14 HLD : pas de manche, il passe"
+   ],
+   [
+    "P"
+   ]
+  ]
+ },
+ {
   "n": 216,
-  "t": "Robot · Shadow fit",
+  "t": "Robot · Enchère d’essai",
   "d": "N",
   "N": "AK.KJ942.KT965.4",
   "E": "QJ643.5.Q8732.J7",
@@ -4935,22 +4921,29 @@
     "P"
    ],
    [
-    "3♣",
-    "Shadow fit : fit ♥ par 3 cartes, 8H et plus, zone 11-12 HLD"
+    "2♥",
+    "Soutien simple : fit ♥, 6-10 HLD (10)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♦",
+    "Essai : 5 cartes à ♦ (17 HLD)"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "17 HLD face à 11-12 : la manche"
+    "10 HLD, haut de zone : la manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "Manche"
    ],
    [
     "P"
@@ -4959,7 +4952,7 @@
  },
  {
   "n": 217,
-  "t": "Robot · Shadow fit",
+  "t": "Robot · Soutien majeur",
   "d": "N",
   "N": "K3.KQ9652.7.AJ53",
   "E": "A972.J4.J652.982",
@@ -4974,15 +4967,22 @@
     "P"
    ],
    [
-    "3♣",
-    "Shadow fit : fit ♥ par 3 cartes, 8H et plus, zone 11-12 HLD"
+    "2♥",
+    "Soutien simple : fit ♥, 6-10 HLD (10)"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♥",
+    "15 HLD : proposition de manche"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "16 HLD face à 11-12 : la manche"
+    "10 HLD : tu acceptes"
    ],
    [
     "P"
@@ -5244,7 +5244,7 @@
    ],
    [
     "4♠",
-    "15 HLD face à 11-12 : la manche"
+    "14 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -5329,7 +5329,7 @@
    ],
    [
     "2♥",
-    "Soutien simple : fit ♥, 6-10 HLD (8)"
+    "Soutien simple : fit ♥, 6-10 HLD (7)"
    ],
    [
     "P"
@@ -5343,7 +5343,7 @@
    ],
    [
     "P",
-    "8 HLD : tu refuses"
+    "7 HLD : tu refuses"
    ],
    [
     "P"
@@ -5916,7 +5916,7 @@
    ],
    [
     "4♥",
-    "19 HLD face à 11-12 : la manche"
+    "18 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -6554,7 +6554,7 @@
  },
  {
   "n": 250,
-  "t": "Robot · Shadow fit",
+  "t": "Robot · Soutien majeur",
   "d": "N",
   "N": "AK765.Q8.T764.AJ",
   "E": "T.T7643.KJ.KQ853",
@@ -6569,22 +6569,15 @@
     "P"
    ],
    [
-    "3♠",
-    "Shadow fit : fit ♠ avec moins de 8H, zone 11-12 HLD"
-   ],
-   [
-    "P"
-   ],
-   [
-    "4♠",
-    "16 HLD face à 11-12 : la manche"
+    "2♠",
+    "Soutien simple : fit ♠, 6-10 HLD (10)"
    ],
    [
     "P"
    ],
    [
     "P",
-    ""
+    "14 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -6632,7 +6625,7 @@
  },
  {
   "n": 252,
-  "t": "Robot · Enchère d’essai",
+  "t": "Robot · Mineure – majeure",
   "d": "N",
   "N": "K862.A953.A4.T62",
   "E": "3.J6.QT852.AK974",
@@ -6661,22 +6654,8 @@
     "P"
    ],
    [
-    "2SA",
-    "Essai généralisé (11 HLD)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3♠",
-    "12 HLD, bas de zone : tu refuses"
-   ],
-   [
-    "P"
-   ],
-   [
     "P",
-    "Refus : on joue 3♠"
+    "Pas de manche : tu passes"
    ],
    [
     "P"
@@ -6708,7 +6687,7 @@
    ],
    [
     "4♥",
-    "16 HLD face à 11-12 : la manche"
+    "15 HLD face à 11-12 : la manche"
    ],
    [
     "P"
@@ -6912,15 +6891,8 @@
     "P"
    ],
    [
-    "3♠",
-    "16 HLD : proposition de manche"
-   ],
-   [
-    "P"
-   ],
-   [
     "P",
-    "6 HLD : tu refuses"
+    "14 HLD : pas de manche, il passe"
    ],
    [
     "P"
@@ -7044,7 +7016,7 @@
    ],
    [
     "2♥",
-    "Fit ♥, 11-16 HLD (12)"
+    "Fit ♥, 11-16 HLD (11)"
    ],
    [
     "P"
@@ -7058,7 +7030,7 @@
    ],
    [
     "3♥",
-    "12 HLD, bas de zone : tu refuses"
+    "11 HLD, bas de zone : tu refuses"
    ],
    [
     "P"
@@ -7743,8 +7715,8 @@
     "P"
    ],
    [
-    "4♥",
-    "Il choisit les ♥ et a de quoi jouer la manche"
+    "3SA",
+    "Pas de fit (2 cartes au plus dans tes deux couleurs) et les arrêts dans les deux autres : 3SA"
    ],
    [
     "P"
@@ -7949,7 +7921,7 @@
    ],
    [
     "3♥",
-    "15 HLD : proposition"
+    "14 HLD : proposition"
    ],
    [
     "P"

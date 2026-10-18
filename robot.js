@@ -27,7 +27,8 @@
     let p = e.hcp;
     if (fit === undefined) { e.len.forEach(l => { if (l > 4) p += l - 4; }); return p; }
     const sup = known !== undefined, short = sup ? [5, 3, 1] : [3, 2, 1];
-    e.len.forEach((l, i) => { if (i !== fit && l <= 2) p += short[l]; });
+    // honneur prenable dans une courte (Roi sec, Dame sèche, Valet second… ; pas l'As ni le Roi de AR) : on compte le plus fort des deux, pas les deux
+    e.len.forEach((l, i) => { if (i !== fit && l <= 2) { const sp = e.parts[i], hp = sp.split('').reduce((t, c) => t + (c === 'A' || (c === 'K' && sp.includes('A')) ? 0 : HCP[c] || 0), 0); p += Math.max(hp, short[l]) - hp; } });
     if (sup) { const extra = e.len[fit] + known - 8; if (extra > 0) p += 2 + (extra - 1); }
     return p;
   }
@@ -802,6 +803,10 @@
     const A = [['1' + X, 'Ouverture (adversaire)'], [pr[2], `Copenhague : bicolore 5/5 ${SUIT[pr[0]]} + ${SUIT[pr[1]]} (${pr[3]})`], ['P']];
     const P = () => A.push(['P']);
     const res = () => ({ d: 'E', a: closeAuction(A), theme: 'Copenhague' });
+    const others = [0, 1, 2, 3].filter(i => i !== pr[0] && i !== pr[1]);
+    if (n.len[pr[0]] <= 2 && n.len[pr[1]] <= 2 && n.hcp >= 12 && others.every(i => stop(n, i)) && rankOf('3SA') > rankOf(pr[2])) {
+      A.push(['3SA', `Pas de fit (2 cartes au plus dans tes deux couleurs) et les arrêts dans les deux autres : 3SA`]); P(); A.push(['P']); P(); return res();
+    }
     const pick = [pr[0], pr[1]].sort((a, b) => n.len[b] - n.len[a] || a - b)[0];
     const Y = SUIT[pick];
     if (pick <= 1 && hld(n, pick, 5) >= 12) { A.push(['4' + Y, `Il choisit les ${Y} et a de quoi jouer la manche`]); P(); A.push(['P']); P(); return res(); }

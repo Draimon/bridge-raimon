@@ -45,7 +45,6 @@ n°239 Robot · Oklahoma – chelem : 5♠ (+480) alors que 6♠ par N rapporte 
 n°241 Robot · Chelem sur 1SA : 4SA (+490) alors que 6SA par N rapporte +990 — 1SA 2♣ 2♠ 4SA P
 n°242 Robot · Chelem sur 1SA : 6SA (+990) alors que 7♣ par N rapporte +1440 — 1SA 2♣ 2♠ 4SA 6SA
 n°246 Robot · Chelem sur 1SA : 6SA (+1020) alors que 7SA par S rapporte +1520 — 1SA 2♣ 2♠ 6SA
-n°250 Robot · Shadow fit : 4♠ (-100) alors que 2♠ par N rapporte +110 — 1♠ 3♠ 4♠
 n°251 Robot · Soutien majeur : 3♥ (+140) alors que 3SA par N rapporte +400 — 1♥ 2♥ 3♥ P
 n°254 Robot · 2 sur 1 : 2SA (+150) alors que 3SA par N rapporte +400 — 1♠ 2♣ 2♥ 2SA P
 n°255 Robot · Enchère d’essai : 4♠ (-100) alors que 2♠ par S rapporte +110 — 1♣ 1♠ 2♠ 2SA 3♠ 4♠
