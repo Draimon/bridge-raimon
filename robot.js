@@ -502,7 +502,7 @@
   }
 
   // 4e couleur forcing (1m – 1M – 1M' – 2/3x) : main irrégulière de manche, on ne saute pas aux SA.
-  // L'ouvreur répond : 3 cartes dans la majeure du répondant, puis l'arrêt dans la 4e couleur (SA), puis 4 cartes dans la 4e couleur, puis sa mineure 5e.
+  // L'ouvreur répond : 3 cartes dans la majeure du répondant, puis l'arrêt dans la 4e couleur (SA) s'il est régulier, puis 4 cartes dans la 4e couleur, puis sa mineure 5e (Damien, 20/10/2026).
   function fourthSuit(n, s, m, M, A, add) {
     const Ms = NAMES[M], x = [3, 2].find(i => i !== m), X = NAMES[x];
     const b4 = (rankOf('2' + X) > rankOf('1♠') ? '2' : '3') + X;
@@ -510,9 +510,10 @@
     A.theme = '4e couleur';
     let reb;
     if (n.len[M] >= 3) reb = [(n.hcp <= 14 ? '2' : '3') + Ms, `3 cartes à ${Ms}`];
-    else if (stop(n, x)) reb = [n.hcp <= 14 ? '2SA' : '3SA', `Arrêt ${X}`];
-    else if (n.len[x] >= 4) reb = ['3' + X, `4 cartes à ${X}`];
+    else if (stop(n, x) && n.balanced) reb = [n.hcp <= 14 ? '2SA' : '3SA', `Arrêt ${X}`];
+    else if (n.len[x] >= 4) reb = ['3' + X, `4 cartes à ${X}${stop(n, x) ? ' (main irrégulière : pas de SA)' : ''}`];
     else if (n.len[m] >= 5) reb = ['3' + NAMES[m], `5 cartes à ${NAMES[m]}`];
+    else if (stop(n, x)) reb = [n.hcp <= 14 ? '2SA' : '3SA', `Arrêt ${X}`];
     else return null;
     if (rankOf(reb[0]) <= rankOf(b4)) reb[0] = (+reb[0][0] + 1) + reb[0].slice(1);
     add(reb[0], reb[1]);
