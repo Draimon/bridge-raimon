@@ -9,6 +9,8 @@ const FICHE = {
       '1SA = 15-17H. Stayman à 3 réponses + petit Stayman (moins de 8H avec 4♥ et 4♠ : sur 2♦, 2♥ passe ou corrige).',
       'Sur 1SA sans majeure : 2SA = 8H (proposition), 3SA = 9 à 14H.',
       '1♥ – 1♠ puis 3♠ (saut) = 6 cartes à ♠ et 9-10H, non forcing ; 1♥ – 1♠ puis 2♠ = faible.',
+      'Sur 1♣, avec 4 cartes à ♦ et une majeure 4e : on annonce en montant (1♦ d’abord). Le 1SA de l’ouvreur dénie alors 4 cartes à ♥ et à ♠.',
+      'Main irrégulière de manche : jamais de SA direct, on passe par la 4e couleur forcing (ex. 1♦ – 1♥ – 1♠ – 2♣). L’ouvreur montre alors 3 cartes dans la majeure du répondant, sinon l’arrêt (SA), sinon 4 cartes dans la 4e couleur.',
       'HLD sans fit : les H + 1 point par carte au-delà de la 4e.',
       'HLD avec un fit, main de base (celle qui a nommé la couleur) : les H + chicane 3, singleton 2, doubleton 1 ; on ne compte plus la longueur.',
       'HLD avec un fit, main de soutien : les H + chicane 5, singleton 3, doubleton 1, et les atouts au-delà du fit de 8 : le 1er compte 2, les suivants 1 (6 cartes face à 1♠ = 2 + 1 + 1 = 4 points).',

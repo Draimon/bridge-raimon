@@ -102,7 +102,7 @@
  },
  {
   "n": "T003",
-  "t": "Mineure – majeure",
+  "t": "1♣ – 1♦",
   "d": "N",
   "v": "all",
   "N": "954.AJ5.K83.KJ63",
@@ -118,8 +118,8 @@
     "P"
    ],
    [
-    "1♥",
-    "4 cartes à ♥"
+    "1♦",
+    "4 cartes à ♦ et une majeure 4e : on annonce en montant"
    ],
    [
     "P"
@@ -299,8 +299,8 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition (11-12H)"
+    "3♣",
+    "Fit ♣ (4 cartes), main irrégulière de proposition (11-12H)"
    ],
    [
     "P"
@@ -1054,7 +1054,7 @@
  },
  {
   "n": "T024",
-  "t": "Enchère d’essai",
+  "t": "1♣ – 1♦",
   "d": "N",
   "v": "none",
   "N": "AJ84.75.K5.KQ842",
@@ -1070,6 +1070,13 @@
     "P"
    ],
    [
+    "1♦",
+    "4 cartes à ♦ et une majeure 4e : on annonce en montant"
+   ],
+   [
+    "P"
+   ],
+   [
     "1♠",
     "4 cartes à ♠"
    ],
@@ -1077,29 +1084,8 @@
     "P"
    ],
    [
-    "2♠",
-    "Fit ♠, 11-16 HLD (14)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "2SA",
-    "Essai généralisé (13 HLD)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3♣",
-    "14 HLD, milieu de zone : une force à ♣"
-   ],
-   [
-    "P"
-   ],
-   [
     "4♠",
-    "Assez pour la manche"
+    "Fit ♠ et 13 HLD : la manche"
    ],
    [
     "P"
@@ -1803,8 +1789,8 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition (11-12H)"
+    "3♣",
+    "Fit ♣ (4 cartes), main irrégulière de proposition (11-12H)"
    ],
    [
     "P"
@@ -5845,7 +5831,7 @@
  },
  {
   "n": "T129",
-  "t": "Mineure – majeure",
+  "t": "4e couleur",
   "d": "N",
   "v": "none",
   "N": "A962.7.QJT3.KJ86",
@@ -5875,8 +5861,22 @@
     "P"
    ],
    [
-    "3SA",
-    "Pas de fit, la manche"
+    "2♣",
+    "4e couleur forcing : main irrégulière de manche, on ne va pas directement à SA"
+   ],
+   [
+    "P"
+   ],
+   [
+    "2SA",
+    "Arrêt ♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "4♥",
+    "6 cartes à ♥ : la manche"
    ],
    [
     "P"
@@ -6176,8 +6176,8 @@
     "P"
    ],
    [
-    "2SA",
-    "Proposition (11-12H)"
+    "3♦",
+    "7 cartes à ♦, main irrégulière de proposition (11-12H)"
    ],
    [
     "P"
@@ -6287,7 +6287,7 @@
  },
  {
   "n": "T139",
-  "t": "Mineure – majeure",
+  "t": "1♣ – 1♦",
   "d": "N",
   "v": "all",
   "N": "932.AK.A43.QT873",
@@ -6303,8 +6303,8 @@
     "P"
    ],
    [
-    "1♠",
-    "4 cartes à ♠"
+    "1♦",
+    "4 cartes à ♦ et une majeure 4e : on annonce en montant"
    ],
    [
     "P"
@@ -6856,7 +6856,7 @@
  },
  {
   "n": "T152",
-  "t": "Mineure – majeure",
+  "t": "1♣ – 1♦",
   "d": "N",
   "v": "all",
   "N": "AQJT.QJ.8.AQJT74",
@@ -6872,8 +6872,8 @@
     "P"
    ],
    [
-    "1♥",
-    "4 cartes à ♥"
+    "1♦",
+    "4 cartes à ♦ et une majeure 4e : on annonce en montant"
    ],
    [
     "P"
@@ -6887,7 +6887,7 @@
    ],
    [
     "3SA",
-    "Pas de fit, la manche"
+    "La manche à SA"
    ],
    [
     "P"
@@ -7041,53 +7041,6 @@
    [
     "3SA",
     "Fit mineur mais la manche à SA"
-   ],
-   [
-    "P"
-   ],
-   [
-    "P",
-    ""
-   ],
-   [
-    "P"
-   ]
-  ]
- },
- {
-  "n": "T157",
-  "t": "1♣ – 1♦",
-  "d": "N",
-  "v": "none",
-  "N": "QJ53.Q5.K.AKQ963",
-  "E": "T42.AJT83.32.J74",
-  "S": "K7.K97.AQJT86.T8",
-  "O": "A986.642.9754.52",
-  "a": [
-   [
-    "1♣",
-    "Ouverture, meilleure mineure"
-   ],
-   [
-    "P"
-   ],
-   [
-    "1♦",
-    "4 cartes ou plus à ♦ (pas de majeure 4e)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "1♠",
-    "4 cartes à ♠"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3SA",
-    "La manche à SA"
    ],
    [
     "P"
@@ -10267,7 +10220,7 @@
  },
  {
   "n": "T227",
-  "t": "Enchère d’essai",
+  "t": "1♣ – 1♦",
   "d": "N",
   "v": "none",
   "N": "Q843.J842.A7.AT5",
@@ -10283,8 +10236,22 @@
     "P"
    ],
    [
+    "1♦",
+    "4 cartes à ♦ et une majeure 4e : on annonce en montant"
+   ],
+   [
+    "P"
+   ],
+   [
+    "1♥",
+    "4 cartes à ♥"
+   ],
+   [
+    "P"
+   ],
+   [
     "1♠",
-    "4 cartes à ♠"
+    "4 cartes à ♠ : on continue en montant"
    ],
    [
     "P"
@@ -10297,22 +10264,15 @@
     "P"
    ],
    [
-    "2SA",
-    "Essai généralisé (12 HLD)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "3♠",
-    "12 HLD, bas de zone : tu refuses"
+    "4♠",
+    "13 HLD : la manche"
    ],
    [
     "P"
    ],
    [
     "P",
-    "Refus : on joue 3♠"
+    ""
    ],
    [
     "P"

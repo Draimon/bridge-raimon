@@ -1,10 +1,10 @@
-n°T003 Mineure – majeure : 1SA (-150) alors que 2♣ par N rapporte +90 — 1♣ 1♥ 1SA P
+n°T003 1♣ – 1♦ : 1SA (-150) alors que 2♣ par N rapporte +90 — 1♣ 1♦ 1SA P
 n°T006 Mineure – majeure : 4♠ (+480) alors que 6♠ par N rapporte +980 — 1♦ 1♥ 1♠ 4♠
 n°T012 Mineure – majeure : 3SA (-100) alors que 3♥ par S rapporte +140 — 1♦ 1♥ 1♠ 3SA
 n°T016 2 sur 1 : 6♠ (-50) alors que 4♠ par N rapporte +450 — 1♠ 2♥ 2♠ 4SA 5♦ 6♠
 n°T025 Roudy : 4♠ (+480) alors que 6SA par S rapporte +990 — 1♦ 1♠ 1SA 2♣ 2♠ 4♠
 n°T028 Soutien mineur : 2♣ (+130) alors que 3SA par N rapporte +400 — 1♣ 2♣ P
-n°T039 1♣ – 1♦ : 2SA (+120) alors que 5♣ par S rapporte +400 — 1♣ 1♦ 1♥ 2SA P
+n°T039 1♣ – 1♦ : 3♣ (+150) alors que 5♣ par S rapporte +400 — 1♣ 1♦ 1♥ 3♣ P
 n°T045 Enchère d’essai : 4♠ (+480) alors que 6♠ par S rapporte +980 — 1♦ 1♠ 2♠ 2SA 3♦ 4♠
 n°T049 2 sur 1 : 3SA (-100) alors que 4♣ par S rapporte +130 — 1♥ 2♣ 3♣ 3SA
 n°T053 Texas sur 2SA : 4♥ (+480) alors que 6♥ par S rapporte +980 — 2SA 3♦ 3♥ 3SA 4♥
@@ -39,7 +39,7 @@ n°T143 Texas sur 2SA : 3♥ (+170) alors que 4♥ par S rapporte +420 — 2SA 3
 n°T145 1♣ – 1♦ : 1SA (+150) alors que 3SA par N rapporte +400 — 1♣ 1♦ 1♥ 1SA
 n°T149 Mineure – majeure : 3SA (-50) alors que 5♦ par N rapporte +400 — 1♦ 1♥ 2♣ 2SA 3SA
 n°T150 2 sur 1 : 3♠ (+170) alors que 4♠ par N rapporte +420 — 1♠ 2♣ 2♠ 2SA 3♠
-n°T152 Mineure – majeure : 3SA (+520) alors que 7SA par N rapporte +1520 — 1♣ 1♥ 1♠ 3SA
+n°T152 1♣ – 1♦ : 3SA (+520) alors que 7SA par N rapporte +1520 — 1♣ 1♦ 1♠ 3SA
 n°T156 2 sur 1 : 3SA (+430) alors que 7♣ par S rapporte +1440 — 1♠ 2♣ 3♣ 3SA
 n°T164 2 sur 1 : 3SA (+460) alors que 6SA par N rapporte +990 — 1♠ 2♦ 2♠ 3SA
 n°T167 2 sur 1 : 2SA (-150) alors que 3♦ par S rapporte +110 — 1♥ 2♦ 2♥ 2SA P

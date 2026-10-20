@@ -501,6 +501,27 @@
     return null;
   }
 
+  // 4e couleur forcing (1m – 1M – 1M' – 2/3x) : main irrégulière de manche, on ne saute pas aux SA.
+  // L'ouvreur répond : 3 cartes dans la majeure du répondant, puis l'arrêt dans la 4e couleur (SA), puis 4 cartes dans la 4e couleur, puis sa mineure 5e.
+  function fourthSuit(n, s, m, M, A, add) {
+    const Ms = NAMES[M], x = [3, 2].find(i => i !== m), X = NAMES[x];
+    const b4 = (rankOf('2' + X) > rankOf('1♠') ? '2' : '3') + X;
+    add(b4, `4e couleur forcing : main irrégulière de manche, on ne va pas directement à SA`);
+    A.theme = '4e couleur';
+    let reb;
+    if (n.len[M] >= 3) reb = [(n.hcp <= 14 ? '2' : '3') + Ms, `3 cartes à ${Ms}`];
+    else if (stop(n, x)) reb = [n.hcp <= 14 ? '2SA' : '3SA', `Arrêt ${X}`];
+    else if (n.len[x] >= 4) reb = ['3' + X, `4 cartes à ${X}`];
+    else if (n.len[m] >= 5) reb = ['3' + NAMES[m], `5 cartes à ${NAMES[m]}`];
+    else return null;
+    if (rankOf(reb[0]) <= rankOf(b4)) reb[0] = (+reb[0][0] + 1) + reb[0].slice(1);
+    add(reb[0], reb[1]);
+    if (reb[1].startsWith('3 cartes') || s.len[M] >= 6) { if (hld(s, M) + 14 >= 32) return null; add('4' + Ms, reb[1].startsWith('3 cartes') ? `Fit ${Ms} : la manche` : `${s.len[M]} cartes à ${Ms} : la manche`); add('P'); return A; }
+    if (reb[0] === '2SA') { add('3SA', 'Il a l’arrêt : 3SA'); add('P'); return A; }
+    if (reb[0] === '3SA') { add('P'); return A; }
+    return null;
+  }
+
   function afterMinor(n, s, m) {
     const ms = NAMES[m];
     const why0 = m === 2 ? (n.d >= 4 ? 'Ouverture, 4 cartes ou plus à ♦' : '4-4 en majeures et 3 cartes à ♦ : 1♦') : 'Ouverture, meilleure mineure';
@@ -508,8 +529,10 @@
     const add = (b, why) => A.push([b, why || '']);
     const r = s.hcp;
     if (r < 6) { add('P', 'Moins de 6H : tu passes'); A.theme = 'Ouverture mineure'; return A; }
+    // Sur 1♣ avec 4♦ et une majeure seulement 4e : on annonce « en montant », 1♦ d'abord (donne T003)
+    const upLine = m === 3 && s.d === 4 && s.h <= 4 && s.s <= 4 && (s.h === 4 || s.s === 4);
     // Réponse en majeure
-    if (s.h >= 4 || s.s >= 4) {
+    if ((s.h >= 4 || s.s >= 4) && !upLine) {
       if (r >= 18) return null;
       const M = s.h >= 4 && !(s.s >= 5 && s.s >= s.h) ? 1 : 0, Ms = NAMES[M], L = s.len[M];
       add('1' + Ms, `${L} cartes à ${Ms}${s.h >= 4 && s.s >= 4 && L === 4 ? ' (avec 4-4 en majeures, les ♥ d’abord)' : ''}`);
@@ -544,7 +567,9 @@
           add('2♠', `Fit ♠, ${h} HLD`); if (hld(n, 0) > 16) return null; add('P'); return A;
         }
         if (r >= 18) return null;
+        if (r >= 13 && !s.balanced) return fourthSuit(n, s, m, 1, A, add);
         if (r >= 13) { add('3SA', 'Pas de fit, la manche'); add('P'); return A; }
+        if (r >= 11 && !s.balanced) return null;                         // irrégulier de proposition : non couvert
         if (r >= 11) { add('2SA', 'Pas de fit, proposition (11-12H)'); if (n.hcp >= 14) { add('3SA', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
         if (s.h >= 6) { add('2♥', '6 cartes à ♥, faible'); add('P'); return A; }
         add('1SA', 'Pas de fit, 6-10H'); add('P'); return A;
@@ -602,7 +627,7 @@
     }
     // Pas de majeure 4e
     if (m === 3 && s.d >= 4) {
-      add('1♦', '4 cartes ou plus à ♦ (pas de majeure 4e)'); A.theme = '1♣ – 1♦';
+      add('1♦', upLine ? '4 cartes à ♦ et une majeure 4e : on annonce en montant' : '4 cartes ou plus à ♦ (pas de majeure 4e)'); A.theme = '1♣ – 1♦';
       let reb;
       if (n.h >= 4) reb = ['1♥', '4 cartes à ♥'];
       else if (n.s >= 4) reb = ['1♠', '4 cartes à ♠'];
@@ -613,8 +638,41 @@
       else return null;
       add(reb[0], reb[1]);
       if (r >= 18) return null;
+      // fit dans la majeure montrée par l'ouvreur
+      const fitM = reb[0] === '1♥' && s.h >= 4 ? 1 : reb[0] === '1♠' && s.s >= 4 ? 0 : -1;
+      if (fitM >= 0) {
+        const FM = NAMES[fitM], h = hld(s, fitM, 4);
+        if (h >= 18) return null;
+        if (h >= 13) { add('4' + FM, `Fit ${FM} et ${h} HLD : la manche`); add('P'); return A; }
+        if (h >= 10) { add('3' + FM, `Fit ${FM}, proposition (${h} HLD)`); if (hld(n, fitM) >= 14) { add('4' + FM, 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+        add('2' + FM, `Fit ${FM}, ${h} HLD`); if (hld(n, fitM) > 16) return null; add('P'); return A;
+      }
+      // 1♣ – 1♦ – 1♥ : avec 4♠, on continue en montant
+      if (reb[0] === '1♥' && s.s >= 4) {
+        if (r >= 13) return null;
+        add('1♠', '4 cartes à ♠ : on continue en montant');
+        if (n.s >= 4) {
+          const on = hld(n, 0, 4); if (on >= 17) return null;
+          add('2♠', `Fit ♠, 11-16 HLD (${on})`);
+          const h = hld(s, 0, 4);
+          if (h >= 13) { add('4♠', `${h} HLD : la manche`); add('P'); return A; }
+          if (h >= 10) { add('3♠', `Proposition (${h} HLD)`); if (on >= 14) { add('4♠', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
+          add('P', 'Pas de manche : tu passes'); return A;
+        }
+        if (n.balanced && n.hcp <= 14) { add('1SA', 'Régulier, 12-14H, pas 4 cartes à ♠'); if (r >= 11) return null; add('P', 'Pas de manche : tu passes'); return A; }
+        return null;
+      }
       if (reb[0] === '2SA') { if (r >= 13) return null; add('3SA', 'Face à 18-19 : la manche'); add('P'); return A; }
+      if (r >= 13 && !s.balanced) return null;                          // irrégulier : pas de SA direct (non couvert ici)
       if (r >= 13) { add('3SA', 'La manche à SA'); add('P'); return A; }
+      // irrégulier de proposition : pas de 2SA, on répète ses ♦ (6 cartes) ou on soutient les ♣ (4 cartes), à saut
+      if (r >= 11 && !s.balanced) {
+        const inv = s.d >= 6 ? ['3♦', `${s.d} cartes à ♦, main irrégulière de proposition (11-12H)`] : s.c >= 4 && reb[0] !== '2♣' ? ['3♣', 'Fit ♣ (4 cartes), main irrégulière de proposition (11-12H)'] : null;
+        if (!inv || rankOf(inv[0]) <= rankOf(reb[0])) return null;
+        add(inv[0], inv[1]);
+        if (n.hcp >= 14 && stop(n, 0) && stop(n, 1)) { add('3SA', 'Haut de zone avec les arrêts majeurs : la manche'); add('P'); } else add('P', 'Bas de zone : il passe');
+        return A;
+      }
       if (r >= 11) { add('2SA', 'Proposition (11-12H)'); if (n.hcp >= 14) { add('3SA', 'Haut de zone : il accepte'); add('P'); } else add('P', 'Bas de zone : il passe'); return A; }
       if (reb[0] === '1♥' || reb[0] === '1♠') { add('1SA', 'Pas de fit, 6-10H'); add('P'); return A; }
       add('P', 'Pas de manche : tu passes'); return A;
