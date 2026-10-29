@@ -4,7 +4,7 @@
 
 const FIRESTORE = {
   base: 'https://firestore.googleapis.com/v1/projects/systeme-raimon/databases/(default)/documents/parties',
-  key: 'AIzaSyCntK9XEN1dCGrboXDl9lUx1tU-fnXoVXM',
+  key: 'AIzaSyCQ9Uo2TuV-O6ZLwZ_2vIE1LX-WwcCwuf4',
 };
 
 function createDuo(env) {
