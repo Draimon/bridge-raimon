@@ -590,6 +590,13 @@
             if (ans[0] === '2' + Ms) { add('P', 'Fit mais pas de manche : tu passes'); return A; }
             add('3' + Ms, 'Fit, on s’arrête à 3'); add('P'); return A;
           }
+          // main irrégulière (singleton) : pas de 3SA direct ; avec 4 cartes dans la mineure d'ouverture, on la soutient et l'ouvreur choisit (question 344)
+          const short = [0, 1, 2, 3].find(i => s.len[i] <= 1);
+          if (r + est >= 25 && short !== undefined && s.len[m] >= 4 && rankOf('3' + ms) > rankOf(ans[0])) {
+            add('3' + ms, `Fit ${ms}, main irrégulière (courte à ${NAMES[short]}) : pas de 3SA direct`);
+            if (stop(n, short)) { add('3SA', `Il a l'arrêt ${NAMES[short]} : 3SA`); add('P'); return A; }
+            add('5' + ms, `Pas d'arrêt ${NAMES[short]} : 5${ms}`); add('P'); return A;
+          }
           if (r + est >= 25) { add('3SA', 'Pas de fit, assez pour la manche'); add('P'); return A; }
           if (ans[0] === '2♦') { add('2SA', 'Pas de fit, on s’arrête'); add('P'); return A; }
           add('P', 'Pas de manche : tu passes'); return A;

@@ -451,7 +451,7 @@ const QUESTIONS = [
   { n: 341, t: 'reponses', k: 'm', d: 'N', s: '1♠ P', h: 'K98.K8764.K6.764', hcp: 9, a: '2♠', e: 'Soutien simple : fit ♠, 6-10 HLD (10)', f: 'Règle du robot (donne n° 195)' },
   { n: 342, t: 'okla', k: 'm', d: 'N', s: '1♠ P', h: 'QJ876.J43.QJ.KJ7', hcp: 11, a: '4♠', e: 'Oklahoma : fit ♠, 0 ou 1 carte clé (13 HLD)', f: 'Règle du robot (donne n° 198)' },
   { n: 343, t: 'okla', k: 'm', d: 'N', s: '1♥ P', h: 'AJ2.A654.QT42.Q2', hcp: 13, a: '2♦', e: 'Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite', f: 'Règle du robot (donne n° 202)' },
-  { n: 344, t: 'roudy', k: 'm', d: 'N', s: '1♦ P 1♠ P 1SA P 2♣ P 2♦ P', h: 'AK975.AQ5.JT52.4', hcp: 14, a: '3SA', e: 'Pas de fit, assez pour la manche', f: 'Règle du robot (donne n° 205)' },
+  { n: 344, t: 'roudy', k: 'm', d: 'N', s: '1♦ P 1♠ P 1SA P 2♣ P 2♦ P', h: 'AK975.AQ5.JT52.4', hcp: 14, a: '3♦', e: 'Fit ♦, main irrégulière (courte à ♣) : pas de 3SA direct', f: 'Règle du robot (donne n° 205)' },
   { n: 345, t: 'roudy', k: 'm', d: 'N', s: '1♦ P 1♠ P 1SA P', h: 'AQJT64.9.A7.QJ72', hcp: 14, a: '4♠', e: '6 cartes à ♠ et la manche face à 12-14 : tu conclus directement (inutile de renseigner l’adversaire)', f: 'Règle du robot (donne n° 207)' },
   { n: 346, t: 'okla', k: 'm', d: 'N', s: '1♠ P', h: 'QT43.76.AJ63.K96', hcp: 10, a: '4♠', e: 'Oklahoma : fit ♠, 0 ou 1 carte clé (13 HLD)', f: 'Règle du robot (donne n° 208)' },
   { n: 347, t: 'okla', k: 'm', d: 'N', s: '1♠ P', h: 'AKJ2.QT4.QJ4.643', hcp: 13, a: '2♥', e: 'Changement de couleur : fit ♠ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite', f: 'Règle du robot (donne n° 211)' },

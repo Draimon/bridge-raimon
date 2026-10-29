@@ -27,7 +27,7 @@ n°193 Robot · 1♣ – 1♦ : 1SA (+150) alors que 3SA par N rapporte +400 —
 n°198 Robot · Oklahoma : 4♠ (+480) alors que 6♠ par N rapporte +980 — 1♠ 4♠
 n°200 Robot · Soutien mineur : 3♦ (+150) alors que 5♦ par N rapporte +400 — 1♦ 3♦ P
 n°201 Robot · 1♥ – 1♠ : 4♥ (-50) alors que 3SA par N rapporte +400 — 1♥ 1♠ 3♥ 4♥
-n°205 Robot · Roudy : 3SA (+490) alors que 6SA par S rapporte +990 — 1♦ 1♠ 1SA 2♣ 2♦ 3SA
+n°205 Robot · Roudy : 3SA (+490) alors que 6SA par S rapporte +990 — 1♦ 1♠ 1SA 2♣ 2♦ 3♦ 3SA
 n°206 Robot · Soutien mineur : 3♦ (+130) alors que 3SA par N rapporte +430 — 1♦ 3♦ P
 n°212 Robot · Oklahoma : 4♠ (-100) alors que 2♠ par N rapporte +110 — 1♠ 4♠
 n°213 Robot · Shadow fit : 4♥ (-100) alors que 2SA par N rapporte +120 — 1♥ 3♣ 4♥
