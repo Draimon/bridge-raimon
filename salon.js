@@ -525,6 +525,14 @@ function createSalon(env) {
 
   // ───── Affichage de la table (ta place toujours en bas)
   const cardBtn = (s, r, cls, attrs) => cardHtml(s, RLAB[r], cls, attrs);
+  // Diagnostic de la mise en veille : chacun note son état sur la table (seulement quand il change)
+  let wakeSent = '';
+  function sendWake() {
+    if (!curId || !window.__wakeState) return;
+    const s = window.__wakeState(); if (s === wakeSent) return; wakeSent = s;
+    db.collection('tables').doc(curId).update({ ['wake.' + me()]: getPlayer() + ' · ' + s }).catch(() => {});
+  }
+  setInterval(sendWake, 20000);
   function renderTable() {
     const t = current; if (!t || !curId || tab !== 'main') return;
     document.body.classList.add('tablemode');
