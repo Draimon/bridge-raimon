@@ -414,28 +414,47 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152030"></script>
-<script src="fiche.js?v=202611152030"></script>
-<script src="deals.js?v=202611152030"></script>
-<script src="deals-duo.js?v=202611152030"></script>
-<script src="dds.js?v=202611152030"></script>
-<script src="jeu.js?v=202611152030"></script>
-<script src="adeux.js?v=202611152030"></script>
+<script src="questions.js?v=202611152031"></script>
+<script src="fiche.js?v=202611152031"></script>
+<script src="deals.js?v=202611152031"></script>
+<script src="deals-duo.js?v=202611152031"></script>
+<script src="dds.js?v=202611152031"></script>
+<script src="jeu.js?v=202611152031"></script>
+<script src="adeux.js?v=202611152031"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152030"></script>
-<script src="ffb-01.js?v=202611152030"></script>
-<script src="ffb-02.js?v=202611152030"></script>
-<script src="robot.js?v=202611152030"></script>
-<script src="bidder.js?v=202611152030"></script>
-<script src="player.js?v=202611152030"></script>
-<script src="news.js?v=202611152030"></script>
-<script src="salon.js?v=202611152030"></script>
+<script src="auth.js?v=202611152031"></script>
+<script src="ffb-01.js?v=202611152031"></script>
+<script src="ffb-02.js?v=202611152031"></script>
+<script src="robot.js?v=202611152031"></script>
+<script src="bidder.js?v=202611152031"></script>
+<script src="player.js?v=202611152031"></script>
+<script src="news.js?v=202611152031"></script>
+<script src="salon.js?v=202611152031"></script>
 <script>
 (() => {
   'use strict';
   const app = document.getElementById('app');
+
+  // ───── Écran toujours allumé pendant le jeu (donne solo, jeu de la carte, salon) : API Wake Lock
+  // (iPhone iOS 16.4 et plus, Chrome/Edge sur ordinateur). Le verrou saute quand l'appli passe en arrière-plan :
+  // on le reprend au retour. Hors du jeu, le téléphone se met en veille normalement.
+  const wake = (() => {
+    let lock = null;
+    const wanted = () => document.visibilityState === 'visible' && (document.body.classList.contains('tablemode') || document.body.classList.contains('salonmode'));
+    async function sync() {
+      if (!('wakeLock' in navigator)) return;
+      try {
+        if (wanted() && !lock) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); }
+        else if (!wanted() && lock) { const l = lock; lock = null; await l.release(); }
+      } catch (e) { lock = null; }                                       // refusé (économie d'énergie…) : tant pis
+    }
+    new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    document.addEventListener('visibilitychange', sync);
+    return { sync };
+  })();
+  void wake;
   const SEATS = ['O', 'N', 'E', 'S'];             // colonnes du tableau, dans l'ordre du jeu
   const SEAT_NAMES = { O: 'Ouest', N: 'Nord', E: 'Est', S: 'Sud' };
   const STRAINS = ['♣', '♦', '♥', '♠', 'SA'];

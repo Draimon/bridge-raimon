@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-ecran-allume', date: '15/11/2026', pour: 'tous',
+    titre: '🔆 L’écran reste allumé pendant le jeu',
+    texte: `<p>Pendant une donne (jeu solo, salon), le téléphone ne se verrouille plus et l'ordinateur ne se met plus en veille. Dès que vous quittez le jeu, tout redevient normal.</p>
+      <p class="muted">Sur iPhone, il faut iOS 16.4 ou plus récent. Le mode « Économie d'énergie » peut l'empêcher.</p>`,
+  },
+  {
     id: '2026-11-15-raimon-suite', date: '15/11/2026', pour: 'famille',
     titre: '🤖 Encore plus de Raimon',
     texte: `<p>Le robot Raimon du salon joue aussi les <b>enchères d'essai</b> (2SA généralisé, essai dans une couleur 5e, réponses par zones et 1er contrôle — exactement comme dans le mode solo), la <b>Paupiette Stayman</b>, le <b>Texas mineur</b> (3♥/3♠ = court, 3SA = court à ♦), le <b>Texas ♣ / ♦ et le bicolore majeur 4♦ sur 2SA</b>, le <b>Landic</b> et le <b>Puppet après Multi – 2SA</b>.</p>
