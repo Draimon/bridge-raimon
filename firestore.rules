@@ -55,8 +55,11 @@ service cloud.firestore {
     match /presence/{uid} {
       allow read: if connecte();
       allow create, update: if connecte() && request.auth.uid == uid
-        && request.resource.data.keys().hasOnly(['nom', 'invite', 'ou', 't'])
+        && request.resource.data.keys().hasOnly(['nom', 'invite', 'ou', 't', 'depuis', 'kick'])
         && request.resource.data.nom is string && request.resource.data.nom.size() <= 40;
+      // Salon plein : la famille, prioritaire, peut faire céder sa place à un invité
+      allow update: if famille() && resource.data.invite == true
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['kick']);
       allow delete: if connecte() && (request.auth.uid == uid || resource.data.t < maintenant() - 86400000);
     }
     // Chat général : message à son nom, 400 caractères max ; effaçable une fois sa semaine terminée

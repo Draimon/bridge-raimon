@@ -26,7 +26,8 @@ function createSalon(env) {
   const unsubs = [];
   const stopAll = () => { while (unsubs.length) { try { unsubs.pop()(); } catch (e) { /* déjà arrêté */ } } };
   let presence = [], tables = [], chat = [], where = null, beat = null, current = null, curId = null, robotTimer = null;
-  let ui = { chatOpen: false, sel: null, choice: null, msg: '' };
+  let ui = { sel: null, choice: null, msg: '' };
+  let tab = 'main', since = null, histCache = null, chatSeen = 0;
 
   // ───── Semaine du chat : depuis le dernier lundi 3h, heure de Paris
   function weekStart() {
@@ -42,20 +43,34 @@ function createSalon(env) {
   // ───── Présence (battement toutes les 60 s tant que l'appli est ouverte)
   async function heartbeat() {
     const uid = me(); if (!uid || !where) return;
-    try { await db.collection('presence').doc(uid).set({ nom: getPlayer(), invite: isGuest(), ou: where, t: now() }); } catch (e) { /* hors ligne */ }
+    try { await db.collection('presence').doc(uid).set({ nom: getPlayer(), invite: isGuest(), ou: where, t: now(), depuis: since }); } catch (e) { /* hors ligne */ }
   }
   function startBeat(w) {
-    where = w; heartbeat();
+    where = w; if (!since) since = now(); heartbeat();
     if (!beat) beat = setInterval(heartbeat, 60000);
   }
   function stopBeat() {
-    clearInterval(beat); beat = null; where = null;
+    clearInterval(beat); beat = null; where = null; since = null;
     const uid = me(); if (uid) db.collection('presence').doc(uid).delete().catch(() => {});
   }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && where) heartbeat(); });
   window.addEventListener('pagehide', () => { if (where) { const uid = me(); if (uid) db.collection('presence').doc(uid).delete().catch(() => {}); } });
   const fresh = () => presence.filter(p => p.t > now() - FRESH);
   const isFresh = uid => fresh().some(p => p.id === uid);
+  // Présences reçues : si la famille a eu besoin de ma place, je sors du salon
+  function onPresence(snap) {
+    presence = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const mine = presence.find(p => p.id === me());
+    if (mine && mine.kick) { kicked(); return true; }
+    return false;
+  }
+  function kicked() {
+    stopAll(); clearTimeout(robotTimer); clearInterval(beat); beat = null; where = null; since = null; curId = null; current = null;
+    db.collection('presence').doc(me()).delete().catch(() => {});
+    document.body.classList.remove('tablemode', 'salonmode');
+    app.innerHTML = topbar('Salon de bridge', 'Quitter') + `<div class="card center"><h3>Salon complet</h3><p>Le salon est limité à ${MAX} joueurs et un membre de la famille Raimon vient d’arriver : tu as cédé ta place. Reviens un peu plus tard !</p></div>`;
+    on('back', leave);
+  }
 
   // Ménage partagé : le premier qui ouvre le salon efface le vieux chat, les présences et tables abandonnées.
   async function cleanup() {
@@ -72,20 +87,24 @@ function createSalon(env) {
 
   // ───── Salon
   async function open() {
-    stopAll(); current = null; curId = null;
-    document.body.classList.remove('tablemode');
+    stopAll(); current = null; curId = null; tab = 'main';
+    document.body.classList.remove('tablemode'); document.body.classList.add('salonmode');
     app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil') + '<p class="center muted">Entrée dans le salon…</p>';
     on('back', leave);
     let snap;
     try { snap = await db.collection('presence').get(); } catch (e) { app.innerHTML += '<p class="center">Connexion au salon impossible.</p>'; return; }
     presence = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    if (!isFresh(me()) && fresh().length >= MAX) {
+    if (!isFresh(me()) && fresh().length >= MAX && !isGuest()) {
+      // Famille prioritaire : l'invité arrivé en dernier cède sa place
+      const victim = fresh().filter(p => p.invite).sort((a, b) => (b.depuis || b.t) - (a.depuis || a.t))[0];
+      if (victim) await db.collection('presence').doc(victim.id).update({ kick: true }).catch(() => {});
+    } else if (!isFresh(me()) && fresh().length >= MAX) {
       app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil') + `<div class="card center"><h3>Salon complet</h3><p>${MAX} joueurs sont déjà connectés (maximum pour rester dans l’offre gratuite). Réessaie un peu plus tard.</p></div>`;
       on('back', leave); return;
     }
     startBeat('salon');
     cleanup();
-    unsubs.push(db.collection('presence').onSnapshot(s => { presence = s.docs.map(d => ({ id: d.id, ...d.data() })); renderSalon(); }));
+    unsubs.push(db.collection('presence').onSnapshot(s => { if (!onPresence(s)) renderSalon(); }));
     unsubs.push(db.collection('tables').where('maj', '>', now() - 12 * 3600000).onSnapshot(s => { tables = s.docs.map(d => ({ id: d.id, ...d.data() })); renderSalon(); }));
     listenChat();
     renderSalon();
@@ -94,19 +113,19 @@ function createSalon(env) {
     unsubs.push(db.collection('chat').where('t', '>=', weekStart()).orderBy('t', 'desc').limit(50).onSnapshot(s => {
       chat = s.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
       const box = document.getElementById('chatlog'); if (box) { box.innerHTML = chatLog(); box.scrollTop = box.scrollHeight; }
+      else if (chat.length && chat[chat.length - 1].uid !== me() && chat[chat.length - 1].t > chatSeen) { const b = document.getElementById('tabchat'); if (b) b.classList.add('dotted'); }
     }, () => {}));
   }
   function leave() {
     stopAll(); stopBeat(); clearTimeout(robotTimer);
-    document.body.classList.remove('tablemode');
+    document.body.classList.remove('tablemode', 'salonmode');
     if (isGuest()) { firebase.auth().signOut().catch(() => {}); location.reload(); } else home();
   }
   const seatLabel = st => (!st ? '<i class="muted">libre</i>' : st.robot ? '🤖 Robot' : esc(st.nom) + (isFresh(st.uid) ? '' : ' <span class="muted">(absent)</span>'));
   function renderSalon() {
-    if (curId) return;
+    if (curId || tab !== 'main') return;
     const ps = fresh().sort((a, b) => a.nom.localeCompare(b.nom));
     const live = tables.filter(t => t.etat !== 'fermee');
-    const keepDraft = (document.getElementById('chatin') || {}).value || '';
     app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil') + `
       <div class="section-title">Connectés (${ps.length}/${MAX})</div>
       <div class="card" style="padding:10px 14px">${ps.map(p => `<div class="sl-who"><span class="dot"></span>${esc(p.nom)}${p.invite ? ' <small class="muted">invité</small>' : ''}<small class="muted"> · ${p.ou === 'salon' ? 'au salon' : 'à une table'}</small></div>`).join('') || '<span class="muted">Personne</span>'}</div>
@@ -118,13 +137,11 @@ function createSalon(env) {
           <div class="sl-seats">${SEATS.map(s => `<span><b>${s}</b> ${seatLabel(t.sieges[s])}</span>`).join('')}</div>
           <button class="btn ${mine || free ? 'primary' : ''} center" data-join="${t.id}" ${mine || free ? '' : 'disabled'}>${mine ? 'Revenir à la table' : free ? 'Rejoindre' : 'Complète'}</button></div>`;
       }).join('') || '<p class="muted center">Aucune table pour l’instant.</p>'}
-      <button class="btn primary center" data-act="create">＋ Créer une table</button>
-      <div class="section-title">Chat (remis à zéro le lundi à 3h)</div>
-      ${chatHtml(keepDraft)}`;
+      <button class="btn primary center" data-act="create">＋ Créer une table</button>${tabBar()}`;
     on('back', leave);
     on('create', createTable);
     app.querySelectorAll('[data-join]').forEach(b => b.addEventListener('click', () => enterTable(b.dataset.join)));
-    wireChat();
+    wireTabs();
   }
   function chatLog() {
     return chat.map(m => `<div class="chatmsg ${m.uid === me() ? 'mine' : ''}"><b>${esc(m.nom)}</b> ${esc(m.texte)}<small>${new Date(m.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</small></div>`).join('') || '<p class="muted center" style="font-size:13px">Pas encore de message cette semaine.</p>';
@@ -153,14 +170,14 @@ function createSalon(env) {
     enterTable(ref.id);
   }
   function enterTable(id) {
-    stopAll(); curId = id; ui = { chatOpen: false, sel: null, choice: null, msg: '' };
+    stopAll(); curId = id; tab = 'main'; ui = { sel: null, choice: null, msg: '' };
     startBeat('table:' + id);
-    unsubs.push(db.collection('presence').onSnapshot(s => { presence = s.docs.map(d => ({ id: d.id, ...d.data() })); }));
+    unsubs.push(db.collection('presence').onSnapshot(s => { onPresence(s); }));
     unsubs.push(db.collection('tables').doc(id).onSnapshot(d => {
       if (!d.exists) { curId = null; open(); return; }
       current = { id: d.id, ...d.data() };
       afterUpdate();
-      renderTable();
+      if (tab === 'main') renderTable(); else markTableTab();
     }));
     listenChat();
   }
@@ -339,8 +356,10 @@ function createSalon(env) {
     const p = pctNS(deal, ns);
     const robots = SEATS.filter(s => x.sieges[s] && x.sieges[s].robot).length;
     const fin = { n: deal.n, contrat: contractTxt(c), levees: tricksDecl, ns, pct: p, robots, joueurs: Object.fromEntries(SEATS.map(s => [s, x.sieges[s] ? (x.sieges[s].robot ? 'Robot' : x.sieges[s].nom) : '—'])),
-      uids: SEATS.map(s => x.sieges[s] && x.sieges[s].uid).filter(Boolean) };
-    return { etat: 'fin', fin, historique: [...(x.historique || []), fin] };
+      uids: SEATS.map(s => x.sieges[s] && x.sieges[s].uid).filter(Boolean),
+      places: Object.fromEntries(SEATS.map(s => [s, (x.sieges[s] && x.sieges[s].uid) || null])), bids: x.bids, plays: x.plays || [] };
+    const { bids: _b, plays: _p, ...light } = fin; void _b; void _p;
+    return { etat: 'fin', fin, historique: [...(x.historique || []), light] };
   }
   async function markPlayed(n) {
     const key = 'raimon-joue:' + me() + ':' + n;
@@ -403,10 +422,9 @@ function createSalon(env) {
   // ───── Affichage de la table (ta place toujours en bas)
   const cardBtn = (s, r, cls, attrs) => cardHtml(s, RLAB[r], cls, attrs);
   function renderTable() {
-    const t = current; if (!t || !curId) return;
+    const t = current; if (!t || !curId || tab !== 'main') return;
     document.body.classList.add('tablemode');
     const my = mySeat(t), deal = t.n ? dealOf(t.n) : null;
-    const draft = (document.getElementById('chatin') || {}).value || '';
     const bottom = my || 'S', top = partner(bottom), left = next(bottom), right = next(top);
     let body = '';
     if (t.etat === 'attente' || t.etat === 'fin' || !deal) body = lobbyHtml(t, my);
@@ -415,13 +433,12 @@ function createSalon(env) {
       if (t.etat === 'encheres') body = biddingHtml(t, deal, A, my, { top, left, right, bottom });
       else body = playHtml(t, deal, A, my, { top, left, right, bottom });
     }
-    app.innerHTML = topbar(esc(t.nom) + (t.n ? ' · ' + t.n : ''), 'Salon', `<button class="tobtn" data-act="chat">💬</button>`) + body
-      + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '')
-      + (ui.chatOpen ? `<div class="tchat">${chatHtml(draft)}</div>` : '');
+    app.innerHTML = topbar(esc(t.nom) + (t.n ? ' · ' + t.n : ''), 'Salon') + body
+      + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
     ui.msg = '';
     on('back', () => { if (t.etat === 'jeu' || t.etat === 'encheres') { if (!confirm('Quitter la table en pleine donne ?')) return; } leaveTable(); });
-    on('chat', () => { ui.chatOpen = !ui.chatOpen; renderTable(); });
-    if (ui.chatOpen) wireChat();
+    wireTabs();
+    on('replay', () => replayView({ ...t.fin, t: now() }, 0, 'main'));
     app.querySelectorAll('[data-sit]').forEach(b => b.addEventListener('click', () => sit(b.dataset.sit)));
     app.querySelectorAll('[data-robot]').forEach(b => b.addEventListener('click', () => setRobot(b.dataset.robot, true)));
     app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => freeSeat(b.dataset.free)));
@@ -473,6 +490,7 @@ function createSalon(env) {
       <p style="margin:6px 0;font-size:18px"><b>NS ${f.pct ?? '—'} %</b> · EO ${f.pct === null ? '—' : Math.round((100 - f.pct) * 10) / 10} % <small class="muted">face à ${total} tables</small></p>
       ${f.robots ? '<p class="muted" style="font-size:13px;margin:0 0 6px">Avec des robots à la table, ce pourcentage est indicatif.</p>' : ''}
       <div class="fhands">${SEATS.map(s => `<div><b>${NAMES[s]}</b> <small class="muted">${esc(f.joueurs[s])}</small><br>${line(s)}</div>`).join('')}</div>
+      ${f.plays ? '<button class="btn center" data-act="replay" style="margin-top:8px">▶ Revoir la donne carte par carte</button>' : ''}
       <details style="margin-top:8px"><summary class="muted">Résultats de la salle</summary><div class="hist">${near.map(([sc, k]) => `<div><span>NS ${sc > 0 ? '+' : ''}${sc}</span><span>${k} table(s)</span></div>`).join('')}</div></details></div>`;
   }
   function plate(t, deal, s, pos, extra, turn) {
@@ -537,6 +555,85 @@ function createSalon(env) {
       <p class="center feltnote" style="margin:4px 0">${turnTxt}</p>
       ${myHand}
       `;
+  }
+
+  // ───── Onglets du bas (comme sur BBO) : salle ou table · mes donnes · chat
+  function tabBar() {
+    const main = curId ? ['🂠', 'Table'] : ['🏠', 'Salon'];
+    const b = (k, ico, txt) => `<button class="tab ${tab === k ? 'on' : ''}" id="tab${k}" data-tab="${k}"><span>${ico}</span>${txt}</button>`;
+    return `<nav class="tabbar">${b('main', main[0], main[1])}${b('hist', '📜', 'Mes donnes')}${b('chat', '💬', 'Chat')}</nav>`;
+  }
+  function wireTabs() { app.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { tab = x.dataset.tab; render(); })); }
+  function render() {
+    window.scrollTo(0, 0);
+    if (tab === 'hist') return histView();
+    if (tab === 'chat') return chatView();
+    return curId ? renderTable() : renderSalon();
+  }
+  // Pendant qu'on regarde un autre onglet : pastille sur « Table » quand c'est à nous de jouer
+  function markTableTab() {
+    const t = current, el = document.getElementById('tabmain'); if (!t || !el) return;
+    const my = mySeat(t), deal = t.n && dealOf(t.n);
+    let mine = false;
+    if (deal && my && t.etat === 'encheres') mine = auction(t, deal).turn === my;
+    if (deal && my && t.etat === 'jeu') { const A = auction(t, deal), ps = playState(t, deal, A.contract); mine = !ps.done && (ps.turn === ps.dummy ? A.contract.decl : ps.turn) === my; }
+    el.classList.toggle('dotted', mine);
+  }
+  function chatView() {
+    document.body.classList.remove('tablemode');
+    chatSeen = now();
+    app.innerHTML = topbar('Chat du salon', curId ? 'Table' : 'Salon') + '<p class="muted" style="font-size:13px;margin:0 0 6px">Tout le salon lit ce chat. Il est remis à zéro chaque lundi à 3h.</p>' + chatHtml('') + tabBar();
+    on('back', () => { tab = 'main'; render(); });
+    wireChat(); wireTabs(); markTableTab();
+  }
+  async function histView() {
+    document.body.classList.remove('tablemode');
+    app.innerHTML = topbar('Mes donnes', curId ? 'Table' : 'Salon') + '<p class="center muted">Chargement…</p>' + tabBar();
+    on('back', () => { tab = 'main'; render(); }); wireTabs();
+    try {
+      const q = await db.collection('resultats').where('uids', 'array-contains', me()).get();
+      histCache = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.t - a.t);
+    } catch (e) { histCache = histCache || []; }
+    if (tab !== 'hist') return;
+    const mySide = r => { const x = SEATS.find(k => r.places && r.places[k] === me()); return x ? sideOf(x) : 'NS'; };
+    const myPct = r => (r.pct === null || r.pct === undefined ? null : mySide(r) === 'NS' ? r.pct : Math.round((100 - r.pct) * 10) / 10);
+    const rows = histCache.map((r, i) => {
+      const pct = myPct(r), pts = mySide(r) === 'NS' ? r.ns : -r.ns;
+      return `<button class="hrow" data-h="${i}"><span><b>${r.n}</b><small>${new Date(r.t).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · ${mySide(r)}</small></span><span>${fmt(r.contrat)}</span><span>${pts > 0 ? '+' : ''}${pts}</span><span class="${pct === null ? '' : pct >= 50 ? 'good' : 'bad'}">${pct === null ? '—' : pct + ' %'}</span></button>`;
+    }).join('');
+    const vals = histCache.map(myPct).filter(x => x !== null);
+    const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10 : null;
+    app.innerHTML = topbar('Mes donnes', curId ? 'Table' : 'Salon') + (histCache.length
+      ? `<p class="muted" style="font-size:14px;margin:0 0 8px">${histCache.length} donne(s) jouée(s)${avg !== null ? ` · moyenne ${avg} %` : ''}. Touche une donne pour la revoir.</p><div class="hlist">${rows}</div>`
+      : '<p class="center muted">Tu n’as pas encore joué de donne au salon.</p>') + tabBar();
+    on('back', () => { tab = 'main'; render(); }); wireTabs(); markTableTab();
+    app.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => replayView(histCache[+b.dataset.h], 0, 'hist')));
+  }
+  // Relecture d'une donne : les 4 mains ouvertes, carte par carte
+  function replayView(r, step, from) {
+    const deal = dealOf(r.n); if (!deal) return;
+    const bids = r.bids || [], plays = r.plays || [];
+    const A = auction({ bids }, deal), c = A.contract;
+    step = Math.max(0, Math.min(plays.length, step));
+    const ps = c ? playState({ plays: plays.slice(0, step) }, deal, c)
+      : { hands: Object.fromEntries(SEATS.map(x => [x, parseHand(deal[x])])), trick: [], tricks: { NS: 0, EO: 0 }, last: null, trump: null };
+    const shown = ps.trick.length ? ps.trick : (ps.last || []);
+    const w = shown.length === 4 ? winnerOf(shown, ps.trump) : null;
+    const handTxt = x => `<div class="rh"><b>${NAMES[x]}</b> <small class="muted">${esc((r.joueurs || {})[x] || '')}</small>${DISPLAY.map(k => `<div><span class="${red(k) ? 'red' : ''}">${SYM[k]}</span> ${[...ps.hands[x][k]].sort((a, b) => b - a).map(q => RLAB[q]).join(' ') || '—'}</div>`).join('')}</div>`;
+    const slot = (x, pos) => { const y = shown.find(k => k.seat === x); return `<div class="slot ${pos}">${y ? cardBtn(y.s, y.r, 'md ' + (w && w.seat === x ? 'win' : '')) : ''}</div>`; };
+    document.body.classList.remove('tablemode');
+    app.innerHTML = topbar('Donne ' + r.n, from === 'hist' ? 'Mes donnes' : 'Table') + `
+      <p style="margin:0 0 6px">${fmt(r.contrat)}${c ? ` · ${r.levees} levées` : ''} · NS ${r.ns > 0 ? '+' : ''}${r.ns} · <b>NS ${r.pct ?? '—'} %</b> <small class="muted">${deal.src.simu} du ${deal.src.date.split('-').reverse().join('/')}</small></p>
+      <div class="felt" style="padding:8px">${auctionTable({ bids }, deal)}</div>
+      <div class="rgrid"><div class="rn">${handTxt('N')}</div><div class="ro">${handTxt('O')}</div>
+        <div class="rc"><div class="trick">${slot('N', 'top')}${slot('O', 'left')}${slot('E', 'right')}${slot('S', 'bottom')}</div></div>
+        <div class="re">${handTxt('E')}</div><div class="rs">${handTxt('S')}</div></div>
+      ${plays.length ? `<div class="solnav"><button class="btn center" data-st="0">⏮</button><button class="btn center" data-st="${step - 1}">◀</button><button class="btn center" data-st="${step + 1}">▶</button><button class="btn center" data-st="${Math.min(plays.length, (Math.floor(step / 4) + 1) * 4)}">Levée ⏭</button></div>
+        <p class="center muted" style="font-size:13px">Carte ${step}/${plays.length} · NS ${ps.tricks.NS} levée(s) · EO ${ps.tricks.EO}</p>` : '<p class="center muted">Pas de jeu de la carte (passe générale ou donne ancienne).</p>'}
+      ${tabBar()}`;
+    on('back', () => { if (from === 'hist') histView(); else { tab = 'main'; render(); } });
+    wireTabs();
+    app.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => replayView(r, +b.dataset.st, from)));
   }
 
   return { open, stop: () => { stopAll(); stopBeat(); } , _test: { auction, score, pctNS, weekStart } };
