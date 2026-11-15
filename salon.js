@@ -743,16 +743,16 @@ function createSalon(env) {
     const slots = SEATS.map(s => { const x = shown.find(k => k.seat === s); return `<div class="slot ${pos[s]}">${x ? cardHtml(x.s, RLAB[x.r], 'md ' + (w && w.seat === s ? 'win' : '')) : ''}</div>`; }).join('');
     // en haut : le mort (ou, si je suis le mort, le jeu de mon partenaire déclarant)
     let topBlock = '';
-    if (swapped) topBlock = ps.shown ? columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Ton jeu, le mort (${NAMES[ps.dummy]})${iControl && ps.turn === ps.dummy ? ' — à toi' : ''}`) : '<p class="feltnote">Ton partenaire robot a gagné le contrat : c’est toi qui le joues. Ton jeu sera le mort.</p>';
-    else if (my === ps.dummy) topBlock = columnsHtml(ps.hands[c.decl], false, [], `Jeu de ton partenaire (${NAMES[c.decl]}, déclarant)`);
-    else if (ps.shown) topBlock = columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Mort : ${NAMES[ps.dummy]}${iControl && ps.turn === ps.dummy ? ' — à toi de jouer pour lui' : ''}`);
+    if (swapped) topBlock = ps.shown ? columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Ton jeu, le mort (${NAMES[ps.dummy]}) · ${hcpOf(deal[ps.dummy])}H${iControl && ps.turn === ps.dummy ? ' — à toi' : ''}`) : '<p class="feltnote">Ton partenaire robot a gagné le contrat : c’est toi qui le joues. Ton jeu sera le mort.</p>';
+    else if (my === ps.dummy) topBlock = columnsHtml(ps.hands[c.decl], false, [], `Jeu de ton partenaire (${NAMES[c.decl]}, déclarant) · ${hcpOf(deal[c.decl])}H`);
+    else if (ps.shown) topBlock = columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Mort : ${NAMES[ps.dummy]} · ${hcpOf(deal[ps.dummy])}H${iControl && ps.turn === ps.dummy ? ' — à toi de jouer pour lui' : ''}`);
     else topBlock = '<p class="feltnote">Le mort sera étalé après l’entame</p>';
     const visible = s => s === my || (ps.shown && s === ps.dummy) || (my === ps.dummy && s === c.decl) || (swapped && s === c.decl);
     const declSide = sideOf(c.decl), need = 6 + c.l;
     const ctr = side => `${ps.tricks[side]}${side === declSide ? '/' + need : ''}`;
     const turnTxt = ps.done ? '' : iControl ? (ps.turn === handSeat ? (swapped ? 'À toi de jouer (déclarant)' : 'À toi de jouer') : 'À toi de jouer le mort') : 'Au tour de ' + NAMES[ps.turn] + (t.sieges[ctrlOf(ps.turn)] && t.sieges[ctrlOf(ps.turn)].robot ? ' (robot)' : '');
     return `${topBlock}
-      <div class="frame sframe">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (s === c.decl ? '<span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
+      <div class="frame sframe">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (ps.shown && s === ps.dummy && t.sieges[s] && t.sieges[s].uid !== me() ? ' <span class="hcp">' + hcpOf(deal[s]) + 'H</span>' : '') + (s === c.decl ? '<span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
         <div class="corner cl">NS<br><b>${ctr('NS')}</b></div><div class="corner cr">EO<br><b>${ctr('EO')}</b></div>
         <div class="trick" ${ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
         ${showLast ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
