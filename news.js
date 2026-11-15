@@ -16,7 +16,7 @@ const NEWS = [
   {
     id: '2026-11-15-joueur-absent', date: '15/11/2026', pour: 'tous',
     titre: '🤖 Un joueur ne répond plus ? Un robot prend sa place',
-    texte: `<ul><li>Pendant une donne, si un joueur ne joue plus depuis 45 secondes (ou a quitté l'appli), le <b>maître de table 👑</b> voit « X ne répond plus » et peut le <b>remplacer par un robot</b> : la donne continue.</li>
+    texte: `<ul><li>Pendant une donne, si un joueur ne joue plus depuis 1 minute (ou a quitté l'appli), le <b>maître de table 👑</b> voit « X ne répond plus » et peut le <b>remplacer par un robot</b> : la donne continue.</li>
       <li>Entre deux donnes, le maître peut <b>sortir</b> n'importe quel joueur de la table.</li></ul>`,
   },
   {

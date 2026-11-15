@@ -363,8 +363,8 @@ function createSalon(env) {
     const sw = swapOf(t, A.contract);
     return sw && (ps.turn === A.contract.decl || ps.turn === ps.dummy) ? sw.human : ps.turn === ps.dummy ? A.contract.decl : ps.turn;
   }
-  const SLOW = 45000;                                                    // au-delà : « ne répond plus »
-  // Un joueur ne répond plus (absent, ou rien joué depuis 45 s) : le maître peut le remplacer par un robot
+  const SLOW = 60000;                                                    // au-delà (1 min sans jouer) : « ne répond plus »
+  // Un joueur ne répond plus (absent, ou rien joué depuis 1 min) : le maître peut le remplacer par un robot
   function stuckSeat(t) {
     const seat = actingSeat(t), st = seat && t.sieges[seat];
     if (!st || !st.uid || st.uid === me()) return null;
@@ -381,7 +381,7 @@ function createSalon(env) {
   function afterUpdate() {
     const t = current; if (!t) return;
     clearTimeout(robotTimer); clearTimeout(slowTimer);
-    // maître : réafficher la table au bout de 45 s si un joueur tarde, pour proposer de le remplacer
+    // maître : réafficher la table au bout d’1 min si un joueur tarde, pour proposer de le remplacer
     if (isMaster(t)) { const seat = actingSeat(t), st = seat && t.sieges[seat]; if (st && st.uid && st.uid !== me()) slowTimer = setTimeout(() => { if (tab === 'main') renderTable(); }, Math.max(1000, SLOW - (now() - (t.maj || now())) + 500)); }
     // le maître est parti : le premier humain présent reprend la table
     if (t.maitre !== me() && !isFresh(t.maitre) && presence.length) {
