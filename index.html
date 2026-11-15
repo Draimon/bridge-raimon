@@ -433,7 +433,8 @@
   .trick.sdl { transform: translateX(36px); } .trick.sdr { transform: translateX(-36px); }
   /* Plein écran pendant une donne du salon : tout tient dans la hauteur, sans défiler */
   body.inplay { overflow: hidden; }
-  body.inplay #app { height: 100vh; height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden; padding-bottom: calc(52px + env(safe-area-inset-bottom) * .5); }
+  html:has(body.inplay) { overflow: hidden; }
+  body.inplay #app { height: calc(100vh - env(safe-area-inset-top)); height: calc(100dvh - env(safe-area-inset-top)); box-sizing: border-box; display: flex; flex-direction: column; overflow: hidden; padding-bottom: calc(52px + env(safe-area-inset-bottom) * .5); }
   body.inplay #app > * { flex: 0 0 auto; }
   body.inplay #app > .frame { flex: 1 1 auto; min-height: 150px; display: flex; flex-direction: column; justify-content: center; margin-top: 18px; margin-bottom: 12px; }
   body.inplay #app > .frame.bidframe { justify-content: center; margin-top: 60px; margin-bottom: 56px; }
@@ -462,24 +463,24 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152130"></script>
-<script src="fiche.js?v=202611152130"></script>
-<script src="deals.js?v=202611152130"></script>
-<script src="deals-duo.js?v=202611152130"></script>
-<script src="dds.js?v=202611152130"></script>
-<script src="jeu.js?v=202611152130"></script>
-<script src="adeux.js?v=202611152130"></script>
+<script src="questions.js?v=202611152134"></script>
+<script src="fiche.js?v=202611152134"></script>
+<script src="deals.js?v=202611152134"></script>
+<script src="deals-duo.js?v=202611152134"></script>
+<script src="dds.js?v=202611152134"></script>
+<script src="jeu.js?v=202611152134"></script>
+<script src="adeux.js?v=202611152134"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152130"></script>
-<script src="ffb-01.js?v=202611152130"></script>
-<script src="ffb-02.js?v=202611152130"></script>
-<script src="robot.js?v=202611152130"></script>
-<script src="bidder.js?v=202611152130"></script>
-<script src="player.js?v=202611152130"></script>
-<script src="news.js?v=202611152130"></script>
-<script src="salon.js?v=202611152130"></script>
+<script src="auth.js?v=202611152134"></script>
+<script src="ffb-01.js?v=202611152134"></script>
+<script src="ffb-02.js?v=202611152134"></script>
+<script src="robot.js?v=202611152134"></script>
+<script src="bidder.js?v=202611152134"></script>
+<script src="player.js?v=202611152134"></script>
+<script src="news.js?v=202611152134"></script>
+<script src="salon.js?v=202611152134"></script>
 <script>
 (() => {
   'use strict';
