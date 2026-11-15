@@ -27,7 +27,12 @@ function createSalon(env) {
   const stopAll = () => { while (unsubs.length) { try { unsubs.pop()(); } catch (e) { /* déjà arrêté */ } } };
   let presence = [], tables = [], chat = [], where = null, beat = null, current = null, curId = null, robotTimer = null;
   let ui = { sel: null, choice: null, msg: '' };
-  let tab = 'main', since = null, histCache = null, chatSeen = 0;
+  let tab = 'main', since = null, histCache = null;
+  const seenKey = () => 'raimon-chat-vu:' + me();
+  const getSeen = () => { try { return +localStorage.getItem(seenKey()) || 0; } catch (e) { return 0; } };
+  const setSeen = () => { try { localStorage.setItem(seenKey(), String(now())); } catch (e) { /* stockage indisponible */ } };
+  const unread = () => chat.some(m => m.uid !== me() && m.t > getSeen());
+  function markChatTab() { const b = document.getElementById('tabchat'); if (b) b.classList.toggle('dotted', tab !== 'chat' && unread()); }
 
   // ───── Semaine du chat : depuis le dernier lundi 3h, heure de Paris
   function weekStart() {
@@ -113,7 +118,8 @@ function createSalon(env) {
     unsubs.push(db.collection('chat').where('t', '>=', weekStart()).orderBy('t', 'desc').limit(50).onSnapshot(s => {
       chat = s.docs.map(d => ({ id: d.id, ...d.data() })).reverse();
       const box = document.getElementById('chatlog'); if (box) { box.innerHTML = chatLog(); box.scrollTop = box.scrollHeight; }
-      else if (chat.length && chat[chat.length - 1].uid !== me() && chat[chat.length - 1].t > chatSeen) { const b = document.getElementById('tabchat'); if (b) b.classList.add('dotted'); }
+      if (tab === 'chat') setSeen();
+      markChatTab();
     }, () => {}));
   }
   function leave() {
@@ -599,7 +605,7 @@ function createSalon(env) {
     const b = (k, ico, txt) => `<button class="tab ${tab === k ? 'on' : ''}" id="tab${k}" data-tab="${k}"><span>${ico}</span>${txt}</button>`;
     return `<nav class="tabbar">${b('main', main[0], main[1])}${b('hist', '📜', 'Mes donnes')}${b('chat', '💬', 'Chat')}</nav>`;
   }
-  function wireTabs() { app.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { tab = x.dataset.tab; render(); })); }
+  function wireTabs() { app.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { tab = x.dataset.tab; render(); })); markChatTab(); }
   function render() {
     window.scrollTo(0, 0);
     if (tab === 'hist') return histView();
@@ -617,7 +623,7 @@ function createSalon(env) {
   }
   function chatView() {
     document.body.classList.remove('tablemode');
-    chatSeen = now();
+    setSeen();
     app.innerHTML = topbar('Chat du salon', curId ? 'Table' : 'Salon') + '<p class="muted" style="font-size:13px;margin:0 0 6px">Tout le salon lit ce chat. Il est remis à zéro chaque lundi à 3h.</p>' + chatHtml('') + tabBar();
     on('back', () => { tab = 'main'; render(); });
     wireChat(); wireTabs(); markTableTab();
