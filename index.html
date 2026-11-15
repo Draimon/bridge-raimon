@@ -397,6 +397,8 @@
   @media (max-width: 420px) { .rgrid { grid-template-columns: 1fr 120px 1fr; } .rgrid .trick { transform: scale(.8); transform-origin: center; } .rh { font-size: 12.5px; } }
   .bwrap { position: relative; display: inline-block; cursor: pointer; } .alertmark { position: absolute; top: -6px; right: -6px; background: #f2c94c; color: #1d2724; border-radius: 50%; width: 15px; height: 15px; font-size: 11px; font-weight: 900; line-height: 15px; text-align: center; }
   .notebubble { margin: 6px 0 10px; }
+  .newspop { max-width: 440px; max-height: 82vh; overflow-y: auto; text-align: left; } .newspop h3, .newspop .pop-ico { text-align: center; }
+  .newsitem { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; font-size: 15px; } .newsitem h4 { margin: 0 0 4px; } .newsitem ul { padding-left: 18px; margin: 4px 0; } .newsitem p { margin: 4px 0; }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
   .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
@@ -406,22 +408,23 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611151929"></script>
-<script src="fiche.js?v=202611151929"></script>
-<script src="deals.js?v=202611151929"></script>
-<script src="deals-duo.js?v=202611151929"></script>
-<script src="dds.js?v=202611151929"></script>
-<script src="jeu.js?v=202611151929"></script>
-<script src="adeux.js?v=202611151929"></script>
+<script src="questions.js?v=202611151932"></script>
+<script src="fiche.js?v=202611151932"></script>
+<script src="deals.js?v=202611151932"></script>
+<script src="deals-duo.js?v=202611151932"></script>
+<script src="dds.js?v=202611151932"></script>
+<script src="jeu.js?v=202611151932"></script>
+<script src="adeux.js?v=202611151932"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611151929"></script>
-<script src="ffb-01.js?v=202611151929"></script>
-<script src="ffb-02.js?v=202611151929"></script>
-<script src="bidder.js?v=202611151929"></script>
-<script src="player.js?v=202611151929"></script>
-<script src="salon.js?v=202611151929"></script>
+<script src="auth.js?v=202611151932"></script>
+<script src="ffb-01.js?v=202611151932"></script>
+<script src="ffb-02.js?v=202611151932"></script>
+<script src="bidder.js?v=202611151932"></script>
+<script src="player.js?v=202611151932"></script>
+<script src="news.js?v=202611151932"></script>
+<script src="salon.js?v=202611151932"></script>
 <script>
 (() => {
   'use strict';
@@ -512,7 +515,7 @@
       enterGuest(name);
     });
   }
-  function enterGuest(name) { player = name; guest = true; SALON.open(); }
+  function enterGuest(name) { player = name; guest = true; SALON.open(); showNews(name, true); }
   // Code à 4 chiffres, demandé une seule fois : ensuite le téléphone reste connecté.
   function askCode(who) {
     app.innerHTML = `
@@ -542,6 +545,7 @@
     try { localStorage.setItem('raimon-player', player); } catch (e) { /* stockage indisponible */ }
     loadProgress(); go(home);
     if (pendingDeal) { const n = pendingDeal; pendingDeal = null; DUO.openDeal(n); }
+    showNews(who, false);                                        // « Quoi de neuf ? » : nouveautés pas encore vues
   }
   function record(n, ok) {
     const p = progress[n] || { ok: 0, ko: 0, streak: 0 };
@@ -621,7 +625,9 @@
       <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
       <p class="center muted" style="font-size:13px;margin-top:20px">Un souci sur une question ou une donne ? Note son numéro et préviens Damien.</p>
       <p class="center"><button class="link" data-act="reset">Remettre la progression à zéro</button></p>
+      <p class="center"><button class="link" data-act="news">✨ Quoi de neuf ?</button></p>
       <p class="center muted" style="font-size:13px">${versionLabel()}</p>`;
+    on('news', () => showNews(player, false, true));
     on('quiz', () => go(quizHome));
     on('fiche', () => go(fiche));
     on('deals', () => go(dealList));
@@ -635,7 +641,7 @@
       // un nouveau vocal relance la fenêtre, même si elle a déjà été vue
       let fresh = [];
       try { const ann = JSON.parse(sessionStorage.getItem('raimon-vox-ann') || '[]'); fresh = w.vox.filter(v => !ann.includes(v.from + v.n)); sessionStorage.setItem('raimon-vox-ann', JSON.stringify(w.vox.map(v => v.from + v.n))); } catch (e) { /* stockage indisponible */ }
-      if (!k || (shown && !fresh.length) || !document.getElementById('duowait') || document.querySelector('.popveil')) return;
+      if (!k || (shown && !fresh.length) || !document.getElementById('duowait') || document.querySelector('.popveil')) { if (document.querySelector('.newsveil')) try { sessionStorage.removeItem('raimon-duo-pop'); } catch (e) { /* */ } return; }
       const lines = Object.entries(w.byPartner).map(([who, x]) => `<li>${who} : ${x.bids ? `<b>${x.bids} donne${x.bids > 1 ? 's' : ''} à enchérir</b>` : ''}${x.bids && x.msgs ? ' · ' : ''}${x.msgs ? `<b>💬 ${x.msgs} message${x.msgs > 1 ? 's' : ''}</b>` : ''}</li>`).join('')
         + w.vox.map(v => `<li>🎙️ <b>${v.from}</b> t’a laissé un vocal sur la donne <button class="link" data-popdeal="${v.n}">${v.n} → écouter</button></li>`).join('');
       const pop = document.createElement('div'); pop.className = 'popveil';
