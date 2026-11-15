@@ -14968,7 +14968,7 @@
  },
  {
   "n": "T331",
-  "t": "Sur 1SA",
+  "t": "Texas mineur",
   "d": "N",
   "v": "EO",
   "N": "KQ3.K974.A54.K32",
@@ -14984,8 +14984,29 @@
     "P"
    ],
    [
+    "2♠",
+    "Texas mineur : 6 cartes à ♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♣",
+    "L’ouvreur dit 3♣"
+   ],
+   [
+    "P"
+   ],
+   [
+    "3♠",
+    "Singleton ou chicane à ♠, 8H et plus"
+   ],
+   [
+    "P"
+   ],
+   [
     "3SA",
-    "La manche à SA"
+    "Arrêt ♠ : 3SA"
    ],
    [
     "P"

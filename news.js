@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-raimon-suite', date: '15/11/2026', pour: 'famille',
+    titre: '🤖 Encore plus de Raimon',
+    texte: `<p>Le robot Raimon du salon joue aussi les <b>enchères d'essai</b> (2SA généralisé, essai dans une couleur 5e, réponses par zones et 1er contrôle — exactement comme dans le mode solo), la <b>Paupiette Stayman</b>, le <b>Texas mineur</b> (3♥/3♠ = court, 3SA = court à ♦), le <b>Texas ♣ / ♦ et le bicolore majeur 4♦ sur 2SA</b>, le <b>Landic</b> et le <b>Puppet après Multi – 2SA</b>.</p>
+      <p>La Paupiette et le Texas mineur avec une courte apparaissent aussi dans les donnes du mode solo et du tour par tour.</p>`,
+  },
+  {
     id: '2026-11-15-tu-joues-le-contrat', date: '15/11/2026', pour: 'tous',
     titre: '🔄 C’est toujours vous qui jouez le contrat',
     texte: `<p>Au salon, si votre partenaire est un robot et que c'est lui qui gagne le contrat, la table s'inverse : <b>vous jouez le coup</b>, sa main en bas, la vôtre devenant le mort en haut. Comme dans le jeu solo.</p>`,

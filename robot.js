@@ -145,6 +145,22 @@
     if (s.c >= 6 && s.hcp <= 7) {
       add('2♠', 'Texas mineur'); add('3♣', 'L’ouvreur dit 3♣'); add('P', 'Main faible avec des ♣ : on joue 3♣'); return A;
     }
+    // Texas mineur avec 8H et plus (fiche) : 3♥/3♠ = singleton ou chicane, 3SA = courte à ♦ ; 4♣ = chelem (non couvert)
+    if (s.c >= 6 && s.hcp >= 8 && s.s < 4 && s.h < 4) {
+      const short = [0, 1, 2].find(i => s.len[i] <= 1);
+      if (short !== undefined && hld(s, 3) < 16) {
+        A.theme = 'Texas mineur';
+        add('2♠', 'Texas mineur : 6 cartes à ♣'); add('3♣', 'L’ouvreur dit 3♣');
+        if (short <= 1) {
+          add('3' + NAMES[short], `Singleton ou chicane à ${NAMES[short]}, 8H et plus`);
+          if (stop(n, short)) { add('3SA', `Arrêt ${NAMES[short]} : 3SA`); add('P'); } else { add('5♣', `Pas d'arrêt ${NAMES[short]} : 5♣`); add('P'); }
+          return A;
+        }
+        add('3SA', 'Courte à ♦, 8H et plus');
+        if (stop(n, 2)) add('P', 'Arrêt ♦ : on joue 3SA'); else { add('5♣', 'Pas d’arrêt ♦ : 5♣'); add('P'); }
+        return A;
+      }
+    }
     if (s.d >= 6 && s.hcp <= 7) return null;                          // misère à ♦ : non décrite
     // Petit Stayman (fiche) : moins de 8H avec 4♥ et 4♠ ; sur 2♦, 2♥ « passe ou corrige »
     if (s.s === 4 && s.h === 4 && s.hcp < 8) {
@@ -720,7 +736,18 @@
         if (n.balanced && n.hcp <= 14) { add('1SA', 'Régulier, 12-14H, pas 4 cartes à ♠'); if (r >= 11) return null; add('P', 'Pas de manche : tu passes'); return A; }
         return null;
       }
-      if (reb[0] === '2SA') { if (r >= 13) return null; add('3SA', 'Face à 18-19 : la manche'); add('P'); return A; }
+      if (reb[0] === '2SA') {
+        if (r >= 13) return null;
+        if (s.h >= 4 || s.s >= 4) {                                      // Paupiette Stayman (fiche)
+          A.theme = 'Paupiette Stayman';
+          add('3♣', 'Paupiette Stayman : je cherche un fit 4-4 en majeure');
+          const nh = n.h >= 4, ns = n.s >= 4;
+          if (nh && ns) { add('3♦', 'Les 2 majeures 4e'); const M = s.h >= 4 ? '♥' : '♠'; add(M === '♥' ? '3♠' : '3♥', 'Inversé : 4 cartes à ' + M); add('4' + M, 'Fit ' + M); add('P'); return A; }
+          if (nh || ns) { const M = nh ? '♥' : '♠'; add('3' + M, '4 cartes à ' + M); if (s.len[NAMES.indexOf(M)] >= 4) { add('4' + M, 'Fit 4-4'); add('P'); } else { add('3SA', 'Pas de fit'); add('P'); } return A; }
+          add('3SA', 'Rien : ni ♥ ni ♠ 4e'); add('P'); return A;
+        }
+        add('3SA', 'Face à 18-19 : la manche'); add('P'); return A;
+      }
       if (r >= 13 && !s.balanced) return null;                          // irrégulier : pas de SA direct (non couvert ici)
       if (r >= 13) { add('3SA', 'La manche à SA'); add('P'); return A; }
       // irrégulier de proposition : pas de 2SA, on répète ses ♦ (6 cartes) ou on soutient les ♣ (4 cartes), à saut
@@ -966,6 +993,6 @@
     return r === '2♣' ? 'Stayman' : r === '2♦' || r === '2♥' ? 'Texas' : r === '2♠' ? 'Texas mineur' : r === '3♦' || r === '4♦' ? 'Bicolore majeur' : r === '4SA' ? 'Quantitatif' : 'Sur 1SA';
   };
 
-  const api = { evalHand, hld, opening, auction, compAuction, theme };
+  const api = { evalHand, hld, opening, auction, compAuction, theme, trialBid, trialAnswer };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.RaimonRobot = api;
 })(this);

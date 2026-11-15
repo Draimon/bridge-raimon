@@ -581,29 +581,30 @@
     if (quiet && !iOpened && seq === '1SA 2♣ 2♦' && h < 8 && L[0] === 4 && L[1] === 4) return R('2♥', 'Petit Stayman : passe ou corrige', true);
     if (quiet && !iOpened && (seq === '1SA 2♣ 2♥' || seq === '1SA 2♣ 2♠') && h < 8 && L[0] === 4 && L[1] === 4) return P('Petit Stayman : on joue la majeure 4-4');
     if (quiet && iOpened && seq === '1SA 2♣ 2♦ 2♥') return L[0] > L[1] ? R('2♠', 'Plus de ♠ que de ♥ : je corrige') : P('On joue 2♥');
-    // ── Puppet sur 2SA : 3♣ (4H et plus, majeure 4e ou pour jouer 3SA)
-    if (quiet && ob === '2SA' && !iOpened && !mine.length && his.length === 1) {
+    // ── Puppet sur 2SA : 3♣ (4H et plus, majeure 4e ou pour jouer 3SA) ; aussi après 2♦ Multi – 2♥/2♠ – 2SA (22-23H)
+    const pseq = seq.replace(/^2♦ 2[♥♠] 2SA/, '2SA');
+    if (quiet && pseq === '2SA' && !iOpened) {
       if (L[0] >= 5 || L[1] >= 5) return null;                         // Texas
       if (L[0] === 4 && L[1] === 5) return null;
       if (L[0] === 5 && L[1] === 4 && h >= 4) return R('3SA', '5♠ et 4♥, 4H et plus', true);
       if (h >= 4 && h <= 10) return R('3♣', 'Puppet (4H et plus, majeure 4e ou pour jouer 3SA)', true);
     }
-    if (quiet && iOpened && seq === '2SA 3♣') {
+    if (quiet && iOpened && pseq === '2SA 3♣') {
       if (L[1] >= 5) return R('3♥', '5 cartes à ♥ (réponse au Puppet)');
       if (L[0] >= 5) return R('3♠', '5 cartes à ♠ (réponse au Puppet)');
       if (L[0] === 4 || L[1] === 4) return R('3♦', 'Une ou deux majeures 4e (réponse au Puppet)', true);
       return R('3SA', 'Ni majeure 4e ni majeure 5e');
     }
-    if (quiet && !iOpened && seq === '2SA 3♣ 3♦') {
+    if (quiet && !iOpened && pseq === '2SA 3♣ 3♦') {
       if (L[0] === 4 && L[1] === 4) return h >= 10 ? R('4♦', 'Les 2 majeures, de chelem (10H et plus)', true) : R('4♣', 'Les 2 majeures, de manche (moins de 10H)', true);
       if (L[0] === 4) return R('3♥', 'Inversé : 4 cartes à ♠', true);
       if (L[1] === 4) return R('3♠', 'Inversé : 4 cartes à ♥', true);
       return R('3SA', 'Rien : on joue 3SA');
     }
-    if (quiet && !iOpened && (seq === '2SA 3♣ 3♥' || seq === '2SA 3♣ 3♠')) { const M = seq.endsWith('♥') ? 1 : 0; return L[M] >= 3 ? R(sb(4, M), `Fit ${SYM[M]}`) : R('3SA', 'Pas de fit'); }
-    if (quiet && iOpened && seq === '2SA 3♣ 3♦ 3♥') return L[0] >= 4 ? R('4♠', 'Fit ♠') : R('3SA', 'Pas 4 cartes à ♠');
-    if (quiet && iOpened && seq === '2SA 3♣ 3♦ 3♠') return L[1] >= 4 ? R('4♥', 'Fit ♥') : R('3SA', 'Pas 4 cartes à ♥');
-    if (quiet && iOpened && (seq === '2SA 3♣ 3♦ 4♣' || seq === '2SA 3♣ 3♦ 4♦')) return L[0] >= 4 ? R('4♠', 'Mes 4 cartes à ♠') : R('4♥', 'Mes 4 cartes à ♥');
+    if (quiet && !iOpened && (pseq === '2SA 3♣ 3♥' || pseq === '2SA 3♣ 3♠')) { const M = seq.endsWith('♥') ? 1 : 0; return L[M] >= 3 ? R(sb(4, M), `Fit ${SYM[M]}`) : R('3SA', 'Pas de fit'); }
+    if (quiet && iOpened && pseq === '2SA 3♣ 3♦ 3♥') return L[0] >= 4 ? R('4♠', 'Fit ♠') : R('3SA', 'Pas 4 cartes à ♠');
+    if (quiet && iOpened && pseq === '2SA 3♣ 3♦ 3♠') return L[1] >= 4 ? R('4♥', 'Fit ♥') : R('3SA', 'Pas 4 cartes à ♥');
+    if (quiet && iOpened && (pseq === '2SA 3♣ 3♦ 4♣' || pseq === '2SA 3♣ 3♦ 4♦')) return L[0] >= 4 ? R('4♠', 'Mes 4 cartes à ♠') : R('4♥', 'Mes 4 cartes à ♥');
     // ── Lebelson : 1SA – (2♦/2♥/2♠) ; 2SA = relais obligatoire vers 3♣
     const t1 = C.them[0];
     if (ob === '1SA' && t1 && /^2[♦♥♠]$/.test(t1.b) && C.them.length === 1 && t1.i === C.opener.i + 1) {
@@ -698,6 +699,84 @@
       if (pb === '3SA' && t <= 1) return R(sb(4, t), 'La manche à la couleur');
       if (pb === '2SA' && t >= 2) return h >= 15 ? R('3SA', 'Assez pour la manche') : R(sb(3, t), 'Minimum : on s’arrête à 3');
     }
+    // ── Enchères d'essai (mêmes fonctions que le robot du solo : RaimonRobot.trialBid / trialAnswer)
+    const RR = typeof module !== 'undefined' && module.exports ? require('./robot.js') : root.RaimonRobot;
+    const rev = RR && RR.evalHand(C.handStr);
+    if (RR && quiet && /^1[♥♠]$/.test(our[0] && our[0].b) && our.length >= 2 && our[1].b === sb(2, SI[str(our[0].b)])) {
+      const M = SI[str(our[0].b)], Ms = SYM[M], two = sb(2, M), three = sb(3, M), four = sb(4, M);
+      const tail = our.slice(2).map(x => x.b);
+      // l'ouvreur (soutien simple en face, 6-10 HLD)
+      if (iOpened && tail.length === 0) {
+        const on = RR.hld(rev, M);
+        if (on <= 14) return P(`${on} HLD : pas de manche`);
+        if (on <= 16) return R(three, `${on} HLD : proposition de manche`);
+        const [tb, tw] = RR.trialBid(rev, M); return R(tb, `${tw} (${on} HLD)`, true);
+      }
+      // le répondant : proposition ou essai de l'ouvreur
+      if (!iOpened && tail.length === 1) {
+        if (tail[0] === three) { const h2 = RR.hld(rev, M, 5); return h2 >= 10 ? R(four, `${h2} HLD : j'accepte`) : P(`${h2} HLD : je refuse`); }
+        const [ab, aw] = RR.trialAnswer(rev, M, [8, 9, 10], tail[0], 5); return R(ab, aw, ab !== three && ab !== four);
+      }
+      // l'ouvreur conclut
+      if (iOpened && tail.length === 2) {
+        const on = RR.hld(rev, M), ans = tail[1], [, , x] = RR.trialBid(rev, M);
+        if (ans === four) return P('Manche');
+        if (ans === three) return on >= 19 ? R(four, 'Assez pour la manche malgré le refus') : P(`Refus : on joue 3${Ms}`);
+        if (rank(ans) < rank(three)) return (on >= 18 || SI[str(ans)] === x) ? R(four, SI[str(ans)] === x ? 'La force est dans ma 2e couleur : la manche' : 'Assez pour la manche') : R(three, `On s'arrête à 3${Ms}`);
+        return R(four, 'La manche');
+      }
+    }
+    // essai du répondant : 1m – 1M – 2M
+    if (RR && quiet && our.length >= 3 && /^1[♣♦]$/.test(our[0].b) && /^1[♥♠]$/.test(our[1].b) && our[2].b === sb(2, SI[str(our[1].b)])) {
+      const M = SI[str(our[1].b)], Ms = SYM[M], three = sb(3, M), four = sb(4, M), tail = our.slice(3).map(x => x.b);
+      if (!iOpened && tail.length === 0) { const h2 = RR.hld(rev, M); if (h2 <= 10) return P('Pas de manche'); const [tb, tw] = RR.trialBid(rev, M); return R(tb, `${tw} (${h2} HLD)`, true); }
+      if (iOpened && tail.length === 1) { const [ab, aw] = RR.trialAnswer(rev, M, [13, 14, 16], tail[0], 4); return R(ab, aw, ab !== three && ab !== four); }
+      if (!iOpened && tail.length === 2) {
+        const h2 = RR.hld(rev, M), ans = tail[1], [, , x] = RR.trialBid(rev, M);
+        if (ans === four) return P('Manche');
+        if (ans === three) return h2 >= 13 ? R(four, 'Assez pour la manche malgré le refus') : P(`Refus : on joue 3${Ms}`);
+        if (rank(ans) < rank(three)) return (h2 >= 12 || SI[str(ans)] === x) ? R(four, 'La manche') : R(three, `On s'arrête à 3${Ms}`);
+        return R(four, 'La manche');
+      }
+    }
+    if (quiet && !iOpened && our.length === 3 && /^1[♣♦]$/.test(our[0].b) && /^1[♥♠]$/.test(our[1].b) && our[2].b === sb(3, SI[str(our[1].b)]) && RR) { const h2 = RR.hld(rev, SI[str(our[1].b)]); return h2 >= 8 ? R(sb(4, SI[str(our[1].b)]), "J'accepte la manche") : P('Minimum'); }
+    // ── Paupiette Stayman : 1♣ – 1♦ – 2SA – 3♣
+    if (quiet && !iOpened && seq === '1♣ 1♦ 2SA' && (L[0] >= 4 || L[1] >= 4) && h <= 12) return R('3♣', 'Paupiette Stayman : je cherche un fit 4-4 en majeure', true);
+    if (quiet && iOpened && seq === '1♣ 1♦ 2SA 3♣') return L[0] >= 4 && L[1] >= 4 ? R('3♦', 'Les 2 majeures 4e', true) : L[1] >= 4 ? R('3♥', '4 cartes à ♥') : L[0] >= 4 ? R('3♠', '4 cartes à ♠') : R('3SA', 'Rien : ni ♥ ni ♠ 4e');
+    if (quiet && !iOpened && seq === '1♣ 1♦ 2SA 3♣ 3♦') return L[0] >= 4 && L[1] >= 4 ? (h >= 10 ? R('4♦', 'Les 2 majeures, de chelem', true) : R('4♣', 'Les 2 majeures, de manche', true)) : L[1] >= 4 ? R('3♠', 'Inversé : 4 cartes à ♥', true) : R('3♥', 'Inversé : 4 cartes à ♠', true);
+    if (quiet && !iOpened && /^1♣ 1♦ 2SA 3♣ 3[♥♠]$/.test(seq)) { const M = SI[seq.slice(-1)]; return L[M] >= 4 ? R(sb(4, M), 'Fit 4-4') : R('3SA', 'Pas de fit'); }
+    if (quiet && iOpened && /^1♣ 1♦ 2SA 3♣ 3♦ (3♥|3♠|4♣|4♦)$/.test(seq)) { const a = seq.split(' ').pop(); return a === '3♥' ? R('4♠', 'Fit ♠') : a === '3♠' ? R('4♥', 'Fit ♥') : R(L[1] >= L[0] ? '4♥' : '4♠', 'Ma meilleure majeure'); }
+    // ── Texas mineur sur 1SA : 2♠ = 6 cartes à ♣ ; ensuite 3♥/3♠ = court, 3SA = court à ♦, 4♣ = chelem
+    if (quiet && ob === '1SA' && !iOpened && !mine.length && his.length === 1 && L[3] >= 6 && L[0] < 4 && L[1] < 4) {
+      const short = [0, 1, 2].find(i => L[i] <= 1);
+      if (h < 8 || short !== undefined) return R('2♠', 'Texas mineur : 6 cartes à ♣', true);
+    }
+    if (quiet && iOpened && seq === '1SA 2♠') return R('3♣', 'J’exécute le Texas mineur', true);
+    if (quiet && !iOpened && seq === '1SA 2♠ 3♣') {
+      if (h < 8) return P('Main faible : on joue 3♣');
+      if (supPts(e, 3) >= 16) return R('4♣', 'Texas mineur : espoir de chelem (16 HLD et plus)', true);
+      const short = [0, 1, 2].find(i => L[i] <= 1);
+      if (short === 0 || short === 1) return R(sb(3, short), `Singleton ou chicane à ${SYM[short]}, 8H et plus`, true);
+      return R('3SA', 'Courte à ♦, 8H et plus', true);
+    }
+    if (quiet && iOpened && /^1SA 2♠ 3♣ (3♥|3♠|3SA)$/.test(seq)) {
+      const a = seq.split(' ').pop(), sh = a === '3SA' ? 2 : SI[a.slice(-1)];
+      if (stopper(e, sh)) return a === '3SA' ? P(`Arrêt ${SYM[sh]} : on joue 3SA`) : R('3SA', `Arrêt ${SYM[sh]} : 3SA`);
+      return R('5♣', `Pas d'arrêt ${SYM[sh]} : 5♣`);
+    }
+    // ── Sur 2SA : 3♠ = Texas ♣, 4♣ = Texas ♦ (dès 0H), 4♦ = bicolore majeur
+    if (quiet && ob === '2SA' && !iOpened && !mine.length && his.length === 1) {
+      if (L[0] >= 5 && L[1] >= 5 && h >= 4) return R('4♦', 'Bicolore majeur 5-5', true);
+      if (L[3] >= 6 && h < 4) return R('3♠', 'Texas ♣ (dès 0H)', true);
+      if (L[2] >= 6 && h < 4) return R('4♣', 'Texas ♦ (dès 0H)', true);
+    }
+    if (quiet && iOpened && seq === '2SA 3♠') return R('4♣', 'J’exécute le Texas ♣', true);
+    if (quiet && iOpened && seq === '2SA 4♣') return R('4♦', 'J’exécute le Texas ♦', true);
+    if (quiet && iOpened && seq === '2SA 4♦') return R(L[1] > L[0] ? '4♥' : '4♠', 'Ma meilleure majeure');
+    if (quiet && !iOpened && (seq === '2SA 3♠ 4♣' || seq === '2SA 4♣ 4♦')) return P('On joue la mineure');
+    // ── Landic : (1♦) – passe – (1SA) – 2♣ = les majeures, 8H et plus
+    if (!mine.length && !his.length && C.them.length === 2 && C.them[0].b === '1♦' && C.them[1].b === '1SA' && C.lastBid === '1SA' && L[0] >= 4 && L[1] >= 4 && L[0] + L[1] >= 9 && h >= 8) return R('2♣', 'Landic : les deux majeures, 8H et plus', true);
+    if (!mine.length && his.length === 1 && his[0].b === '2♣' && C.them.length >= 2 && C.them[0].b === '1♦' && C.them[1].b === '1SA') { const m = L[1] > L[0] ? 1 : 0; return h >= 12 ? R(sb(4, m), 'Manche dans la majeure préférée') : R(cheapest(C, m), 'Préférence'); }
     return null;
   }
 
@@ -863,6 +942,7 @@
   // ───── Point d'entrée
   function bid(handStr, bids, dealer, vulCode, seat, sys) {
     const e = evalHand(handStr), C = context(bids, dealer, seat);
+    C.handStr = handStr;
     C.sys = sys === 'raimon' ? 'raimon' : 'sef';
     const vul = vulCode === 'all' || vulCode === sideOf(seat);
     let r = null;
