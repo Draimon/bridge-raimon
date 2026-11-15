@@ -385,10 +385,10 @@
     const fit = s.len[M];
     if (fit >= 3) {
       const h = hld(s, M, 5);
-      // 1♥ avec 5 cartes à ♠, fit ♥ et 11H ou plus : on nomme d'abord les ♠, le fit ♥ vient ensuite (Damien, 15/11/2026).
-      // Moins de 11H : fit direct (soutien, Shadow fit, ou Oklahoma en zone 13-15 HLD).
-      if (M === 1 && s.s >= 5 && s.hcp >= 11) {
-        add('1♠', '5 cartes à ♠ et 11H ou plus : les ♠ d’abord, même avec le fit ♥ — tu montreras le fit ensuite');
+      // 1♥ avec 5 cartes à ♠, fit ♥ et 12H ou plus : on nomme d'abord les ♠, le fit ♥ vient ensuite (Damien, 15/11/2026).
+      // 11H maximum : fit direct (soutien, Shadow fit, ou Oklahoma en zone 13-15 HLD).
+      if (M === 1 && s.s >= 5 && s.hcp >= 12) {
+        add('1♠', '5 cartes à ♠ et 12H ou plus : les ♠ d’abord, même avec le fit ♥ — tu montreras le fit ensuite');
         A.theme = '1♥ – 1♠';
         if (n.s >= 4) {                                              // l'ouvreur soutient les ♠ : fit ♠ par 9 cartes, on joue ♠
           const on = hld(n, 0, 5), hs = hld(s, 0);

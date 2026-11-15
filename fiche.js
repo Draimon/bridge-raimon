@@ -91,7 +91,7 @@ const FICHE = {
     lignes: [
       'Le répondant (13-15 HLD, 11H au plus) sur 1♥/1♠. Cartes clés = 4 As + Roi d’atout.',
       'L’Oklahoma dénie une main de plus de 11H : avec 12H et plus, on fait un changement de couleur, puis on montre le fit.',
-      'Sur 1♥ avec 5 cartes à ♠ et le fit ♥ : 11H et plus → 1♠ d’abord, le fit ♥ ensuite ; moins de 11H → fit direct (Oklahoma si 13-15 HLD).',
+      'Sur 1♥ avec 5 cartes à ♠ et le fit ♥ : 12H et plus → 1♠ d’abord, le fit ♥ ensuite ; 11H maximum → fit direct (Oklahoma si 13-15 HLD).',
       '3♥/3♠ (autre majeure) = 0/1 carte clé + 1 chicane',
       '4♣ = 2 cartes clés + 1 chicane',
       '4♦ = 2 cartes clés',

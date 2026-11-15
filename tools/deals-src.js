@@ -35,11 +35,15 @@ module.exports = [
     ['2SA', '22-23H régulier'], ['P'], ['3♣', 'Puppet'], ['P'],
     ['3SA', 'Ni majeure 4e, ni majeure 5e'], ['P'], ['P', 'Pas de fit majeur possible : on joue 3SA'], ['P']] },
 
-  { n: 7, t: '1♥ – 1♠ puis fit', d: 'N', N: 'K5.AQJ84.A732.Q4', S: 'A8742.K963.-.KJ52', a: [
-    ['1♥', 'Ouverture, 5 cartes à ♥'], ['P'], ['1♠', '5 cartes à ♠ et 11H ou plus : les ♠ d’abord, même avec le fit ♥ — tu montreras le fit ensuite'], ['P'], ['2♦', '4 cartes à ♦'], ['P'], ['4SA', 'Fit ♥ et zone de chelem (18 HLD) : Blackwood Lefèvre'], ['P'], ['5♠', '2 As, 1 ou 4 Rois'], ['P'], ['6♥', 'Il ne manque qu’un As : petit chelem'], ['P'], ['P'], ['P']] },
+  { n: 7, t: 'Oklahoma', d: 'N', N: 'K5.AQJ84.A732.Q4', S: 'A8742.K963.-.KJ52', a: [
+    ['1♥', 'Ouverture, 5 cartes à ♥'], ['P'], ['4♣', 'Oklahoma : fit ♥, 2 cartes clés (A♠ + R♥) + une chicane'], ['P'],
+    ['4♦', 'Relais chelem : où est ta chicane ?'], ['P'], ['5♦', 'Chicane à ♦'], ['P'],
+    ['6♥', 'Il ne manque qu’une carte clé et l’As ♦ est inutile face à ta chicane : petit chelem'], ['P'], ['P'], ['P']] },
 
-  { n: 8, t: '1♥ – 1♠ puis fit', d: 'N', N: 'K85.AQ864.Q73.J4', S: 'QJ742.K973.-.KQ52', a: [
-    ['1♥', 'Ouverture, 5 cartes à ♥'], ['P'], ['1♠', '5 cartes à ♠ et 11H ou plus : les ♠ d’abord, même avec le fit ♥ — tu montreras le fit ensuite'], ['P'], ['1SA', 'Main régulière minimum, sans 4 cartes à ♠'], ['P'], ['4♥', 'Tu montres le fit ♥ : la manche (18 HLD)'], ['P'], ['P'], ['P']] },
+  { n: 8, t: 'Oklahoma', d: 'N', N: 'K85.AQ864.Q73.J4', S: 'QJ742.K973.-.KQ52', a: [
+    ['1♥', 'Ouverture, 5 cartes à ♥'], ['P'], ['3♠', 'Oklahoma : fit ♥, 0 ou 1 carte clé (R♥) + une chicane'], ['P'],
+    ['3SA', 'Relais : où est ta chicane ?'], ['P'], ['4♦', 'Chicane à ♦'], ['P'],
+    ['4♥', 'Il manque 2 As : on s’arrête à la manche'], ['P'], ['P'], ['P']] },
 
   { n: 9, t: 'Landy', d: 'E', E: 'A95.K82.Q943.AK7', S: 'KQT63.AJ74.A2.95', N: 'J84.Q93.KJ75.Q83', a: [
     ['1SA', '15-17H (adversaire)'], ['2♣', 'Landy : 5/4 en majeures, 12H et plus'], ['P'],
