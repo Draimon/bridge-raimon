@@ -366,20 +366,43 @@
   .center { text-align: center; }
   .missed { display: flex; flex-wrap: wrap; gap: 6px; }
   .missed span { background: var(--ko-soft); border-radius: 8px; padding: 4px 10px; font-weight: 600; }
+  /* ── Salon de bridge */
+  .sl-who { padding: 4px 0; } .sl-who .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #2fbf5b; margin-right: 8px; }
+  .sl-seats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin: 8px 0; font-size: 14px; }
+  .chatbox { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px; margin-bottom: 12px; color: var(--ink); }
+  .chatlog { max-height: 260px; overflow-y: auto; padding: 4px; }
+  .chatmsg { margin: 4px 0; font-size: 15px; } .chatmsg small { color: var(--muted); font-size: 11px; margin-left: 6px; } .chatmsg.mine b { color: var(--accent); }
+  .chatform { display: flex; gap: 6px; margin-top: 6px; } .chatform input { flex: 1; min-width: 0; font-size: 16px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  .chatform .btn { width: auto; margin: 0; padding: 8px 14px; }
+  .tchat { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
+  .tseats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .tseat { background: rgba(0,0,0,.25); color: #fff; border-radius: 12px; padding: 10px; text-align: center; }
+  .tseat .btn.sm { padding: 6px 8px; font-size: 14px; margin: 6px 0 0; }
+  .atab { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; justify-items: center; color: #fff; font-size: 12px; max-width: 320px; margin: 0 auto; }
+  .atab b { opacity: .8; text-transform: uppercase; letter-spacing: .04em; }
+  .hist { display: grid; gap: 2px; margin-top: 6px; font-size: 14px; } .hist div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); padding: 3px 0; }
+  .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
+  .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
+  .dummy .pcard.can { cursor: pointer; box-shadow: 0 0 0 2px #ffe08a; }
+  @media (min-width: 700px) { .thand .pcard + .pcard { margin-left: -14px; } }
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611151805"></script>
-<script src="fiche.js?v=202611151805"></script>
-<script src="deals.js?v=202611151805"></script>
-<script src="deals-duo.js?v=202611151805"></script>
-<script src="dds.js?v=202611151805"></script>
-<script src="jeu.js?v=202611151805"></script>
-<script src="adeux.js?v=202611151805"></script>
+<script src="questions.js?v=202611151845"></script>
+<script src="fiche.js?v=202611151845"></script>
+<script src="deals.js?v=202611151845"></script>
+<script src="deals-duo.js?v=202611151845"></script>
+<script src="dds.js?v=202611151845"></script>
+<script src="jeu.js?v=202611151845"></script>
+<script src="adeux.js?v=202611151845"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="auth.js?v=202611151805"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="auth.js?v=202611151845"></script>
+<script src="ffb-01.js?v=202611151845"></script>
+<script src="ffb-02.js?v=202611151845"></script>
+<script src="salon.js?v=202611151845"></script>
 <script>
 (() => {
   'use strict';
@@ -393,7 +416,7 @@
 
   // ───── Joueur (sans mot de passe : on choisit qui on est) et sa progression, gardée sur l'appareil
   const PLAYERS = ['Michèle', 'Damien', 'Hélène'];
-  let player = null;
+  let player = null, guest = false;
   try { player = localStorage.getItem('raimon-player'); } catch (e) { player = null; }
   if (!PLAYERS.includes(player)) player = null;
   const keyFor = p => STORE_KEY + ':' + p;
@@ -413,9 +436,64 @@
       <div class="hero"><div class="logo">♠<span class="red">♥</span><span class="red">♦</span>♣</div>
         <h1>Système Raimon</h1><p>Qui es-tu ?</p></div>
       ${PLAYERS.map(p => `<button class="btn primary center who" data-who="${p}">${p}</button>`).join('')}
-      <p class="center muted" style="font-size:13px">Chacun garde sa propre progression (quiz et donnes).</p>`;
+      <p class="center muted" style="font-size:13px">Chacun garde sa propre progression (quiz et donnes).</p>
+      <div class="section-title" style="text-align:center">Pas de la famille ?</div>
+      <button class="btn center" data-act="guest">🃏 Je viens jouer au salon de bridge</button>`;
     app.querySelectorAll('[data-who]').forEach(b => b.addEventListener('click', () => askCode(b.dataset.who)));
+    on('guest', guestLogin);
   }
+  // ───── Invités : prénom + 0000 la première fois, puis un mot de passe personnel (8 caractères au moins)
+  const inputCss = 'font-size:20px;text-align:center;width:100%;max-width:280px;box-sizing:border-box;padding:10px;border-radius:12px;border:1px solid var(--line, #ccc);margin:4px auto;display:block';
+  function guestLogin() {
+    app.innerHTML = `
+      <div class="hero"><div class="logo">♠<span class="red">♥</span><span class="red">♦</span>♣</div>
+        <h1>Salon de bridge</h1><p>Première fois ? Ton prénom et le code <b>0000</b>.</p></div>
+      <form id="gform" class="center">
+        <input id="gname" placeholder="Prénom" autocomplete="username" maxlength="24" style="${inputCss}">
+        <input id="gcode" type="password" placeholder="Code ou mot de passe" autocomplete="current-password" maxlength="40" style="${inputCss}">
+        <p id="gerr" class="center" style="color:#c0392b;min-height:20px;font-size:14px"></p>
+        <button class="btn primary center" type="submit">Entrer</button>
+      </form>
+      <p class="center"><button class="link" data-act="back">← Retour</button></p>`;
+    on('back', () => go(whoAmI));
+    const err = document.getElementById('gerr');
+    document.getElementById('gname').focus();
+    document.getElementById('gform').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const name = document.getElementById('gname').value.trim().replace(/\s+/g, ' '), code = document.getElementById('gcode').value;
+      if (name.length < 2) { err.textContent = 'Indique ton prénom.'; return; }
+      if (AUTH.reserved(name)) { err.textContent = 'Ce prénom est réservé : ajoute l’initiale de ton nom, par exemple « ' + name + ' D ».'; return; }
+      if (!code) { err.textContent = 'Indique ton code.'; return; }
+      err.textContent = 'Connexion…';
+      try { await AUTH.signIn(name, code); } catch (e) { err.textContent = AUTH.errorText(e); return; }
+      if (code === AUTH.FIRST_CODE) { try { localStorage.setItem('raimon-mdp-todo', '1'); } catch (e) { /* stockage indisponible */ } newPassword(name); }
+      else enterGuest(name);
+    });
+  }
+  function newPassword(name) {
+    app.innerHTML = `
+      <div class="hero"><h1>Bienvenue ${esc(name)} !</h1><p>Choisis ton mot de passe personnel (8 caractères au moins). Il te servira la prochaine fois.</p></div>
+      <form id="pform" class="center">
+        <input id="p1" type="password" placeholder="Nouveau mot de passe" autocomplete="new-password" maxlength="40" style="${inputCss}">
+        <input id="p2" type="password" placeholder="Encore une fois" autocomplete="new-password" maxlength="40" style="${inputCss}">
+        <p id="perr" class="center" style="color:#c0392b;min-height:20px;font-size:14px"></p>
+        <button class="btn primary center" type="submit">Valider</button>
+      </form>`;
+    const err = document.getElementById('perr');
+    document.getElementById('p1').focus();
+    document.getElementById('pform').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const a = document.getElementById('p1').value, b = document.getElementById('p2').value;
+      if (a.length < 8) { err.textContent = 'Au moins 8 caractères.'; return; }
+      if (/^0+$/.test(a)) { err.textContent = 'Choisis autre chose que des zéros.'; return; }
+      if (a !== b) { err.textContent = 'Les deux saisies sont différentes.'; return; }
+      err.textContent = 'Enregistrement…';
+      try { await AUTH.changePassword(a); } catch (e) { err.textContent = AUTH.errorText(e); return; }
+      try { localStorage.removeItem('raimon-mdp-todo'); } catch (e) { /* stockage indisponible */ }
+      enterGuest(name);
+    });
+  }
+  function enterGuest(name) { player = name; guest = true; SALON.open(); }
   // Code à 4 chiffres, demandé une seule fois : ensuite le téléphone reste connecté.
   function askCode(who) {
     app.innerHTML = `
@@ -519,6 +597,7 @@
       <div class="section-title">Jouer</div>
       <button class="btn primary mode" data-act="deals"><span class="mode-ico">♠</span><span>Jouer au bridge<small>${DEALS.length} donnes · ${playedOk} réussies sans faute · enchères puis jeu de la carte</small></span></button>
       <button class="btn primary mode" data-act="duo"><span class="mode-ico">⇄</span><span>Jouer à deux<small id="duowait">Enchères au tour par tour avec Michèle, Damien ou Hélène</small></span></button>
+      <button class="btn primary mode" data-act="salon"><span class="mode-ico">🃏</span><span>Salon de bridge<small>Tables à 4 en direct (joueurs ou robots), donnes de simultanés FFB, classement en %</small></span></button>
       <div class="section-title">Consulter</div>
       <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
       <p class="center muted" style="font-size:13px;margin-top:20px">Un souci sur une question ou une donne ? Note son numéro et préviens Damien.</p>
@@ -528,6 +607,7 @@
     on('fiche', () => go(fiche));
     on('deals', () => go(dealList));
     on('duo', () => DUO.list());
+    on('salon', () => SALON.open());
     DUO.waitingDetail().then(w => {
       const k = w.total, el = document.getElementById('duowait');
       if (el && k) el.innerHTML = '<b>' + k + ' donne' + (k > 1 ? 's' : '') + ' t’attend' + (k > 1 ? 'ent' : '') + '</b> · enchères au tour par tour';
@@ -917,6 +997,7 @@
 
   let play = null;
   const DUO = createDuo({ app, topbar, SYS_BTN, isVul, hcpOf, on, go, fmt, bidLabel, bidRank, getPlayer: () => player, players: PLAYERS, home, SEAT_NAMES });
+  const SALON = createSalon({ app, topbar, on, fmt, esc, bidCard, home: () => go(home), getPlayer: () => player, isGuest: () => guest });
   const PLAY = createPlay({ app, fmt, topbar, on, go: v => v(), getProgress: () => progress, save, exit: () => go(dealList) });
   const biddingDone = n => { const p = progress[dealKey(n)]; return !!p && (p.won || p.last === 1); };
   function startDeal(deal, skipIntro) {
@@ -1158,9 +1239,12 @@
   // Connecté (session Firebase gardée sur le téléphone) → accueil ; sinon on demande qui on est et le code.
   app.innerHTML = '<p class="center muted" style="margin-top:40vh">Chargement…</p>';
   AUTH.ready.then(u => {
-    const who = u && PLAYERS.includes(u.displayName) ? u.displayName : null;
+    const who = u && PLAYERS.includes(u.displayName) && AUTH.isFamily(u.displayName) && /^[a-z]+@/.test(u.email || '') && !(u.email || '').startsWith('invite-') ? u.displayName : null;
+    let todo = false; try { todo = !!localStorage.getItem('raimon-mdp-todo'); } catch (e) { /* stockage indisponible */ }
     if (who) enter(who);
-    else if (u) { AUTH.signOut().catch(() => {}); whoAmI(); }   // compte invité : pas d'accès au quiz ni au jeu à deux
+    else if (u && u.displayName && todo) newPassword(u.displayName);   // invité qui n'a pas encore choisi son mot de passe
+    else if (u && u.displayName) enterGuest(u.displayName);           // invité : directement au salon
+    else if (u) { AUTH.signOut().catch(() => {}); whoAmI(); }
     else if (player) askCode(player);                            // déjà choisi avant la mise à jour : juste le code
     else whoAmI();
   });

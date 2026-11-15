@@ -13,10 +13,16 @@ const AUTH = (() => {
     projectId: 'systeme-raimon',
   });
   const auth = fb.auth();
+  // ?test=1 : session propre à l'onglet (pour tester une table à 4 dans un seul navigateur)
+  if (/[?&]test=1\b/.test(location.search)) auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(() => {});
   const slug = name => name.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const isFamily = name => FAMILY.includes(name);
   const emailOf = name => (isFamily(name) ? '' : 'invite-') + slug(name) + '@systeme-raimon.app';
   const pwdOf = code => 'raimon-' + code;
+  const FIRST_CODE = '0000';                                             // code de première connexion des invités
+  // Prénom d'invité : pas celui d'un membre de la famille (même sans accent ni majuscule)
+  const reserved = name => FAMILY.some(f => slug(f) === slug(name));
+  async function changePassword(newCode) { await auth.currentUser.updatePassword(pwdOf(newCode)); }
   // Premier état connu (connecté ou non) : l'appli attend cette réponse avant de s'afficher.
   const ready = new Promise(res => { const off = auth.onAuthStateChanged(u => { off(); res(u); }); });
 
@@ -28,7 +34,11 @@ const AUTH = (() => {
       // Invité qui vient pour la première fois : on crée son compte. La famille, elle, ne crée jamais de compte ici.
       const unknown = ['auth/user-not-found', 'auth/invalid-credential', 'auth/invalid-login-credentials'].includes(e.code);
       if (!unknown || isFamily(name)) throw e;
-      try { await auth.createUserWithEmailAndPassword(email, pwd); } catch (e2) { throw e2.code === 'auth/email-already-in-use' ? e : e2; }
+      if (code !== FIRST_CODE) throw e;                                  // un invité ne crée son compte qu'avec 0000
+      try { await auth.createUserWithEmailAndPassword(email, pwd); } catch (e2) {
+        if (e2.code === 'auth/email-already-in-use') { const t = new Error('prénom pris'); t.code = 'raimon/name-taken'; throw t; }
+        throw e2;
+      }
     }
     if (auth.currentUser.displayName !== name) await auth.currentUser.updateProfile({ displayName: name }).catch(() => {});
     return auth.currentUser;
@@ -40,6 +50,9 @@ const AUTH = (() => {
     'auth/user-not-found': 'Compte introuvable.',
     'auth/too-many-requests': 'Trop d’essais : réessaie dans quelques minutes.',
     'auth/network-request-failed': 'Pas de connexion internet.',
+    'raimon/name-taken': 'Ce prénom est déjà pris (ou ton mot de passe est faux). Si ce n’est pas toi, ajoute l’initiale de ton nom, par exemple « Paul D ».',
+    'auth/requires-recent-login': 'Reconnecte-toi puis recommence.',
+    'auth/weak-password': 'Mot de passe trop faible.',
   }[e && e.code] || 'Connexion impossible (' + ((e && (e.code || e.message)) || 'erreur') + ').');
 
   // fetch vers Firestore avec le jeton de connexion (renouvelé automatiquement quand il expire).
@@ -51,7 +64,7 @@ const AUTH = (() => {
   }
 
   return {
-    ready, signIn, errorText, authFetch, isFamily, FAMILY,
+    ready, signIn, errorText, authFetch, isFamily, FAMILY, FIRST_CODE, reserved, changePassword,
     signOut: () => auth.signOut(),
     user: () => auth.currentUser,
     name: () => (auth.currentUser && auth.currentUser.displayName) || '',

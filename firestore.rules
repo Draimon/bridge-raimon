@@ -47,6 +47,41 @@ service cloud.firestore {
         && resource.data.date < request.time.toMillis() - 2592000000;
     }
 
-    // Étape 2 « Jouer au bridge » : collections ouvertes aux invités connectés (tables, chat…) à ajouter ici.
+    // ───── Salon de bridge (15/11/2026) : ouvert à tous les joueurs connectés, invités compris
+    function connecte() { return request.auth != null; }
+    function maintenant() { return request.time.toMillis(); }
+
+    // Présence : chacun écrit la sienne ; les vieilles (plus d'un jour) peuvent être effacées par tous
+    match /presence/{uid} {
+      allow read: if connecte();
+      allow create, update: if connecte() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['nom', 'invite', 'ou', 't'])
+        && request.resource.data.nom is string && request.resource.data.nom.size() <= 40;
+      allow delete: if connecte() && (request.auth.uid == uid || resource.data.t < maintenant() - 86400000);
+    }
+    // Chat général : message à son nom, 400 caractères max ; effaçable une fois sa semaine terminée
+    match /chat/{msg} {
+      allow read: if connecte();
+      allow create: if connecte() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'nom', 'texte', 't', 'sem'])
+        && request.resource.data.texte is string && request.resource.data.texte.size() <= 400
+        && request.resource.data.sem is int && request.resource.data.sem <= maintenant()
+        && request.resource.data.sem > maintenant() - 691200000;
+      allow delete: if connecte() && resource.data.sem < maintenant() - 518400000;
+    }
+    // Tables : tout l'état d'une table dans un document ; effaçable après 2 jours sans activité
+    match /tables/{table} {
+      allow read, create, update: if connecte();
+      allow delete: if connecte() && resource.data.maj < maintenant() - 172800000;
+    }
+    // Donnes déjà jouées : chacun tient sa liste
+    match /joues/{uid} {
+      allow read: if connecte();
+      allow write: if connecte() && request.auth.uid == uid;
+    }
+    // Résultats : ajout seulement
+    match /resultats/{res} {
+      allow read, create: if connecte();
+    }
   }
 }

@@ -21,7 +21,7 @@ async function get(u) {
 }
 // Donneur et vulnérabilité standard selon le numéro de donne
 const DEALER = ['N', 'E', 'S', 'O'];
-const VUL = ['-', 'NS', 'EO', 'T', 'NS', 'EO', 'T', '-', 'EO', 'T', '-', 'NS', 'T', '-', 'NS', 'EO'];
+const VUL = ['none', 'NS', 'EO', 'all', 'NS', 'EO', 'all', 'none', 'EO', 'all', 'none', 'NS', 'all', 'none', 'NS', 'EO'];   // même codage que les autres donnes
 const SEAT = { N: 'N', E: 'E', S: 'S', W: 'O' };
 function parseDeal(pbn) {                 // "N:AK4..76542.86532 987.AJ8543.83.QJ …" (ordre N E S O)
   const [first, rest] = pbn.split(':');
@@ -68,7 +68,9 @@ function parseDeal(pbn) {                 // "N:AK4..76542.86532 987.AJ8543.83.Q
       let added = 0;
       for (const b of [...boards.values()].sort((p, q) => p.boardNumber - q.boardNumber)) {
         if (seenBoards.has(b.id) || db.deals.length >= target) continue;
-        const freq = (b.frequencies || []).map(f => [f.nsScore ? +f.nsScore : -(+f.ewScore || 0), f.count]).filter(f => f[1] > 0);
+        // scores ajustés (A60, moyenne…) : ignorés, on ne garde que les vrais scores chiffrés
+        const num = x => (x === '' || x == null ? null : /^-?\d+$/.test(String(x).trim()) ? +x : NaN);
+        const freq = (b.frequencies || []).map(f => { const ns = num(f.nsScore), ew = num(f.ewScore); const sc = ns !== null ? ns : ew !== null ? -ew : NaN; return [sc, f.count]; }).filter(f => Number.isFinite(f[0]) && f[1] > 0);
         const tables = freq.reduce((s, f) => s + f[1], 0);
         if (tables < 8) continue;                                          // trop peu de tables pour un vrai %
         const i = (b.boardNumber - 1) % 16;
@@ -77,7 +79,7 @@ function parseDeal(pbn) {                 // "N:AK4..76542.86532 987.AJ8543.83.Q
           d: DEALER[(b.boardNumber - 1) % 4], v: VUL[i],
           ...parseDeal(b.deal),
           freq,                                                            // [score NS, nombre de tables]
-          dds: b.dds,
+          dds: b.dds && { N: b.dds.N, E: b.dds.E, S: b.dds.S, O: b.dds.W },   // O = Ouest, comme les mains
           src: { simu: ses.simu, date: ses.date, session: ses.id, board: b.id, num: b.boardNumber },
         });
         seenBoards.add(b.id); added++;
