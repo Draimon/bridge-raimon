@@ -8,7 +8,7 @@ function createSalon(env) {
   const { app, topbar, on, fmt, esc, bidCard, home, getPlayer, isGuest } = env;
   const db = firebase.firestore();
   const MAX = 16;                                    // joueurs connectés en même temps (quota gratuit Firebase)
-  const FRESH = 150000;                              // présence : vu il y a moins de 2 min 30
+  const FRESH = 300000;                              // présence : vu il y a moins de 5 min (absence tolérée avant de perdre la main)
   const SEATS = ['N', 'E', 'S', 'O'];
   const NAMES = { N: 'Nord', E: 'Est', S: 'Sud', O: 'Ouest' };
   const STRAINS = ['♣', '♦', '♥', '♠', 'SA'];
