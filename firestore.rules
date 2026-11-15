@@ -1,36 +1,52 @@
-// BROUILLON — règles Firestore avec connexion obligatoire (étape 1 « accès sécurisés »).
-// À FUSIONNER avec les règles durcies publiées le 29/10/2026 (relire celles de la console avant de publier) :
-// on garde leurs conditions de format et on ajoute seulement isFamily() devant.
-// À publier SEULEMENT après la mise en ligne de l'appli qui envoie le jeton (sinon plus rien ne marche).
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isFamily() {
+
+    // Connexion obligatoire (15/11/2026) : parties, remarques et vocaux réservés aux comptes de la famille.
+    function famille() {
       return request.auth != null && request.auth.token.email in [
         'michele@systeme-raimon.app', 'damien@systeme-raimon.app', 'helene@systeme-raimon.app'
       ];
     }
-    function signedIn() { return request.auth != null; }
 
-    // parties / corrections : un seul champ texte « data », pas de suppression (règles du 29/10)
-    match /parties/{id} {
-      allow read: if isFamily();
-      allow create, update: if isFamily() && request.resource.data.keys().hasOnly(['data']) && request.resource.data.data is string;
+    // Parties et remarques : un seul champ « data » (texte), jamais d'effacement
+    function texteSeul() {
+      return request.resource.data.keys().hasOnly(['data'])
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 900000;
+    }
+
+    match /parties/{partie} {
+      allow read: if famille();
+      allow create, update: if famille() && texteSeul();
       allow delete: if false;
     }
-    match /corrections/{id} {
-      allow read: if isFamily();
-      allow create, update: if isFamily() && request.resource.data.keys().hasOnly(['data']) && request.resource.data.data is string;
+
+    match /corrections/{correction} {
+      allow read: if famille();
+      allow create, update: if famille() && texteSeul();
       allow delete: if false;
     }
-    // vocaux : reprendre ICI les conditions exactes de la console (format méta/morceau, update « ecoute »,
-    // delete si plus de 30 jours) en ajoutant isFamily() à chacune.
-    match /vocaux/{id} {
-      allow read: if isFamily();
-      // allow create: if isFamily() && <condition de format actuelle>;
-      // allow update: if isFamily() && <seulement « ecoute »>;
-      // allow delete: if isFamily() && <date > 30 jours>;
+
+    // Vocaux : création au bon format, seul « écouté » modifiable, effacement après 30 jours seulement
+    match /vocaux/{vocal} {
+      allow read: if famille();
+      allow create: if famille() && ((
+          request.resource.data.keys().hasOnly(['partie', 'donne', 'auteur', 'pour', 'date', 'duree', 'ecoute', 'parts', 'mime', 'audio'])
+          && request.resource.data.audio is string
+          && request.resource.data.date is int
+        ) || (
+          request.resource.data.keys().hasOnly(['chunkOf', 'date', 'audio'])
+          && request.resource.data.audio is string
+        ));
+      allow update: if famille()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ecoute'])
+        && request.resource.data.ecoute is bool;
+      allow delete: if famille()
+        && resource.data.date is int
+        && resource.data.date < request.time.toMillis() - 2592000000;
     }
-    // Étape 2 « Jouer au bridge » : collections ouvertes aux invités connectés (tables, résultats…) à ajouter ici.
+
+    // Étape 2 « Jouer au bridge » : collections ouvertes aux invités connectés (tables, chat…) à ajouter ici.
   }
 }
