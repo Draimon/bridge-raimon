@@ -450,24 +450,24 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152122"></script>
-<script src="fiche.js?v=202611152122"></script>
-<script src="deals.js?v=202611152122"></script>
-<script src="deals-duo.js?v=202611152122"></script>
-<script src="dds.js?v=202611152122"></script>
-<script src="jeu.js?v=202611152122"></script>
-<script src="adeux.js?v=202611152122"></script>
+<script src="questions.js?v=202611152124"></script>
+<script src="fiche.js?v=202611152124"></script>
+<script src="deals.js?v=202611152124"></script>
+<script src="deals-duo.js?v=202611152124"></script>
+<script src="dds.js?v=202611152124"></script>
+<script src="jeu.js?v=202611152124"></script>
+<script src="adeux.js?v=202611152124"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152122"></script>
-<script src="ffb-01.js?v=202611152122"></script>
-<script src="ffb-02.js?v=202611152122"></script>
-<script src="robot.js?v=202611152122"></script>
-<script src="bidder.js?v=202611152122"></script>
-<script src="player.js?v=202611152122"></script>
-<script src="news.js?v=202611152122"></script>
-<script src="salon.js?v=202611152122"></script>
+<script src="auth.js?v=202611152124"></script>
+<script src="ffb-01.js?v=202611152124"></script>
+<script src="ffb-02.js?v=202611152124"></script>
+<script src="robot.js?v=202611152124"></script>
+<script src="bidder.js?v=202611152124"></script>
+<script src="player.js?v=202611152124"></script>
+<script src="news.js?v=202611152124"></script>
+<script src="salon.js?v=202611152124"></script>
 <script>
 (() => {
   'use strict';
@@ -1322,7 +1322,19 @@
     }).catch(() => { /* hors ligne */ });
   }
   checkUpdate();
-  setInterval(() => { if (document.visibilityState === 'visible') checkUpdate(); }, 120000);   // aussi pendant qu'on joue
+  setInterval(() => { if (document.visibilityState === 'visible') checkUpdate(); }, 60000);    // aussi pendant qu'on joue
+  // Annonce en direct d'une nouvelle version (document public stats/version, écrit à chaque publication) :
+  // on revérifie le site toutes les 20 s jusqu'à ce qu'il serve la nouvelle version (le temps du déploiement)
+  try {
+    let chase = null;
+    firebase.firestore().collection('stats').doc('version').onSnapshot(d => {
+      const v = d.exists && d.data().v;
+      if (!v || !/^\d{12}$/.test(myVersion) || v <= myVersion) return;
+      checkUpdate();
+      clearInterval(chase); let n = 0;
+      chase = setInterval(() => { if (window.__raimonUpdate || ++n > 30) { clearInterval(chase); return; } checkUpdate(); }, 20000);
+    }, () => {});
+  } catch (e) { /* hors ligne */ }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { checkUpdate(); if (player && document.getElementById('duowait')) home(); } });
 
   // Lien reçu par texto : ?donne=T078 ouvre directement la donne

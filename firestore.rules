@@ -96,6 +96,11 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if connecte() && request.resource.data.keys().hasOnly(['joues']) && request.resource.data.joues is list;
     }
+    // Version publiée de l'appli : écrite par Damien à chaque publication, écoutée par tous les téléphones
+    match /stats/version {
+      allow read: if true;
+      allow write: if famille() && request.resource.data.keys().hasOnly(['v', 't']);
+    }
     // Résultats : ajout seulement
     match /resultats/{res} {
       allow read, create: if connecte();
