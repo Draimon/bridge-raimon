@@ -355,9 +355,34 @@ function createSalon(env) {
   const contractTxt = c => (!c ? 'Passe générale' : c.l + c.s + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + ' par ' + NAMES[c.decl]);
 
   // ───── Après chaque changement : fin de donne, robots, maître absent
+  function actingSeat(t) {
+    const deal = t.n && dealOf(t.n); if (!deal || (t.etat !== 'encheres' && t.etat !== 'jeu')) return null;
+    const A = auction(t, deal);
+    if (t.etat === 'encheres') return A.ended ? null : A.turn;
+    const ps = playState(t, deal, A.contract); if (ps.done) return null;
+    const sw = swapOf(t, A.contract);
+    return sw && (ps.turn === A.contract.decl || ps.turn === ps.dummy) ? sw.human : ps.turn === ps.dummy ? A.contract.decl : ps.turn;
+  }
+  const SLOW = 45000;                                                    // au-delà : « ne répond plus »
+  // Un joueur ne répond plus (absent, ou rien joué depuis 45 s) : le maître peut le remplacer par un robot
+  function stuckSeat(t) {
+    const seat = actingSeat(t), st = seat && t.sieges[seat];
+    if (!st || !st.uid || st.uid === me()) return null;
+    return !isFresh(st.uid) || now() - (t.maj || 0) > SLOW ? seat : null;
+  }
+  function replaceByRobot(seat) {
+    tx(x => {
+      if (!isMaster(x) || !x.sieges[seat] || !x.sieges[seat].uid) return null;
+      const mate = x.sieges[partner(seat)];
+      return { sieges: { ...x.sieges, [seat]: { robot: true, sys: mate && mate.robot && mate.sys ? mate.sys : 'sef' } } };
+    });
+  }
+  let slowTimer = null;
   function afterUpdate() {
     const t = current; if (!t) return;
-    clearTimeout(robotTimer);
+    clearTimeout(robotTimer); clearTimeout(slowTimer);
+    // maître : réafficher la table au bout de 45 s si un joueur tarde, pour proposer de le remplacer
+    if (isMaster(t)) { const seat = actingSeat(t), st = seat && t.sieges[seat]; if (st && st.uid && st.uid !== me()) slowTimer = setTimeout(() => { if (tab === 'main') renderTable(); }, Math.max(1000, SLOW - (now() - (t.maj || now())) + 500)); }
     // le maître est parti : le premier humain présent reprend la table
     if (t.maitre !== me() && !isFresh(t.maitre) && presence.length) {
       const firstHuman = SEATS.map(s => t.sieges[s]).find(x => x && x.uid && isFresh(x.uid));
@@ -501,6 +526,7 @@ function createSalon(env) {
       else body = playHtml(t, deal, A, my, { top, left, right, bottom });
     }
     app.innerHTML = topbar(esc(t.nom) + (t.n ? ' · ' + t.n : ''), 'Salon') + body
+      + (isMaster(t) && stuckSeat(t) ? `<div class="notice">${esc(t.sieges[stuckSeat(t)].nom)} (${NAMES[stuckSeat(t)]}) ne répond plus. <button class="btn primary center sm" data-act="replacebot" data-seat="${stuckSeat(t)}">🤖 Le remplacer par un robot</button></div>` : '')
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
     ui.msg = '';
     on('back', () => { if (t.etat === 'jeu' || t.etat === 'encheres') { if (!confirm('Quitter la table en pleine donne ?')) return; } leaveTable(); });
@@ -508,8 +534,9 @@ function createSalon(env) {
     on('replay', () => replayView({ ...t.fin, t: now() }, 0, 'main'));
     app.querySelectorAll('[data-sit]').forEach(b => b.addEventListener('click', () => sit(b.dataset.sit)));
     app.querySelectorAll('[data-robot]').forEach(b => b.addEventListener('click', () => { const [seat, sys] = b.dataset.robot.split(':'); setRobot(seat, sys || 'sef'); }));
-    app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => freeSeat(b.dataset.free)));
+    app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => { if (b.dataset.human && !confirm('Sortir ce joueur de la table ?')) return; freeSeat(b.dataset.free); }));
     on('deal', () => { clearTimeout(autoTimer); nextDeal(); });
+    app.querySelectorAll('[data-act="replacebot"]').forEach(b => b.addEventListener('click', () => { if (confirm('Remplacer ce joueur par un robot ? Il pourra revenir à une place libre.')) replaceByRobot(b.dataset.seat); }));
     on('autooff', () => { ui.noAuto = true; clearTimeout(autoTimer); renderTable(); });
     on('autoon', () => { ui.noAuto = false; autoKey = null; afterUpdate(); renderTable(); });
     on('fixbot', () => openFix(t.fin));
@@ -547,7 +574,8 @@ function createSalon(env) {
         if (master && guests.length) act += `<select class="tsel" data-invite="${s}"><option value="">✉️ Inviter…</option>${guests.map(p => `<option value="${p.id}">${esc(p.nom)}</option>`).join('')}</select>`;
         if (pend.length) act += `<div class="feltnote" style="font-size:12px">Invité : ${pend.map(([, v]) => esc(v.nom)).join(', ')}…</div>`;
       } else {
-        if (master && (st.robot || (st.uid !== me() && !isFresh(st.uid)))) act = `<button class="btn center sm" data-free="${s}">Libérer</button>`;
+        if (master && st.robot) act = `<button class="btn center sm" data-free="${s}">Libérer</button>`;
+        else if (master && st.uid !== me()) act = `<button class="btn center sm" data-free="${s}" data-human="1">Sortir${isFresh(st.uid) ? '' : ' (absent)'}</button>`;
         if (master && idle) act += `<select class="tsel" data-move="${s}"><option value="">↔ Déplacer…</option>${SEATS.filter(k => k !== s).map(k => `<option value="${k}">vers ${NAMES[k]}${t.sieges[k] ? ' (échange)' : ''}</option>`).join('')}</select>`;
       }
       return `<div class="tseat"><b>${NAMES[s]}</b><div>${seatLabel(st)}${st && st.uid === t.maitre ? ' 👑' : ''}</div>${act}</div>`;
