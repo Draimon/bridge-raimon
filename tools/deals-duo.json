@@ -11228,7 +11228,7 @@
  },
  {
   "n": "T249",
-  "t": "2 sur 1",
+  "t": "1♥ – 1♠",
   "d": "N",
   "v": "none",
   "N": "-.KJ875.Q432.AJ96",
@@ -11244,22 +11244,22 @@
     "P"
    ],
    [
-    "2♦",
-    "Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+    "1♠",
+    "5 cartes à ♠ et 11H ou plus : les ♠ d’abord, même avec le fit ♥ — tu montreras le fit ensuite"
    ],
    [
     "P"
    ],
    [
-    "3♦",
-    "Fit ♦ (4 cartes)"
+    "2♦",
+    "4 cartes à ♦"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "Tu montres le fit ♥ : la manche"
+    "Tu montres le fit ♥ : la manche (13 HLD)"
    ],
    [
     "P"
@@ -13582,7 +13582,7 @@
  },
  {
   "n": "T300",
-  "t": "2 sur 1",
+  "t": "1♥ – 1♠",
   "d": "N",
   "v": "NS",
   "N": "KQ72.AKT82.KQ.Q9",
@@ -13598,22 +13598,22 @@
     "P"
    ],
    [
-    "2♦",
-    "Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+    "1♠",
+    "5 cartes à ♠ et 11H ou plus : les ♠ d’abord, même avec le fit ♥ — tu montreras le fit ensuite"
    ],
    [
     "P"
    ],
    [
-    "2♥",
-    "Minimum (peut être régulier)"
+    "3♠",
+    "Fit ♠ (4 cartes), 17 HLD ou plus (21)"
    ],
    [
     "P"
    ],
    [
     "4SA",
-    "Fit ♥ et zone de chelem (15 HLD) : Blackwood Lefèvre"
+    "Fit ♠ et zone de chelem : Blackwood Lefèvre"
    ],
    [
     "P"
@@ -13626,7 +13626,7 @@
     "P"
    ],
    [
-    "6♥",
+    "6♠",
     "Il ne manque qu’un As : petit chelem"
    ],
    [
@@ -13643,7 +13643,7 @@
  },
  {
   "n": "T301",
-  "t": "2 sur 1",
+  "t": "1♥ – 1♠",
   "d": "N",
   "v": "all",
   "N": "Q.AK864.QT6.KQ97",
@@ -13659,22 +13659,22 @@
     "P"
    ],
    [
-    "2♣",
-    "Changement de couleur : fit ♥ et 12H ou plus (l’Oklahoma dénie plus de 11H) — tu montreras le fit ensuite"
+    "1♠",
+    "5 cartes à ♠ et 11H ou plus : les ♠ d’abord, même avec le fit ♥ — tu montreras le fit ensuite"
    ],
    [
     "P"
    ],
    [
-    "3♣",
-    "Fit ♣ (4 cartes)"
+    "2♣",
+    "4 cartes à ♣"
    ],
    [
     "P"
    ],
    [
     "4♥",
-    "Tu montres le fit ♥ : la manche"
+    "Tu montres le fit ♥ : la manche (15 HLD)"
    ],
    [
     "P"

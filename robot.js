@@ -385,6 +385,45 @@
     const fit = s.len[M];
     if (fit >= 3) {
       const h = hld(s, M, 5);
+      // 1♥ avec 5 cartes à ♠, fit ♥ et 11H ou plus : on nomme d'abord les ♠, le fit ♥ vient ensuite (Damien, 15/11/2026).
+      // Moins de 11H : fit direct (soutien, Shadow fit, ou Oklahoma en zone 13-15 HLD).
+      if (M === 1 && s.s >= 5 && s.hcp >= 11) {
+        add('1♠', '5 cartes à ♠ et 11H ou plus : les ♠ d’abord, même avec le fit ♥ — tu montreras le fit ensuite');
+        A.theme = '1♥ – 1♠';
+        if (n.s >= 4) {                                              // l'ouvreur soutient les ♠ : fit ♠ par 9 cartes, on joue ♠
+          const on = hld(n, 0, 5), hs = hld(s, 0);
+          add(on >= 17 ? '3♠' : '2♠', `Fit ♠ (4 cartes), ${on >= 17 ? '17 HLD ou plus' : '11-16 HLD'} (${on})`);
+          if (on + hs >= 32) {
+            add('4SA', `Fit ♠ et zone de chelem : Blackwood Lefèvre`);
+            const [b, why, opts] = lefevre(n, 0); add(b, why);
+            const pa = readAces(opts, aces(s)); if (pa === null) return null;
+            const tot = pa + aces(s);
+            if (tot <= 2) { if (rankOf('5♠') <= rankOf(b)) return null; add('5♠', 'Il manque 2 As : on s’arrête à 5♠'); add('P'); return A; }
+            if (tot === 4) return null;
+            add('6♠', 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
+          }
+          add('4♠', 'Fit ♠ par 9 cartes : la manche à ♠'); add('P'); return A;
+        }
+        if (n.h >= 6) add('2♥', '6 cartes à ♥');
+        else if (n.balanced && n.hcp <= 14) add('1SA', 'Main régulière minimum, sans 4 cartes à ♠');
+        else { const m = n.d >= 4 && n.d >= n.c ? '♦' : n.c >= 4 ? '♣' : null; if (m) add('2' + m, '4 cartes à ' + m); else add('2♥', 'Minimum'); }
+        if (hld(n, M) + h >= 32) {                                   // zone de chelem : Blackwood Lefèvre
+          add('4SA', `Fit ${Ms} et zone de chelem (${h} HLD) : Blackwood Lefèvre`);
+          const [b, why, opts] = lefevre(n, M); add(b, why);
+          const pa = readAces(opts, aces(s)); if (pa === null) return null;
+          const tot = pa + aces(s);
+          if (tot <= 2) { if (rankOf('5' + Ms) <= rankOf(b)) return null; add('5' + Ms, `Il manque 2 As : on s'arrête à 5${Ms}`); add('P'); return A; }
+          if (tot === 4) return null;
+          add('6' + Ms, 'Il ne manque qu’un As : petit chelem'); add('P'); return A;
+        }
+        if (h <= 12) {                                               // 11H mais seulement 11-12 HLD : proposition
+          add('3' + Ms, `Tu montres le fit ${Ms} : proposition de manche (${h} HLD)`);
+          const on = hld(n, M);
+          if (on >= 14) add('4' + Ms, `${on} HLD : il accepte`); else add('P', `Minimum (${on} HLD) : il passe`);
+          if (on >= 14) add('P'); return A;
+        }
+        add('4' + Ms, `Tu montres le fit ${Ms} : la manche (${h} HLD)`); add('P'); return A;
+      }
       if (h < 6) { add('P', 'Moins de 6 HLD : tu passes'); A.theme = 'Ouverture majeure'; return A; }
       if (h <= 10) {
         add('2' + Ms, `Soutien simple : fit ${Ms}, 6-10 HLD (${h})`);

@@ -149,8 +149,8 @@ const QUESTIONS = [
   { n: 93, t: 'okla', k: 's', d: 'N', s: '1♠ P 4♣ P 4♦ P 5♣', a: 'Chicane à ♣', f: '1♥/1♠ => 4♣ - 4♦ (chelem) => 4♥/♠ & 5♣/♦ chicane' },
   { n: 94, t: 'okla', k: 's', d: 'N', s: '1♠ P 4♣ P 4♦ P 4♥', a: 'Chicane à ♥', f: '1♥/1♠ => 4♣ - 4♦ (chelem) => 4♥/♠ & 5♣/♦ chicane' },
   { n: 95, t: 'okla', k: 'c', q: 'Après les relais Oklahoma, que demande 5SA ?', a: "Blackwood aux Rois (on recompte le Roi d'atout)", w: ['Le choix du chelem', "La Dame d'atout", 'Joséphine (honneurs d’atout)'], f: "=> 5SA = Blackwood aux rois (on recompte le roi d'atout)" },
-  { n: 96, t: 'okla', k: 'm', d: 'N', s: '1♥ P', h: 'A8742.K963.-.KJ52', hcp: 11, a: '4♣', e: "Fit ♥, 11H, 2 cartes clés (A♠ + R♥) et une chicane ♦ : 4♣.", f: 'Oklahoma : 4♣ = 2 cartes clés + 1 chicane' },
-  { n: 98, t: 'okla', k: 'm', d: 'N', s: '1♥ P', h: 'QJ742.K963.-.KQ52', hcp: 11, a: '3♠', e: "Fit ♥, 11H, 1 seule carte clé (R♥) et une chicane ♦ : 3♠ (l'autre majeure).", f: 'Oklahoma : 3♥/♠ (autre majeure) = 0/1 carte clé + 1 chicane' },
+  { n: 96, t: 'okla', k: 'm', d: 'N', s: '1♥ P', h: 'A8742.K963.-.KJ52', hcp: 11, a: '1♠', e: "Fit ♥ mais 5 cartes à ♠ et 11H : on dit d'abord 1♠, le fit ♥ viendra ensuite (pas d'Oklahoma).", f: '5 cartes à ♠ et 11H ou plus : 1♠ d’abord, puis le fit' },
+  { n: 98, t: 'okla', k: 'm', d: 'N', s: '1♥ P', h: 'QJ742.K963.-.KQ52', hcp: 11, a: '1♠', e: "Fit ♥ mais 5 cartes à ♠ et 11H : on dit d'abord 1♠, le fit ♥ viendra ensuite (pas d'Oklahoma).", f: '5 cartes à ♠ et 11H ou plus : 1♠ d’abord, puis le fit' },
   { n: 97, t: 'okla', k: 'm', d: 'N', s: '1♠ P', h: 'K863.A5.KQ74.J93', hcp: 13, a: '4♦', e: "Fit ♠, 2 cartes clés (R♠ + A♥), pas de chicane : 4♦.", f: 'Oklahoma : 4♦ = 2 cartes clés' },
 
   // ───────── Blackwood Lefèvre
