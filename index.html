@@ -405,6 +405,13 @@
   .mbacks { display: inline-flex; margin-left: 8px; padding-left: 4px; } .mbacks i { width: 9px; height: 14px; border-radius: 2px; border: 1px solid #fff; background: repeating-linear-gradient(45deg, #b8322e 0 2px, #cf4a45 2px 4px); margin-left: -4px; }
   .lastlabel { position: absolute; left: 0; right: 0; top: 50%; text-align: center; color: #ffe08a; font-size: 12px; font-weight: 700; pointer-events: none; }
   .trick[data-act] { cursor: pointer; } .lastbtn { color: #ffe08a !important; font-size: 14px; }
+  .gb.galert { background: #1f7ae0; color: #fff; border-color: #0f5bb0; font-size: 16px; letter-spacing: .06em; padding: 0 14px; height: 38px; }
+  .alertbar { position: absolute; left: 0; right: 0; bottom: -4px; z-index: 9; display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .alertbar small { color: #e8f5ec; font-size: 12px; } .alertbar input { flex: 1; min-width: 0; max-width: 300px; font-size: 16px; padding: 8px 10px; border-radius: 10px; border: 2px solid #1f7ae0; }
+  .alertbar .link { color: #ffe08a; font-size: 13px; }
+  .gb.bigalert { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) translate(-58px, -12px) rotate(-8deg); z-index: 8; width: 110px; height: 160px; border-radius: 14px; font-size: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  .gb.bigbid.withalert { transform: translate(-50%, -50%) translate(28px, 6px); }
+  .alerttag { background: #1f7ae0; color: #fff; border-radius: 4px; padding: 0 5px; font-size: 12px; }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
   .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
@@ -414,24 +421,24 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152046"></script>
-<script src="fiche.js?v=202611152046"></script>
-<script src="deals.js?v=202611152046"></script>
-<script src="deals-duo.js?v=202611152046"></script>
-<script src="dds.js?v=202611152046"></script>
-<script src="jeu.js?v=202611152046"></script>
-<script src="adeux.js?v=202611152046"></script>
+<script src="questions.js?v=202611152049"></script>
+<script src="fiche.js?v=202611152049"></script>
+<script src="deals.js?v=202611152049"></script>
+<script src="deals-duo.js?v=202611152049"></script>
+<script src="dds.js?v=202611152049"></script>
+<script src="jeu.js?v=202611152049"></script>
+<script src="adeux.js?v=202611152049"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152046"></script>
-<script src="ffb-01.js?v=202611152046"></script>
-<script src="ffb-02.js?v=202611152046"></script>
-<script src="robot.js?v=202611152046"></script>
-<script src="bidder.js?v=202611152046"></script>
-<script src="player.js?v=202611152046"></script>
-<script src="news.js?v=202611152046"></script>
-<script src="salon.js?v=202611152046"></script>
+<script src="auth.js?v=202611152049"></script>
+<script src="ffb-01.js?v=202611152049"></script>
+<script src="ffb-02.js?v=202611152049"></script>
+<script src="robot.js?v=202611152049"></script>
+<script src="bidder.js?v=202611152049"></script>
+<script src="player.js?v=202611152049"></script>
+<script src="news.js?v=202611152049"></script>
+<script src="salon.js?v=202611152049"></script>
 <script>
 (() => {
   'use strict';

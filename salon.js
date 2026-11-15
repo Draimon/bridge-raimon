@@ -544,13 +544,22 @@ function createSalon(env) {
     app.querySelectorAll('[data-move]').forEach(x => x.addEventListener('change', () => { if (x.value) moveSeat(x.dataset.move, x.value); }));
     on('resetscore', () => { if (confirm('Remettre à zéro les scores de cette table ?')) tx(x => (isMaster(x) ? { historique: [], fin: null, etat: x.etat === 'fin' ? 'attente' : x.etat } : null)); });
     wireNotes(t.notes || [], t.bids);
+    const announce = v => {
+      const txtEl = document.getElementById('alerttxt');
+      const note = ui.alert ? { e: ((txtEl && txtEl.value) || ui.alertTxt || '').trim() || 'Enchère alertée (sans explication)', a: true, h: getPlayer() } : null;
+      ui.choice = null; ui.alert = false; ui.alertTxt = '';
+      move('bid', v, t.moves, note);
+    };
     app.querySelectorAll('[data-gb]').forEach(b => b.addEventListener('click', () => {
       const v = b.dataset.gb;
-      if (ui.choice === v) { ui.choice = null; move('bid', v, t.moves); return; }
-      ui.choice = v; renderTable();
+      if (ui.choice === v) { announce(v); return; }
+      ui.choice = v; ui.alert = false; renderTable();
     }));
-    on('announce', () => { const v = ui.choice; if (!v) return; ui.choice = null; move('bid', v, t.moves); });
-    on('unpick', () => { ui.choice = null; renderTable(); });
+    on('announce', () => { if (ui.choice) announce(ui.choice); });
+    on('unpick', () => { ui.choice = null; ui.alert = false; renderTable(); });
+    on('alerton', () => { ui.alert = true; renderTable(); const el = document.getElementById('alerttxt'); if (el) el.focus(); });
+    on('alertoff', () => { ui.alert = false; ui.alertTxt = ''; renderTable(); });
+    const at = document.getElementById('alerttxt'); if (at) at.addEventListener('input', () => { ui.alertTxt = at.value; });
     on('lasttrick', () => { ui.lastAt = ui.lastAt === t.moves ? null : t.moves; renderTable(); });
     app.querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', () => {
       const [s2, r] = b.dataset.play.split(':').map(Number);
@@ -649,7 +658,10 @@ function createSalon(env) {
   function gridHtml(A) {
     let rows = '';
     for (let l = 1; l <= 7; l++) if (bidRank(l + 'SA') > A.last) rows += GCOLS.map((c, k) => { const b = l + c; const ok = bidRank(b) > A.last; return `<button class="gb g${k} ${ui.choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : fmt(c)}</span></button>`; }).join('');
-    const big = ui.choice ? `<div class="bigbid-veil" data-act="unpick"></div><button class="gb bigbid ${bidKind(ui.choice)}" data-act="announce">${bidTxt(ui.choice)}<small>Touche pour annoncer</small></button>` : '';
+    const big = ui.choice ? `<div class="bigbid-veil" data-act="unpick"></div>${ui.alert ? '<div class="gb galert bigalert">ALERTE</div>' : ''}<button class="gb bigbid ${bidKind(ui.choice)} ${ui.alert ? 'withalert' : ''}" data-act="announce">${bidTxt(ui.choice)}<small>Touche pour annoncer</small></button>
+      <div class="alertbar">${ui.alert
+        ? `<input id="alerttxt" maxlength="80" placeholder="Que montre ton enchère ? (ex. Texas ♥)" value="${esc(ui.alertTxt || '')}"><button class="link" data-act="alertoff">sans alerte</button>`
+        : '<button class="gb galert" data-act="alerton">ALERTE</button><small>Enchère conventionnelle ? Pose le carton bleu.</small>'}</div>` : '';
     return `<div class="gridwrap"><div class="gridbox">${rows}</div>
       <div class="gspecial"><button class="gb gpass ${ui.choice === 'P' ? 'sel' : ''}" data-gb="P">PASSE</button><button class="gb gx ${ui.choice === 'X' ? 'sel' : ''}" ${A.canX ? 'data-gb="X"' : 'disabled'}>X</button><button class="gb gxx ${ui.choice === 'XX' ? 'sel' : ''}" ${A.canXX ? 'data-gb="XX"' : 'disabled'}>XX</button></div>
       ${big}</div>
@@ -737,7 +749,7 @@ function createSalon(env) {
       const i = +x.dataset.note, n = notes[i]; if (!n) return;
       let box = document.getElementById('notebox');
       if (!box) { box = document.createElement('div'); box.id = 'notebox'; const fr = app.querySelector('.frame') || app.querySelector('.felt'); (fr || app).after(box); }
-      box.innerHTML = `<div class="notice notebubble">${n.a ? '<b>Alerte</b> · ' : ''}<b>${bids[i] === 'P' ? 'Passe' : fmt(bids[i])}</b> : ${esc(n.e || '')}</div>`;
+      box.innerHTML = `<div class="notice notebubble">${n.a ? '<b class="alerttag">ALERTE</b> ' : ''}<b>${bids[i] === 'P' ? 'Passe' : fmt(bids[i])}</b> : ${esc(n.e || '')}${n.h ? ` <small class="muted">(explication de ${esc(n.h)})</small>` : ''}</div>`;
     }));
   }
   // ═════ « Corriger le bot » : Damien écrit directement dans les corrections ; les autres proposent, Damien valide

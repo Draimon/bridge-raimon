@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-carton-alerte', date: '15/11/2026', pour: 'tous',
+    titre: '🟦 Le carton bleu ALERTE',
+    texte: `<p>Comme dans une vraie boîte à enchères : quand vous choisissez votre enchère, touchez le carton bleu <b>ALERTE</b> et écrivez en quelques mots ce qu'elle veut dire (par ex. « Texas ♥ »), puis annoncez.</p>
+      <p>Votre enchère porte alors un <b>« ! »</b> pour toute la table, et chacun peut la toucher pour lire votre explication — comme pour les robots.</p>`,
+  },
+  {
     id: '2026-11-15-joueur-absent', date: '15/11/2026', pour: 'tous',
     titre: '🤖 Un joueur ne répond plus ? Un robot prend sa place',
     texte: `<ul><li>Pendant une donne, si un joueur ne joue plus depuis 45 secondes (ou a quitté l'appli), le <b>maître de table 👑</b> voit « X ne répond plus » et peut le <b>remplacer par un robot</b> : la donne continue.</li>
