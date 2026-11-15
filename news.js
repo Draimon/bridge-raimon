@@ -3,6 +3,15 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-plein-ecran', date: '15/11/2026', pour: 'tous',
+    titre: '📱 La table en plein écran',
+    texte: `<ul><li>Pendant une donne, la table <b>tient dans l'écran</b> et s'adapte à sa hauteur : plus besoin de faire défiler.</li>
+      <li>La <b>couleur d'atout est toujours à gauche</b>, dans votre main comme chez le mort.</li>
+      <li>Un pli terminé reste plus longtemps sur le tapis avant que les robots rejouent.</li>
+      <li>En défense, le mort est affiché <b>à sa vraie place</b> (à gauche ou à droite).</li>
+      <li>Le contrat est en grand en haut à droite : touchez-le pour revoir les enchères.</li></ul>`,
+  },
+  {
     id: '2026-11-15-revendiquer', date: '15/11/2026', pour: 'tous',
     titre: '🏳️ Revendiquer / 🤝 Céder · le pli reste sur la table',
     texte: `<ul><li>Un pli terminé <b>reste sur le tapis</b> : touchez le centre pour le ranger (ou jouez la carte suivante).</li>

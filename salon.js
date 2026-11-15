@@ -16,6 +16,7 @@ function createSalon(env) {
   const SYM = ['♠', '♥', '♦', '♣'], RCH = 'AKQJT98765432';
   const RLAB = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'V', 'D', 'R', 'A'];
   const DISPLAY = [0, 1, 3, 2];
+  let ORDER = DISPLAY;                                              // au jeu : l'atout d'abord, à gauche
   const next = s => SEATS[(SEATS.indexOf(s) + 1) % 4];
   const partner = s => SEATS[(SEATS.indexOf(s) + 2) % 4];
   const sideOf = s => (s === 'N' || s === 'S' ? 'NS' : 'EO');
@@ -90,7 +91,7 @@ function createSalon(env) {
     rememberTable(null);
     stopAll(); clearTimeout(robotTimer); clearInterval(beat); beat = null; where = null; since = null; curId = null; current = null;
     db.collection('presence').doc(me()).delete().catch(() => {});
-    document.body.classList.remove('tablemode', 'salonmode');
+    document.body.classList.remove('tablemode', 'salonmode', 'inplay');
     app.innerHTML = topbar('Salon de bridge', 'Quitter') + `<div class="card center"><h3>Salon complet</h3><p>Le salon est limité à ${MAX} joueurs et un membre de la famille Raimon vient d’arriver : tu as cédé ta place. Reviens un peu plus tard !</p></div>`;
     on('back', leave);
   }
@@ -111,7 +112,7 @@ function createSalon(env) {
   // ───── Salon
   async function open(startTab) {
     stopAll(); current = null; curId = null; tab = 'main';
-    document.body.classList.remove('tablemode'); document.body.classList.add('salonmode');
+    document.body.classList.remove('tablemode', 'inplay'); document.body.classList.add('salonmode');
     app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil') + '<p class="center muted">Entrée dans le salon…</p>';
     on('back', leave);
     let snap;
@@ -144,7 +145,7 @@ function createSalon(env) {
   }
   function leave() {
     stopAll(); stopBeat(); clearTimeout(robotTimer);
-    document.body.classList.remove('tablemode', 'salonmode');
+    document.body.classList.remove('tablemode', 'salonmode', 'inplay');
     if (isGuest()) { firebase.auth().signOut().catch(() => {}); location.reload(); } else home();
   }
   const seatLabel = st => (!st ? '<i class="muted">libre</i>' : st.robot ? '🤖 Robot ' + (st.sys === 'raimon' ? 'Raimon' : 'SEF') : esc(st.nom) + (isFresh(st.uid) ? '' : ' <span class="muted">(absent)</span>'));
@@ -419,7 +420,7 @@ function createSalon(env) {
     if (ps.done) { if (isMaster(t)) tx(x => endDeal(x, deal)); return; }
     const sw = swapOf(t, A.contract);
     const ctrl = sw && (ps.turn === A.contract.decl || ps.turn === ps.dummy) ? sw.human : ps.turn === ps.dummy ? A.contract.decl : ps.turn;
-    if (isMaster(t) && t.sieges[ctrl] && t.sieges[ctrl].robot) robotTimer = setTimeout(() => move('card', robotPlay(t, deal, A, ps, ctrl), t.moves), ps.trick.length === 0 && t.plays.length ? 1500 : 350);
+    if (isMaster(t) && t.sieges[ctrl] && t.sieges[ctrl].robot) robotTimer = setTimeout(() => move('card', robotPlay(t, deal, A, ps, ctrl), t.moves), ps.trick.length === 0 && t.plays.length ? 3000 : 350);
   }
   function endAuction(x, deal) {
     if (x.etat !== 'encheres') return null;
@@ -526,6 +527,7 @@ function createSalon(env) {
   function renderTable() {
     const t = current; if (!t || !curId || tab !== 'main') return;
     document.body.classList.add('tablemode');
+    document.body.classList.toggle('inplay', (t.etat === 'encheres' || t.etat === 'jeu') && tab === 'main');
     const my = mySeat(t), deal = t.n ? dealOf(t.n) : null;
     let bottom = my || 'S';
     if (t.etat === 'jeu' && deal && my) { const A0 = auction(t, deal), sw0 = swapOf(t, A0.contract); if (sw0 && sw0.human === my) bottom = A0.contract.decl; }   // table inversée : le déclarant en bas
@@ -737,7 +739,7 @@ function createSalon(env) {
     const hasOpen = open !== null && hand[open].length;
     const attrs = (s, r) => (clickable && L.some(x => x.s === s && x.r === r) ? `data-play="${s}:${r}"` : '');
     const cls = (s, r) => { const ok = clickable && L.some(x => x.s === s && x.r === r); return !clickable ? '' : !ok ? 'dim' : open === s ? 'can sel' : open === null ? 'can' : 'can off'; };
-    const cards = DISPLAY.flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, r })));
+    const cards = ORDER.flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, r })));
     const arc = arcHtml(cards.map(c => (hasOpen && c.s === open ? { s: c.s, label: RLAB[c.r], cls: 'ghost' } : { s: c.s, label: RLAB[c.r], cls: cls(c.s, c.r), attrs: attrs(c.s, c.r) })));
     const row = hasOpen ? `<div class="hpick ${hand[open].length > 5 ? 'tight' : ''}">${[...hand[open]].sort((a, b) => b - a).map(r => cardHtml(open, RLAB[r], 'md can sel', attrs(open, r))).join('')}</div>` : '';
     return `<div class="handwrap">${row}${arc}</div>`;
@@ -745,7 +747,7 @@ function createSalon(env) {
   function columnsHtml(hand, clickable, L, label) {
     const open = clickable ? selSuit(L) : null;
     const attrs = (s, r) => (clickable && L.some(x => x.s === s && x.r === r) ? `data-play="${s}:${r}"` : '');
-    const cols = DISPLAY.filter(s => hand[s].length).map(s => `<div class="dcol ${open === s ? 'ghost' : ''}">${[...hand[s]].sort((a, b) => b - a).map(r => {
+    const cols = ORDER.filter(s => hand[s].length).map(s => `<div class="dcol ${open === s ? 'ghost' : ''}">${[...hand[s]].sort((a, b) => b - a).map(r => {
       const ok = clickable && L.some(x => x.s === s && x.r === r);
       return cardHtml(s, RLAB[r], 'md ' + (clickable ? (ok ? (open === null ? 'can' : open === s ? '' : 'can off') : 'dim') : ''), open === s ? '' : attrs(s, r));
     }).join('')}</div>`).join('');
@@ -754,12 +756,13 @@ function createSalon(env) {
   }
   // Le mort sur le côté : une ligne par couleur, petites cartes (lecture seule : en défense, on ne le joue pas)
   function sideDummy(hand, side) {
-    const rows = DISPLAY.map(k => `<div class="sdrow">${[...hand[k]].sort((a, b) => b - a).map(r => cardHtml(k, RLAB[r], 'xs')).join('') || '<span class="sdvoid">—</span>'}</div>`).join('');
+    const rows = ORDER.map(k => `<div class="sdrow">${[...hand[k]].sort((a, b) => b - a).map(r => cardHtml(k, RLAB[r], 'xs')).join('') || '<span class="sdvoid">—</span>'}</div>`).join('');
     return `<div class="sdummy ${side}">${rows}</div>`;
   }
   const backsHtml = n => (n ? `<span class="mbacks">${'<i></i>'.repeat(n)}</span>` : '');
   function playHtml(t, deal, A, my, P) {
     const c = A.contract, ps = playState(t, deal, c);
+    ORDER = ps.trump === null ? DISPLAY : [ps.trump, ...DISPLAY.filter(x => x !== ps.trump)];
     const sw = swapOf(t, c), swapped = sw && sw.human === my;
     const ctrlOf = s => (sw && (s === c.decl || s === ps.dummy) ? sw.human : s === ps.dummy ? c.decl : s);
     const iControl = my && !ps.done && ctrlOf(ps.turn) === my;
@@ -980,7 +983,7 @@ function createSalon(env) {
     }, () => {}));
   }
   async function validView() {
-    document.body.classList.remove('tablemode');
+    document.body.classList.remove('tablemode', 'inplay');
     let items = [];
     try { const q = await db.collection('propositions').where('statut', '==', 'a_valider').get(); items = q.docs.map(d => ({ id: d.id, ...JSON.parse(d.data().data) })).sort((a, b) => a.date - b.date); } catch (e) { items = []; }
     if (tab !== 'valid') return;
@@ -1071,14 +1074,14 @@ function createSalon(env) {
     el.classList.toggle('dotted', mine);
   }
   function chatView() {
-    document.body.classList.remove('tablemode');
+    document.body.classList.remove('tablemode', 'inplay');
     setSeen();
     app.innerHTML = topbar('Chat du salon', curId ? 'Table' : 'Salon') + '<p class="muted" style="font-size:13px;margin:0 0 6px">Tout le salon lit ce chat. Il est remis à zéro chaque lundi à 3h.</p>' + chatHtml('').replace('class="chatlog"', 'class="chatlog full"') + tabBar();
     on('back', () => { tab = 'main'; render(); });
     wireChat(); wireTabs(); markTableTab();
   }
   async function histView() {
-    document.body.classList.remove('tablemode');
+    document.body.classList.remove('tablemode', 'inplay');
     app.innerHTML = topbar('Mes donnes', curId ? 'Table' : 'Salon') + '<p class="center muted">Chargement…</p>' + tabBar();
     on('back', () => { tab = 'main'; render(); }); wireTabs();
     try {
@@ -1112,7 +1115,7 @@ function createSalon(env) {
     const w = shown.length === 4 ? winnerOf(shown, ps.trump) : null;
     const handTxt = x => `<div class="rh"><b>${NAMES[x]}</b> <small class="muted">${esc((r.joueurs || {})[x] || '')} · ${hcpOf(deal[x])}H</small>${DISPLAY.map(k => `<div><span class="${red(k) ? 'red' : ''}">${SYM[k]}</span> ${[...ps.hands[x][k]].sort((a, b) => b - a).map(q => RLAB[q]).join(' ') || '—'}</div>`).join('')}</div>`;
     const slot = (x, pos) => { const y = shown.find(k => k.seat === x); return `<div class="slot ${pos}">${y ? cardBtn(y.s, y.r, 'md ' + (w && w.seat === x ? 'win' : '')) : ''}</div>`; };
-    document.body.classList.remove('tablemode');
+    document.body.classList.remove('tablemode', 'inplay');
     app.innerHTML = topbar('Donne ' + r.n, from === 'hist' ? 'Mes donnes' : 'Table') + `
       <p style="margin:0 0 6px">${fmt(r.contrat)}${c ? ` · ${r.levees} levées` : ''} · NS ${r.ns > 0 ? '+' : ''}${r.ns} · <b>NS ${r.pct ?? '—'} %</b> <small class="muted">${deal.src.simu} du ${deal.src.date.split('-').reverse().join('/')}</small></p>
       <div class="felt" style="padding:8px">${auctionTable({ bids, notes: r.notes || [] }, deal)}</div>
