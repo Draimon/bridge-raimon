@@ -401,6 +401,10 @@
   .newsitem { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; font-size: 15px; } .newsitem h4 { margin: 0 0 4px; } .newsitem ul { padding-left: 18px; margin: 4px 0; } .newsitem p { margin: 4px 0; }
   .tsel { display: block; width: 100%; margin: 6px 0 0; font-size: 14px; padding: 6px; border-radius: 8px; }
   .tabbar .tab em { font-style: normal; font-size: 11px; }
+  .chatlog.full { max-height: none; height: calc(100vh - 260px); height: calc(100dvh - 260px); }
+  .mbacks { display: inline-flex; margin-left: 8px; padding-left: 4px; } .mbacks i { width: 9px; height: 14px; border-radius: 2px; border: 1px solid #fff; background: repeating-linear-gradient(45deg, #b8322e 0 2px, #cf4a45 2px 4px); margin-left: -4px; }
+  .lastlabel { position: absolute; left: 0; right: 0; top: 50%; text-align: center; color: #ffe08a; font-size: 12px; font-weight: 700; pointer-events: none; }
+  .trick[data-act] { cursor: pointer; } .lastbtn { color: #ffe08a !important; font-size: 14px; }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
   .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
@@ -410,23 +414,23 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611151949"></script>
-<script src="fiche.js?v=202611151949"></script>
-<script src="deals.js?v=202611151949"></script>
-<script src="deals-duo.js?v=202611151949"></script>
-<script src="dds.js?v=202611151949"></script>
-<script src="jeu.js?v=202611151949"></script>
-<script src="adeux.js?v=202611151949"></script>
+<script src="questions.js?v=202611152004"></script>
+<script src="fiche.js?v=202611152004"></script>
+<script src="deals.js?v=202611152004"></script>
+<script src="deals-duo.js?v=202611152004"></script>
+<script src="dds.js?v=202611152004"></script>
+<script src="jeu.js?v=202611152004"></script>
+<script src="adeux.js?v=202611152004"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611151949"></script>
-<script src="ffb-01.js?v=202611151949"></script>
-<script src="ffb-02.js?v=202611151949"></script>
-<script src="bidder.js?v=202611151949"></script>
-<script src="player.js?v=202611151949"></script>
-<script src="news.js?v=202611151949"></script>
-<script src="salon.js?v=202611151949"></script>
+<script src="auth.js?v=202611152004"></script>
+<script src="ffb-01.js?v=202611152004"></script>
+<script src="ffb-02.js?v=202611152004"></script>
+<script src="bidder.js?v=202611152004"></script>
+<script src="player.js?v=202611152004"></script>
+<script src="news.js?v=202611152004"></script>
+<script src="salon.js?v=202611152004"></script>
 <script>
 (() => {
   'use strict';

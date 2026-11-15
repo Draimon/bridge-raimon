@@ -3,6 +3,17 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-table-comme-solo', date: '15/11/2026', pour: 'tous',
+    titre: '🎴 La table du salon, comme le jeu solo',
+    texte: `<ul><li><b>Enchères</b> : la boîte d'enchères est dans le tapis, vos enchères en cartons près de chaque joueur (STOP devant un saut), et on touche l'enchère au centre pour l'annoncer. Votre main reste visible.</li>
+      <li><b>Jeu de la carte</b> : touchez une couleur, elle sort de la main, puis touchez la carte. Le mort est étalé en colonnes ; les mains cachées s'affichent en dos de cartes qui diminuent.</li>
+      <li><b>Le mort voit le jeu de son partenaire</b> pour suivre le coup.</li>
+      <li><b>👁 Pli précédent</b> : pour revoir le dernier pli, tant que la carte suivante n'est pas jouée.</li>
+      <li>Les levées s'affichent « 6/10 » pour le camp du déclarant.</li>
+      <li><b>Donne suivante automatique</b> après quelques secondes (le maître peut mettre en pause).</li>
+      <li>Robots plus rapides, chat sur toute la hauteur de l'écran.</li></ul>`,
+  },
+  {
     id: '2026-11-15-grandes-cartes', date: '15/11/2026', pour: 'tous',
     titre: '🂡 Plus lisible à la table',
     texte: `<p>Au salon, votre main s'affiche en <b>grandes cartes en éventail</b>, et vos <b>points d'honneur</b> (par ex. « 12H ») apparaissent à côté de votre nom. En fin de donne et dans « Mes donnes », chaque main affiche aussi ses points.</p>`,

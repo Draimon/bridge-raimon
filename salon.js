@@ -27,7 +27,7 @@ function createSalon(env) {
   const stopAll = () => { while (unsubs.length) { try { unsubs.pop()(); } catch (e) { /* déjà arrêté */ } } };
   let presence = [], tables = [], chat = [], where = null, beat = null, current = null, curId = null, robotTimer = null;
   let ui = { sel: null, choice: null, msg: '' };
-  let tab = 'main', since = null, histCache = null;
+  let tab = 'main', since = null, histCache = null, autoKey = null, autoTimer = null;
   const seenKey = () => 'raimon-chat-vu:' + me();
   const getSeen = () => { try { return +localStorage.getItem(seenKey()) || 0; } catch (e) { return 0; } };
   const setSeen = () => { try { localStorage.setItem(seenKey(), String(now())); } catch (e) { /* stockage indisponible */ } };
@@ -179,7 +179,7 @@ function createSalon(env) {
     enterTable(ref.id);
   }
   function enterTable(id) {
-    stopAll(); curId = id; tab = 'main'; ui = { sel: null, choice: null, msg: '' };
+    stopAll(); curId = id; tab = 'main'; ui = { sel: null, choice: null, msg: '', noAuto: false, lastAt: null }; clearTimeout(autoTimer); autoKey = null;
     startBeat('table:' + id);
     unsubs.push(db.collection('presence').onSnapshot(s => { onPresence(s); }));
     unsubs.push(db.collection('tables').doc(id).onSnapshot(d => {
@@ -338,6 +338,10 @@ function createSalon(env) {
       const firstHuman = SEATS.map(s => t.sieges[s]).find(x => x && x.uid && isFresh(x.uid));
       if (firstHuman && firstHuman.uid === me()) tx(x => (x.maitre === t.maitre ? { maitre: me() } : null));
     }
+    if (t.etat === 'fin' && t.fin && isMaster(t) && SEATS.every(k => t.sieges[k]) && !ui.noAuto) {
+      const key = curId + ':' + (t.historique || []).length;
+      if (autoKey !== key) { autoKey = key; clearTimeout(autoTimer); autoTimer = setTimeout(() => { if (current && current.etat === 'fin' && !ui.noAuto) nextDeal(); }, 9000); }
+    }
     if (t.etat === 'fin' && t.fin) {
       if ((t.fin.uids || []).includes(me())) markPlayed(t.fin.n);      // seulement ceux qui l'ont jouée
       // le maître enregistre le résultat (une seule fois par donne et par table)
@@ -350,13 +354,13 @@ function createSalon(env) {
     const A = auction(t, deal);
     if (t.etat === 'encheres') {
       if (A.ended) { if (isMaster(t)) tx(x => endAuction(x, deal)); return; }
-      if (isMaster(t) && t.sieges[A.turn] && t.sieges[A.turn].robot) robotTimer = setTimeout(() => { const r = RaimonBid.bid(deal[A.turn], t.bids, deal.d, deal.v, A.turn, t.sieges[A.turn].sys); move('bid', r.bid, t.moves, { e: r.expl, a: r.alert }); }, 900);
+      if (isMaster(t) && t.sieges[A.turn] && t.sieges[A.turn].robot) robotTimer = setTimeout(() => { const r = RaimonBid.bid(deal[A.turn], t.bids, deal.d, deal.v, A.turn, t.sieges[A.turn].sys); move('bid', r.bid, t.moves, { e: r.expl, a: r.alert }); }, 450);
       return;
     }
     const ps = playState(t, deal, A.contract);
     if (ps.done) { if (isMaster(t)) tx(x => endDeal(x, deal)); return; }
     const ctrl = ps.turn === ps.dummy ? A.contract.decl : ps.turn;
-    if (isMaster(t) && t.sieges[ctrl] && t.sieges[ctrl].robot) robotTimer = setTimeout(() => move('card', robotPlay(t, deal, A, ps, ctrl), t.moves), ps.trick.length === 0 && t.plays.length ? 1200 : 600);
+    if (isMaster(t) && t.sieges[ctrl] && t.sieges[ctrl].robot) robotTimer = setTimeout(() => move('card', robotPlay(t, deal, A, ps, ctrl), t.moves), ps.trick.length === 0 && t.plays.length ? 1500 : 350);
   }
   function endAuction(x, deal) {
     if (x.etat !== 'encheres') return null;
@@ -423,7 +427,7 @@ function createSalon(env) {
     const named = {}; t.bids.forEach((b, i) => { const x = SEATS[(SEATS.indexOf(deal.d) + i) % 4]; if (bidRank(b) >= 0 && b.slice(1) !== 'SA' && named[x] === undefined) named[x] = SUIT_OF[b.slice(1)]; });
     try {
       return RaimonPlay.choose({ me: turn, hands: known, visible, trick: ps.trick, played: ps.played, trump: ps.trump, decl: c.decl, counts, voids: ps.voids,
-        partnerSuit: named[partner(turn)], partnerLed: ps.firstLed[partner(turn)], myLed: ps.firstLed[turn] }, 800);
+        partnerSuit: named[partner(turn)], partnerLed: ps.firstLed[partner(turn)], myLed: ps.firstLed[turn] }, 500);
     } catch (e) { return robotCard(ps, turn, c); }
   }
   // ───── Robot de secours : passe aux enchères ; au jeu, règles simples (entame 4e meilleure / tête de séquence,
@@ -477,21 +481,28 @@ function createSalon(env) {
     app.querySelectorAll('[data-sit]').forEach(b => b.addEventListener('click', () => sit(b.dataset.sit)));
     app.querySelectorAll('[data-robot]').forEach(b => b.addEventListener('click', () => { const [seat, sys] = b.dataset.robot.split(':'); setRobot(seat, sys || 'sef'); }));
     app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => freeSeat(b.dataset.free)));
-    on('deal', nextDeal);
+    on('deal', () => { clearTimeout(autoTimer); nextDeal(); });
+    on('autooff', () => { ui.noAuto = true; clearTimeout(autoTimer); renderTable(); });
+    on('autoon', () => { ui.noAuto = false; autoKey = null; afterUpdate(); renderTable(); });
     on('fixbot', () => openFix(t.fin));
     app.querySelectorAll('[data-invite]').forEach(x => x.addEventListener('change', () => { if (x.value) invite(x.dataset.invite, x.value); }));
     app.querySelectorAll('[data-move]').forEach(x => x.addEventListener('change', () => { if (x.value) moveSeat(x.dataset.move, x.value); }));
     on('resetscore', () => { if (confirm('Remettre à zéro les scores de cette table ?')) tx(x => (isMaster(x) ? { historique: [], fin: null, etat: x.etat === 'fin' ? 'attente' : x.etat } : null)); });
     wireNotes(t.notes || [], t.bids);
-    app.querySelectorAll('[data-bid]').forEach(b => b.addEventListener('click', () => {
-      const v = b.dataset.bid;
-      if (ui.choice !== v) { ui.choice = v; renderTable(); return; }
-      ui.choice = null; move('bid', v, t.moves);
+    app.querySelectorAll('[data-gb]').forEach(b => b.addEventListener('click', () => {
+      const v = b.dataset.gb;
+      if (ui.choice === v) { ui.choice = null; move('bid', v, t.moves); return; }
+      ui.choice = v; renderTable();
     }));
-    app.querySelectorAll('[data-card]').forEach(b => b.addEventListener('click', () => {
-      const [s, r] = b.dataset.card.split(':').map(Number);
-      if (ui.sel !== s && b.dataset.multi === '1') { ui.sel = s; renderTable(); return; }
-      ui.sel = null; move('card', { s, r }, t.moves);
+    on('announce', () => { const v = ui.choice; if (!v) return; ui.choice = null; move('bid', v, t.moves); });
+    on('unpick', () => { ui.choice = null; renderTable(); });
+    on('lasttrick', () => { ui.lastAt = ui.lastAt === t.moves ? null : t.moves; renderTable(); });
+    app.querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', () => {
+      const [s2, r] = b.dataset.play.split(':').map(Number);
+      const deal = dealOf(t.n), A = auction(t, deal), ps = playState(t, deal, A.contract);
+      const L = legal(ps, ps.turn);
+      if (selSuit(L) !== s2) { ui.sel = s2; renderTable(); return; }
+      ui.sel = null; move('card', { s: s2, r }, t.moves);
     }));
   }
   function lobbyHtml(t, my) {
@@ -521,7 +532,7 @@ function createSalon(env) {
     const pts = hist.reduce((s, h) => s + h.ns, 0);
     return `${fin}
       <div class="tseats">${seatsHtml}</div>
-      ${master ? (full ? `<button class="btn primary center" data-act="deal">${t.etat === 'fin' ? 'Donne suivante' : 'Distribuer la première donne'}</button>` : '<p class="center feltnote">Il faut 4 joueurs (ou robots) pour distribuer.</p>')
+      ${master ? (full ? `<button class="btn primary center" data-act="deal">${t.etat === 'fin' ? 'Donne suivante' : 'Distribuer la première donne'}</button>${t.etat === 'fin' ? `<p class="center feltnote" style="font-size:13px">${ui.noAuto ? 'Donne suivante automatique en pause · <button class="link" data-act="autoon">reprendre</button>' : 'Donne suivante automatique dans quelques secondes · <button class="link" data-act="autooff">⏸ pause</button>'}</p>` : ''}` : '<p class="center feltnote">Il faut 4 joueurs (ou robots) pour distribuer.</p>')
         : `<p class="center feltnote">${full ? 'Le maître de table 👑 va distribuer.' : 'En attente de joueurs…'}</p>`}
       ${hist.length ? `<div class="card"><b>Score de la table : ${hist.length} donne(s)</b>
         <div class="tscore"><div><small>NS</small><b>${mean ?? '—'} %</b><small>${pts > 0 ? '+' : ''}${pts} pts</small></div><div><small>EO</small><b>${mean === null ? '—' : Math.round((100 - mean) * 10) / 10} %</b><small>${-pts > 0 ? '+' : ''}${-pts} pts</small></div></div>
@@ -556,58 +567,109 @@ function createSalon(env) {
     t.bids.forEach((b, i) => { const n = notes[i]; cells.push(n ? `<span class="bwrap" data-note="${i}">${bidCard(b, (i === t.bids.length - 1 ? 'last ' : '') + (n.a ? 'alerted' : ''))}${n.a ? '<sup class="alertmark">!</sup>' : ''}</span>` : bidCard(b, i === t.bids.length - 1 ? 'last' : '')); });
     return `<div class="atab">${order.map(s => `<b>${NAMES[s]}</b>`).join('')}${cells.join('')}</div>`;
   }
-  function handHtml(hand, seat, clickable, L) {
-    const cards = DISPLAY.flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, r })));
-    const multiSuits = new Set(L.map(c => c.s)).size > 1;
-    return arcHtml(cards.map(c => {
-      const ok = clickable && L.some(x => x.s === c.s && x.r === c.r);
-      return { s: c.s, label: RLAB[c.r], cls: ok ? (ui.sel === c.s ? 'play sel' : 'can') : clickable ? 'dim' : '',
-        attrs: ok ? `data-card="${c.s}:${c.r}" data-multi="${multiSuits && ui.sel !== c.s ? 1 : 0}"` : '' };
-    }));
+  // ═════ Affichage de la table, repris du mode solo : boîte d'enchères dans le cadre, cartons des enchères près
+  // de chaque joueur (STOP devant un saut), grande carte au centre pour confirmer ; au jeu, le mort en colonnes,
+  // la couleur choisie qui sort de la main, les mains cachées en dos de cartes.
+  const GCOLS = ['SA', '♠', '♥', '♦', '♣'];
+  const bidTxt = b => (b === 'P' ? 'PASSE' : b === 'X' || b === 'XX' ? b : b[0] + `<span>${b.slice(1) === 'SA' ? 'SA' : fmt(b.slice(1))}</span>`);
+  const bidKind = b => (b === 'P' ? 'gpass' : b === 'X' ? 'gx' : b === 'XX' ? 'gxx' : 'g' + GCOLS.indexOf(b.slice(1)));
+  function stacksHtml(t, deal, P) {
+    const stacks = { N: [], E: [], S: [], O: [] }, notes = t.notes || [];
+    let lastRank = -1;
+    t.bids.forEach((b, k) => {
+      const seat = SEATS[(SEATS.indexOf(deal.d) + k) % 4], rk = bidRank(b);
+      if (rk >= 0) {
+        let minLevel = 1; while (bidRank(minLevel + b.slice(1)) <= lastRank) minLevel++;
+        if (+b[0] > minLevel) stacks[seat].push('<div class="gb stack stop">STOP</div>');
+        lastRank = rk;
+      }
+      const n = notes[k];
+      stacks[seat].push(`<div class="gb stack ${bidKind(b)} ${k === t.bids.length - 1 ? 'last' : ''} ${n ? 'bwrap' : ''}" ${n ? `data-note="${k}"` : ''}>${bidTxt(b)}${n && n.a ? '<sup class="alertmark">!</sup>' : ''}</div>`);
+    });
+    // position à l'écran : ma place en bas
+    const cls = { [P.top]: 'N', [P.bottom]: 'S', [P.left]: 'O', [P.right]: 'E' };
+    return SEATS.map(s => (stacks[s].length ? `<div class="bidstack ${cls[s]}">${stacks[s].join('')}</div>` : '')).join('');
+  }
+  function gridHtml(A) {
+    let rows = '';
+    for (let l = 1; l <= 7; l++) if (bidRank(l + 'SA') > A.last) rows += GCOLS.map((c, k) => { const b = l + c; const ok = bidRank(b) > A.last; return `<button class="gb g${k} ${ui.choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : fmt(c)}</span></button>`; }).join('');
+    const big = ui.choice ? `<div class="bigbid-veil" data-act="unpick"></div><button class="gb bigbid ${bidKind(ui.choice)}" data-act="announce">${bidTxt(ui.choice)}<small>Touche pour annoncer</small></button>` : '';
+    return `<div class="gridwrap"><div class="gridbox">${rows}</div>
+      <div class="gspecial"><button class="gb gpass ${ui.choice === 'P' ? 'sel' : ''}" data-gb="P">PASSE</button><button class="gb gx ${ui.choice === 'X' ? 'sel' : ''}" ${A.canX ? 'data-gb="X"' : 'disabled'}>X</button><button class="gb gxx ${ui.choice === 'XX' ? 'sel' : ''}" ${A.canXX ? 'data-gb="XX"' : 'disabled'}>XX</button></div>
+      ${big}</div>
+      <p class="gridhint">${ui.choice ? 'Touche l’enchère au centre pour l’annoncer' : 'À toi : touche ton enchère'}</p>`;
+  }
+  const nameOf = (t, s) => { const st = t.sieges[s]; return st ? (st.robot ? '🤖 ' + (st.sys === 'raimon' ? 'Raimon' : 'SEF') : esc(st.nom)) : '—'; };
+  function plateB(t, deal, s, pos, turn, extra) {
+    const st = t.sieges[s];
+    const mine = st && st.uid === me();
+    return `<div class="plate ${pos} ${turn === s ? 'turn' : ''}"><span class="seat ${isVul(deal, sideOf(s)) ? '' : 'nv'}">${s}</span>${nameOf(t, s)}${mine ? ` · <span class="hcp">${hcpOf(deal[s])}H</span>` : ''}${deal.d === s ? '<span class="dealer" title="Donneur">D</span>' : ''}${extra || ''}</div>`;
   }
   function biddingHtml(t, deal, A, my, P) {
     const myTurn = my && A.turn === my;
+    const vul = 'Donneur : ' + NAMES[deal.d] + ' · ' + { none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none'];
+    const waitTxt = !myTurn && A.turn ? `<p class="gridhint" style="margin:30px 0">Au tour de ${NAMES[A.turn]}${t.sieges[A.turn] && t.sieges[A.turn].robot ? ' (robot)' : ''}…</p>` : '';
     const hand = my ? parseHand(deal[my]) : null;
-    const cols = ['SA', '♠', '♥', '♦', '♣'];
-    let rows = '';
-    if (myTurn) for (let l = 1; l <= 7; l++) if (bidRank(l + 'SA') > A.last) rows += cols.map((c, k) => { const b = l + c, ok = bidRank(b) > A.last; return `<button class="gb g${k} ${ui.choice === b ? 'sel' : ''}" ${ok ? `data-bid="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : fmt(c)}</span></button>`; }).join('');
-    const box = myTurn ? `<div class="gridwrap"><div class="gridbox">${rows}</div>
-      <div class="gspecial"><button class="gb gpass ${ui.choice === 'P' ? 'sel' : ''}" data-bid="P">PASSE</button><button class="gb gx ${ui.choice === 'X' ? 'sel' : ''}" ${A.canX ? 'data-bid="X"' : 'disabled'}>X</button><button class="gb gxx ${ui.choice === 'XX' ? 'sel' : ''}" ${A.canXX ? 'data-bid="XX"' : 'disabled'}>XX</button></div></div>
-      <p class="gridhint">${ui.choice ? `Touche encore ${ui.choice === 'P' ? 'PASSE' : fmt(ui.choice)} pour l’annoncer` : 'À toi : touche ton enchère'}</p>`
-      : `<p class="center feltnote">${A.turn ? 'Au tour de ' + NAMES[A.turn] + (t.sieges[A.turn] && t.sieges[A.turn].robot ? ' (robot)' : '') : ''}</p>`;
-    return `<div class="frame">${plate(t, deal, P.top, 'top', '', A.turn)}${plate(t, deal, P.left, 'left', '', A.turn)}${plate(t, deal, P.right, 'right', '', A.turn)}${plate(t, deal, P.bottom, 'bottom', '', A.turn)}
-      ${auctionTable(t, deal)}</div>
-      ${box}
-      ${hand ? handHtml(hand, my, false, []) : ''}`;
+    return `<div class="frame bidframe">
+        ${plateB(t, deal, P.top, 'top', A.turn)}${plateB(t, deal, P.left, 'left', A.turn)}${plateB(t, deal, P.right, 'right', A.turn)}${plateB(t, deal, P.bottom, 'bottom', A.turn)}
+        ${stacksHtml(t, deal, P)}
+        <div class="bidcenter" id="fb">${myTurn ? gridHtml(A) : waitTxt}</div>
+        <div class="vulnote">${vul}</div>
+      </div>
+      <div id="notebox"></div>
+      ${hand ? arcHtml(DISPLAY.flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, label: RLAB[r] })))) : ''}`;
   }
+  // ── Jeu de la carte
+  function selSuit(L) { const ss = [...new Set(L.map(c => c.s))]; return ss.length === 1 ? ss[0] : (ss.includes(ui.sel) ? ui.sel : null); }
+  function fanHtml(hand, clickable, L) {
+    const open = clickable ? selSuit(L) : null;
+    const hasOpen = open !== null && hand[open].length;
+    const attrs = (s, r) => (clickable && L.some(x => x.s === s && x.r === r) ? `data-play="${s}:${r}"` : '');
+    const cls = (s, r) => { const ok = clickable && L.some(x => x.s === s && x.r === r); return !clickable ? '' : !ok ? 'dim' : open === s ? 'can sel' : open === null ? 'can' : 'can off'; };
+    const cards = DISPLAY.flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, r })));
+    const arc = arcHtml(cards.map(c => (hasOpen && c.s === open ? { s: c.s, label: RLAB[c.r], cls: 'ghost' } : { s: c.s, label: RLAB[c.r], cls: cls(c.s, c.r), attrs: attrs(c.s, c.r) })));
+    const row = hasOpen ? `<div class="hpick ${hand[open].length > 5 ? 'tight' : ''}">${[...hand[open]].sort((a, b) => b - a).map(r => cardHtml(open, RLAB[r], 'md can sel', attrs(open, r))).join('')}</div>` : '';
+    return `<div class="handwrap">${row}${arc}</div>`;
+  }
+  function columnsHtml(hand, clickable, L, label) {
+    const open = clickable ? selSuit(L) : null;
+    const attrs = (s, r) => (clickable && L.some(x => x.s === s && x.r === r) ? `data-play="${s}:${r}"` : '');
+    const cols = DISPLAY.filter(s => hand[s].length).map(s => `<div class="dcol ${open === s ? 'ghost' : ''}">${[...hand[s]].sort((a, b) => b - a).map(r => {
+      const ok = clickable && L.some(x => x.s === s && x.r === r);
+      return cardHtml(s, RLAB[r], 'md ' + (clickable ? (ok ? (open === null ? 'can' : open === s ? '' : 'can off') : 'dim') : ''), open === s ? '' : attrs(s, r));
+    }).join('')}</div>`).join('');
+    const row = open !== null && hand[open].length ? `<div class="dpick ${hand[open].length > 5 ? 'tight' : ''}">${[...hand[open]].sort((a, b) => b - a).map(r => cardHtml(open, RLAB[r], 'md can sel', attrs(open, r))).join('')}</div>` : '';
+    return `<p class="feltnote center" style="margin:2px 0">${label}</p><div class="dummywrap"><div class="dummy">${cols}</div>${row}</div>`;
+  }
+  const backsHtml = n => (n ? `<span class="mbacks">${'<i></i>'.repeat(n)}</span>` : '');
   function playHtml(t, deal, A, my, P) {
     const c = A.contract, ps = playState(t, deal, c);
     const ctrlOf = s => (s === ps.dummy ? c.decl : s);
-    const iControl = my && ctrlOf(ps.turn) === my;
+    const iControl = my && !ps.done && ctrlOf(ps.turn) === my;
     const L = iControl ? legal(ps, ps.turn) : [];
     const pos = { [P.top]: 'top', [P.left]: 'left', [P.right]: 'right', [P.bottom]: 'bottom' };
-    const w = ps.trick.length === 4 ? winnerOf(ps.trick, ps.trump) : null;
-    const shownTrick = ps.trick.length ? ps.trick : (ps.last || []);
-    const w2 = !ps.trick.length && ps.last ? winnerOf(ps.last, ps.trump) : null;
-    const slots = SEATS.map(s => { const x = shownTrick.find(k => k.seat === s); return `<div class="slot ${pos[s]}">${x ? cardBtn(x.s, x.r, 'md ' + ((w && w.seat === s) || (w2 && w2.seat === s) ? 'win' : '')) : ''}</div>`; }).join('');
     const count = s => ps.hands[s].reduce((n, x) => n + x.length, 0);
-    const dummyBlock = ps.shown && ps.dummy !== my ? (() => {
-      const clickable = iControl && ps.turn === ps.dummy;
-      const cols = DISPLAY.filter(s => ps.hands[ps.dummy][s].length).map(s => `<div class="dcol">${[...ps.hands[ps.dummy][s]].sort((a, b) => b - a).map(r => {
-        const ok = clickable && L.some(x => x.s === s && x.r === r);
-        return cardBtn(s, r, 'md ' + (ok ? 'can' : ''), ok ? `data-card="${s}:${r}" data-multi="0"` : '');
-      }).join('')}</div>`).join('');
-      return `<p class="feltnote center" style="margin:4px 0">Mort : ${NAMES[ps.dummy]}${clickable ? ' — à toi de jouer pour lui' : ''}</p><div class="dummy">${cols}</div>`;
-    })() : '';
-    const myHand = my ? handHtml(ps.hands[my], my, iControl && ps.turn === my, iControl && ps.turn === my ? L : []) : '';
-    const turnTxt = ps.done ? '' : iControl ? (ps.turn === my ? 'À toi de jouer' : 'À toi de jouer le mort') : 'Au tour de ' + NAMES[ps.turn];
-    return `${dummyBlock}
-      <div class="frame">${[P.top, P.left, P.right, P.bottom].map(s => plate(t, deal, s, pos[s], ` · ${count(s)}${s === c.decl ? ' <span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : ''}`, ps.turn)).join('')}
-        <div class="corner cl">NS<br><b>${ps.tricks.NS}</b></div><div class="corner cr">EO<br><b>${ps.tricks.EO}</b></div>
-        <div class="trick">${slots}</div></div>
-      <p class="center feltnote" style="margin:4px 0">${turnTxt}</p>
-      ${myHand}
-      `;
+    // le pli au centre ; le pli précédent se revoit en touchant le bouton, jusqu'à la carte suivante
+    const showLast = ui.lastAt === t.moves && ps.last;
+    const shown = showLast ? ps.last : ps.trick;
+    const w = shown.length === 4 ? winnerOf(shown, ps.trump) : null;
+    const slots = SEATS.map(s => { const x = shown.find(k => k.seat === s); return `<div class="slot ${pos[s]}">${x ? cardHtml(x.s, RLAB[x.r], 'md ' + (w && w.seat === s ? 'win' : '')) : ''}</div>`; }).join('');
+    // en haut : le mort (ou, si je suis le mort, le jeu de mon partenaire déclarant)
+    let topBlock = '';
+    if (my === ps.dummy) topBlock = columnsHtml(ps.hands[c.decl], false, [], `Jeu de ton partenaire (${NAMES[c.decl]}, déclarant)`);
+    else if (ps.shown) topBlock = columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Mort : ${NAMES[ps.dummy]}${iControl && ps.turn === ps.dummy ? ' — à toi de jouer pour lui' : ''}`);
+    else topBlock = '<p class="feltnote">Le mort sera étalé après l’entame</p>';
+    const visible = s => s === my || (ps.shown && s === ps.dummy) || (my === ps.dummy && s === c.decl);
+    const declSide = sideOf(c.decl), need = 6 + c.l;
+    const ctr = side => `${ps.tricks[side]}${side === declSide ? '/' + need : ''}`;
+    const turnTxt = ps.done ? '' : iControl ? (ps.turn === my ? 'À toi de jouer' : 'À toi de jouer le mort') : 'Au tour de ' + NAMES[ps.turn] + (t.sieges[ctrlOf(ps.turn)] && t.sieges[ctrlOf(ps.turn)].robot ? ' (robot)' : '');
+    return `${topBlock}
+      <div class="frame">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (s === c.decl ? '<span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
+        <div class="corner cl">NS<br><b>${ctr('NS')}</b></div><div class="corner cr">EO<br><b>${ctr('EO')}</b></div>
+        <div class="trick" ${ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
+        ${showLast ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
+      <p class="center feltnote" style="margin:4px 0">${turnTxt}${ps.last && !showLast ? ' · <button class="link lastbtn" data-act="lasttrick">👁 Pli précédent</button>' : ''}</p>
+      ${my ? fanHtml(ps.hands[my], iControl && ps.turn === my, iControl && ps.turn === my ? L : []) : ''}`;
   }
 
   // Toucher une enchère de robot : son explication (et l'alerte si elle est conventionnelle)
@@ -785,7 +847,7 @@ function createSalon(env) {
   function chatView() {
     document.body.classList.remove('tablemode');
     setSeen();
-    app.innerHTML = topbar('Chat du salon', curId ? 'Table' : 'Salon') + '<p class="muted" style="font-size:13px;margin:0 0 6px">Tout le salon lit ce chat. Il est remis à zéro chaque lundi à 3h.</p>' + chatHtml('') + tabBar();
+    app.innerHTML = topbar('Chat du salon', curId ? 'Table' : 'Salon') + '<p class="muted" style="font-size:13px;margin:0 0 6px">Tout le salon lit ce chat. Il est remis à zéro chaque lundi à 3h.</p>' + chatHtml('').replace('class="chatlog"', 'class="chatlog full"') + tabBar();
     on('back', () => { tab = 'main'; render(); });
     wireChat(); wireTabs(); markTableTab();
   }
