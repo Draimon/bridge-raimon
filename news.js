@@ -4,7 +4,7 @@
 const NEWS = [
   {
     id: '2026-11-15-ecran-allume', date: '15/11/2026', pour: 'tous',
-    titre: '🔆 L'écran ne s'éteint plus pendant la partie',
+    titre: '🔆 L’écran ne s’éteint plus pendant la partie',
     texte: `<p>À la table et au salon, l'écran reste allumé même si vous réfléchissez longtemps sans toucher. Il se remet en veille normalement dès que vous quittez le salon.</p>
       <p>Le haut de l'écran est aussi en vert uni (fini le dégradé flou). Si ce n'est pas le cas sur iPhone, supprimez l'icône de l'écran d'accueil et rajoutez-la depuis Safari.</p>`,
   },
