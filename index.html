@@ -377,6 +377,9 @@
 <script src="dds.js?v=202611151801"></script>
 <script src="jeu.js?v=202611151801"></script>
 <script src="adeux.js?v=202611151801"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="auth.js?v=202611151801"></script>
 <script>
 (() => {
   'use strict';
@@ -411,12 +414,37 @@
         <h1>Système Raimon</h1><p>Qui es-tu ?</p></div>
       ${PLAYERS.map(p => `<button class="btn primary center who" data-who="${p}">${p}</button>`).join('')}
       <p class="center muted" style="font-size:13px">Chacun garde sa propre progression (quiz et donnes).</p>`;
-    app.querySelectorAll('[data-who]').forEach(b => b.addEventListener('click', () => {
-      player = b.dataset.who;
-      try { localStorage.setItem('raimon-player', player); } catch (e) { /* stockage indisponible */ }
-      loadProgress(); go(home);
-      if (pendingDeal) { const n = pendingDeal; pendingDeal = null; DUO.openDeal(n); }
-    }));
+    app.querySelectorAll('[data-who]').forEach(b => b.addEventListener('click', () => askCode(b.dataset.who)));
+  }
+  // Code à 4 chiffres, demandé une seule fois : ensuite le téléphone reste connecté.
+  function askCode(who) {
+    app.innerHTML = `
+      <div class="hero"><div class="logo">♠<span class="red">♥</span><span class="red">♦</span>♣</div>
+        <h1>Bonjour ${who}</h1><p>Ton code :</p></div>
+      <form id="codeform" class="center">
+        <input id="code" type="password" inputmode="numeric" autocomplete="current-password" maxlength="8"
+          style="font-size:28px;letter-spacing:8px;text-align:center;width:180px;padding:10px;border-radius:12px;border:1px solid var(--line, #ccc)">
+        <p id="codeerr" class="center" style="color:#c0392b;min-height:20px;font-size:14px"></p>
+        <button class="btn primary center" type="submit">Entrer</button>
+      </form>
+      <p class="center"><button class="link" data-act="back">← Ce n’est pas moi</button></p>`;
+    const input = document.getElementById('code'), err = document.getElementById('codeerr');
+    input.focus();
+    on('back', () => go(whoAmI));
+    document.getElementById('codeform').addEventListener('submit', async ev => {
+      ev.preventDefault();
+      const code = input.value.trim();
+      if (!/^\d{4,8}$/.test(code)) { err.textContent = 'Le code, ce sont des chiffres.'; return; }
+      err.textContent = 'Connexion…';
+      try { await AUTH.signIn(who, code); } catch (e) { err.textContent = AUTH.errorText(e); input.select(); return; }
+      enter(who);
+    });
+  }
+  function enter(who) {
+    player = who;
+    try { localStorage.setItem('raimon-player', player); } catch (e) { /* stockage indisponible */ }
+    loadProgress(); go(home);
+    if (pendingDeal) { const n = pendingDeal; pendingDeal = null; DUO.openDeal(n); }
   }
   function record(n, ok) {
     const p = progress[n] || { ok: 0, ko: 0, streak: 0 };
@@ -519,7 +547,7 @@
     });
     on('hintoff', () => { try { localStorage.setItem('raimon-hint-off', '1'); } catch (e) { /* stockage indisponible */ } home(); });
     on('reset', () => { if (confirm('Effacer toute la progression de ' + player + ' sur ce téléphone ?')) { progress = {}; save(); home(); } });
-    on('switch', () => go(whoAmI));
+    on('switch', () => { AUTH.signOut().catch(() => {}); go(whoAmI); });
   }
 
   function quizHome() {
@@ -1127,7 +1155,15 @@
     const q = new URLSearchParams(location.search).get('donne');
     if (q && /^T\d{3}$/.test(q)) { pendingDeal = q; history.replaceState(null, '', location.pathname); try { sessionStorage.setItem('raimon-duo-pop', player || ''); } catch (e) { /* stockage indisponible */ } }
   } catch (e) { /* adresse illisible */ }
-  if (player) { loadProgress(); home(); if (pendingDeal) { const n = pendingDeal; pendingDeal = null; DUO.openDeal(n); } } else whoAmI();
+  // Connecté (session Firebase gardée sur le téléphone) → accueil ; sinon on demande qui on est et le code.
+  app.innerHTML = '<p class="center muted" style="margin-top:40vh">Chargement…</p>';
+  AUTH.ready.then(u => {
+    const who = u && PLAYERS.includes(u.displayName) ? u.displayName : null;
+    if (who) enter(who);
+    else if (u) { AUTH.signOut().catch(() => {}); whoAmI(); }   // compte invité : pas d'accès au quiz ni au jeu à deux
+    else if (player) askCode(player);                            // déjà choisi avant la mise à jour : juste le code
+    else whoAmI();
+  });
 })();
 </script>
 </body>

@@ -23,7 +23,7 @@ function createDuo(env) {
   const enc = obj => ({ fields: { data: { stringValue: JSON.stringify(obj) } } });
   const dec = doc => ({ ...JSON.parse(doc.fields.data.stringValue), id: doc.name.split('/').pop(), updateTime: doc.updateTime });
   async function api(path, opts) {
-    const r = await fetch(FIRESTORE.base + path + (path.includes('?') ? '&' : '?') + 'key=' + FIRESTORE.key, { ...opts, headers: { 'Content-Type': 'application/json' } });
+    const r = await AUTH.authFetch(FIRESTORE.base + path + (path.includes('?') ? '&' : '?') + 'key=' + FIRESTORE.key, { ...opts, headers: { 'Content-Type': 'application/json' } });
     if (!r.ok) { const t = await r.text(); const e = new Error(t); e.status = r.status; throw e; }
     return r.status === 204 ? null : r.json();
   }
@@ -48,7 +48,7 @@ function createDuo(env) {
     try {
       let docs = [], token = '';
       do {
-        const r = await fetch(VOX + '?pageSize=300&' + META.map(m => 'mask.fieldPaths=' + m).join('&') + (token ? '&pageToken=' + token : '') + '&key=' + FIRESTORE.key);
+        const r = await AUTH.authFetch(VOX + '?pageSize=300&' + META.map(m => 'mask.fieldPaths=' + m).join('&') + (token ? '&pageToken=' + token : '') + '&key=' + FIRESTORE.key);
         if (!r.ok) { voxAll = []; return; }
         const j = await r.json();
         docs = docs.concat(j.documents || []); token = j.nextPageToken || '';
@@ -56,7 +56,7 @@ function createDuo(env) {
       const all = docs.map(d => ({ id: d.name.split('/').pop(), ...Object.fromEntries(META.map(m => [m, val((d.fields || {})[m])])) }));
       const limit = Date.now() - VOX_DAYS * 864e5;
       const old = all.filter(v => (v.date || 0) < limit);         // messages et morceaux expirés (un morceau sans date est orphelin)
-      old.forEach(v => fetch(`${VOX}/${v.id}?key=${FIRESTORE.key}`, { method: 'DELETE' }).catch(() => {}));
+      old.forEach(v => AUTH.authFetch(`${VOX}/${v.id}?key=${FIRESTORE.key}`, { method: 'DELETE' }).catch(() => {}));
       voxAll = all.filter(v => !v.chunkOf && (v.date || 0) >= limit);
     } catch (e) { voxAll = []; }
   }
@@ -67,7 +67,7 @@ function createDuo(env) {
     const id = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     const pieces = []; for (let k = 0; k < b64.length; k += CHUNK) pieces.push(b64.slice(k, k + CHUNK));
     const put = async (docId, fields) => {
-      const r = await fetch(`${VOX}?documentId=${docId}&key=${FIRESTORE.key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
+      const r = await AUTH.authFetch(`${VOX}?documentId=${docId}&key=${FIRESTORE.key}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields }) });
       if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; }
     };
     const now = { integerValue: String(Date.now()) };
@@ -78,7 +78,7 @@ function createDuo(env) {
       mime: { stringValue: blob.type || 'audio/mp4' }, audio: { stringValue: pieces[0] } });
   }
   async function voxPlay(v, audio) {
-    const get = async docId => (await (await fetch(`${VOX}/${docId}?mask.fieldPaths=audio&mask.fieldPaths=mime&key=${FIRESTORE.key}`)).json()).fields;
+    const get = async docId => (await (await AUTH.authFetch(`${VOX}/${docId}?mask.fieldPaths=audio&mask.fieldPaths=mime&key=${FIRESTORE.key}`)).json()).fields;
     const first = await get(v.id);
     let b64 = first.audio.stringValue;
     for (let k = 1; k < (v.parts || 1); k++) b64 += (await get(`${v.id}_${k}`)).audio.stringValue;
@@ -86,7 +86,7 @@ function createDuo(env) {
     await audio.play();
     if (v.pour === getPlayer() && !v.ecoute) {
       v.ecoute = true;
-      fetch(`${VOX}/${v.id}?updateMask.fieldPaths=ecoute&key=${FIRESTORE.key}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: { ecoute: { booleanValue: true } } }) }).catch(() => {});
+      AUTH.authFetch(`${VOX}/${v.id}?updateMask.fieldPaths=ecoute&key=${FIRESTORE.key}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: { ecoute: { booleanValue: true } } }) }).catch(() => {});
     }
   }
   const mmss = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -601,7 +601,7 @@ function createDuo(env) {
     }
     go(() => analysis(i));
   }
-  const postCorrection = data => fetch(FIRESTORE.base.replace('/parties', '/corrections') + '?key=' + FIRESTORE.key, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: { data: { stringValue: JSON.stringify(data) } } }) })
+  const postCorrection = data => AUTH.authFetch(FIRESTORE.base.replace('/parties', '/corrections') + '?key=' + FIRESTORE.key, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fields: { data: { stringValue: JSON.stringify(data) } } }) })
     .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); });
 
   // ───── « Pas d'accord ? Corriger » : la remarque part dans la base (collection corrections) pour analyse.
@@ -618,7 +618,7 @@ function createDuo(env) {
       if (out.innerHTML) { out.innerHTML = ''; return; }
       out.innerHTML = '<p class="muted center" style="font-size:13px">Chargement…</p>';
       try {
-        const r = await (await fetch(FIRESTORE.base.replace('/parties', '/corrections') + '?pageSize=300&key=' + FIRESTORE.key)).json();
+        const r = await (await AUTH.authFetch(FIRESTORE.base.replace('/parties', '/corrections') + '?pageSize=300&key=' + FIRESTORE.key)).json();
         const mine = (r.documents || []).map(d => JSON.parse(d.fields.data.stringValue))
           .filter(c => c.auteur === getPlayer() && c.type === ctx.type && String(c.donne || c.question) === String(ctx.donne || ctx.question) && (c.partie || '') === (ctx.partie || ''))
           .sort((x, y) => x.date - y.date);

@@ -6,7 +6,16 @@ const BASE = 'https://firestore.googleapis.com/v1/projects/systeme-raimon/databa
 const KEY = 'AIzaSyCQ9Uo2TuV-O6ZLwZ_2vIE1LX-WwcCwuf4';
 // La clé n'accepte que les requêtes venant du site de l'appli (restriction Google Cloud) : on s'annonce comme tel.
 const REF = { Referer: 'https://draimon.github.io/bridge-raimon/' };
+// Connexion en tant que Damien (la base n'accepte que les joueurs connectés) : code dans la variable RAIMON_CODE,
+// jamais écrit dans le dépôt. Sans elle, on tente sans jeton (marche tant que les règles n'exigent pas la connexion).
+async function login() {
+  const code = process.env.RAIMON_CODE; if (!code) return;
+  const r = await (await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + KEY, { method: 'POST', headers: { 'Content-Type': 'application/json', ...REF }, body: JSON.stringify({ email: 'damien@systeme-raimon.app', password: 'raimon-' + code, returnSecureToken: true }) })).json();
+  if (r.error) { console.log('Connexion refusée : ' + r.error.message); process.exit(1); }
+  REF.Authorization = 'Bearer ' + r.idToken;
+}
 (async () => {
+  await login();
   const [cmd, id] = process.argv.slice(2);
   if (cmd === 'traite') {
     const doc = await (await fetch(`${BASE}/${id}?key=${KEY}`, { headers: REF })).json();

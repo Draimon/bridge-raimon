@@ -1,0 +1,36 @@
+// BROUILLON — règles Firestore avec connexion obligatoire (étape 1 « accès sécurisés »).
+// À FUSIONNER avec les règles durcies publiées le 29/10/2026 (relire celles de la console avant de publier) :
+// on garde leurs conditions de format et on ajoute seulement isFamily() devant.
+// À publier SEULEMENT après la mise en ligne de l'appli qui envoie le jeton (sinon plus rien ne marche).
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isFamily() {
+      return request.auth != null && request.auth.token.email in [
+        'michele@systeme-raimon.app', 'damien@systeme-raimon.app', 'helene@systeme-raimon.app'
+      ];
+    }
+    function signedIn() { return request.auth != null; }
+
+    // parties / corrections : un seul champ texte « data », pas de suppression (règles du 29/10)
+    match /parties/{id} {
+      allow read: if isFamily();
+      allow create, update: if isFamily() && request.resource.data.keys().hasOnly(['data']) && request.resource.data.data is string;
+      allow delete: if false;
+    }
+    match /corrections/{id} {
+      allow read: if isFamily();
+      allow create, update: if isFamily() && request.resource.data.keys().hasOnly(['data']) && request.resource.data.data is string;
+      allow delete: if false;
+    }
+    // vocaux : reprendre ICI les conditions exactes de la console (format méta/morceau, update « ecoute »,
+    // delete si plus de 30 jours) en ajoutant isFamily() à chacune.
+    match /vocaux/{id} {
+      allow read: if isFamily();
+      // allow create: if isFamily() && <condition de format actuelle>;
+      // allow update: if isFamily() && <seulement « ecoute »>;
+      // allow delete: if isFamily() && <date > 30 jours>;
+    }
+    // Étape 2 « Jouer au bridge » : collections ouvertes aux invités connectés (tables, résultats…) à ajouter ici.
+  }
+}
