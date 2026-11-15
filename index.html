@@ -414,6 +414,9 @@
   .alerttag { background: #1f7ae0; color: #fff; border-radius: 4px; padding: 0 5px; font-size: 12px; }
   .frame.sframe .plate.left { left: -16px; right: auto; transform: translate(-50%, -50%) rotate(-90deg); }
   .frame.sframe .plate.right { right: -16px; left: auto; transform: translate(50%, -50%) rotate(90deg); }
+  /* enchères : Ouest en haut et Est en bas, pour laisser la place à leurs cartons (Est descend du haut, Ouest monte du bas) */
+  .frame.sframe.bidframe .plate.left { top: 24%; } .frame.sframe.bidframe .plate.right { top: 76%; }
+  .sframe .bidstack.E .gb.stack, .sframe .bidstack.O .gb.stack { height: 30px; } .sframe .bidstack.E, .sframe .bidstack.O { gap: 3px; }
   .gridwait { opacity: .4; pointer-events: none; filter: saturate(.6); }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
@@ -424,24 +427,24 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152105"></script>
-<script src="fiche.js?v=202611152105"></script>
-<script src="deals.js?v=202611152105"></script>
-<script src="deals-duo.js?v=202611152105"></script>
-<script src="dds.js?v=202611152105"></script>
-<script src="jeu.js?v=202611152105"></script>
-<script src="adeux.js?v=202611152105"></script>
+<script src="questions.js?v=202611152107"></script>
+<script src="fiche.js?v=202611152107"></script>
+<script src="deals.js?v=202611152107"></script>
+<script src="deals-duo.js?v=202611152107"></script>
+<script src="dds.js?v=202611152107"></script>
+<script src="jeu.js?v=202611152107"></script>
+<script src="adeux.js?v=202611152107"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152105"></script>
-<script src="ffb-01.js?v=202611152105"></script>
-<script src="ffb-02.js?v=202611152105"></script>
-<script src="robot.js?v=202611152105"></script>
-<script src="bidder.js?v=202611152105"></script>
-<script src="player.js?v=202611152105"></script>
-<script src="news.js?v=202611152105"></script>
-<script src="salon.js?v=202611152105"></script>
+<script src="auth.js?v=202611152107"></script>
+<script src="ffb-01.js?v=202611152107"></script>
+<script src="ffb-02.js?v=202611152107"></script>
+<script src="robot.js?v=202611152107"></script>
+<script src="bidder.js?v=202611152107"></script>
+<script src="player.js?v=202611152107"></script>
+<script src="news.js?v=202611152107"></script>
+<script src="salon.js?v=202611152107"></script>
 <script>
 (() => {
   'use strict';
