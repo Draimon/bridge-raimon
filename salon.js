@@ -537,7 +537,12 @@ function createSalon(env) {
       if (t.etat === 'encheres') body = biddingHtml(t, deal, A, my, { top, left, right, bottom });
       else body = playHtml(t, deal, A, my, { top, left, right, bottom });
     }
-    app.innerHTML = topbar(esc(t.nom) + (t.n ? ' · ' + t.n : ''), 'Salon') + body
+    // score de la table en cours, toujours visible en haut (moyenne des % et points, NS / EO ; ton camp en jaune)
+    const hist = (t.historique || []), pv = hist.filter(h => h.pct !== null && h.pct !== undefined);
+    const mean = pv.length ? Math.round(pv.reduce((a2, h) => a2 + h.pct, 0) / pv.length) : null, pts = hist.reduce((a2, h) => a2 + h.ns, 0);
+    const mySd = my ? sideOf(my) : 'NS';
+    const chip = hist.length ? `<span class="tchip" title="Score de la table"><span><b class="${mySd === 'NS' ? 'me' : ''}">NS ${mean ?? '—'}%</b><b class="${mySd === 'EO' ? 'me' : ''}">EO ${mean === null ? '—' : 100 - mean}%</b></span><small>${hist.length} donne${hist.length > 1 ? 's' : ''} · NS ${pts > 0 ? '+' : ''}${pts}</small></span>` : '';
+    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', chip) + body
       + (isMaster(t) && stuckSeat(t) ? `<div class="notice">${esc(t.sieges[stuckSeat(t)].nom)} (${NAMES[stuckSeat(t)]}) ne répond plus. <button class="btn primary center sm" data-act="replacebot" data-seat="${stuckSeat(t)}">🤖 Le remplacer par un robot</button></div>` : '')
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
     ui.msg = '';
