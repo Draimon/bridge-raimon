@@ -542,7 +542,17 @@ function createSalon(env) {
     const mean = pv.length ? Math.round(pv.reduce((a2, h) => a2 + h.pct, 0) / pv.length) : null, pts = hist.reduce((a2, h) => a2 + h.ns, 0);
     const mySd = my ? sideOf(my) : 'NS';
     const chip = hist.length ? `<span class="tchip" title="Score de la table"><span><b class="${mySd === 'NS' ? 'me' : ''}">NS ${mean ?? '—'}%</b><b class="${mySd === 'EO' ? 'me' : ''}">EO ${mean === null ? '—' : 100 - mean}%</b></span><small>${hist.length} donne${hist.length > 1 ? 's' : ''} · NS ${pts > 0 ? '+' : ''}${pts}</small></span>` : '';
-    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', chip) + body
+    let head = chip;
+    if (t.etat === 'jeu' && deal) {
+      const c0 = auction(t, deal).contract;
+      if (c0) head = `<button class="cchip" data-act="showauction"><b>${c0.l}${fmt(c0.s)}${c0.dbl === 2 ? 'XX' : c0.dbl ? 'X' : ''}</b><small>par ${NAMES[c0.decl]} ▾</small></button>`;
+    }
+    const pop = ui.showAuction && deal ? `<div class="popveil" data-act="hideauction"><div class="pop auctionpop"><h3>Enchères · ${t.n}</h3>
+      <div class="felt" style="padding:8px">${auctionTable(t, deal)}</div>
+      <p class="muted" style="font-size:13px;margin:4px 0">Donneur : ${NAMES[deal.d]} · ${{ none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none']}</p>
+      <div id="notebox"></div>${chip ? `<p style="margin:6px 0 0">Score de la table : ${chip.replace(/class="tchip"/, 'class="tchip dark"')}</p>` : ''}
+      <button class="btn primary center" data-act="hideauction">Fermer</button></div></div>` : '';
+    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head) + body + pop
       + (isMaster(t) && stuckSeat(t) ? `<div class="notice">${esc(t.sieges[stuckSeat(t)].nom)} (${NAMES[stuckSeat(t)]}) ne répond plus. <button class="btn primary center sm" data-act="replacebot" data-seat="${stuckSeat(t)}">🤖 Le remplacer par un robot</button></div>` : '')
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
     ui.msg = '';
@@ -579,6 +589,8 @@ function createSalon(env) {
     const at = document.getElementById('alerttxt'); if (at) at.addEventListener('input', () => { ui.alertTxt = at.value; });
     on('lasttrick', () => { ui.lastAt = ui.lastAt === t.moves ? null : t.moves; renderTable(); });
     on('cleartrick', () => { ui.clearedAt = t.moves; renderTable(); });
+    on('showauction', () => { ui.showAuction = true; renderTable(); });
+    app.querySelectorAll('[data-act="hideauction"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showAuction = false; renderTable(); } }));
     on('claimopen', () => openClaim(t));
     on('claimcancel', () => tx(x => (x.claim && x.claim.by === me() ? { claim: null } : null)));
     on('claimyes', () => answerClaim(true));
@@ -768,7 +780,7 @@ function createSalon(env) {
     const ctr = side => `${ps.tricks[side]}${side === declSide ? '/' + need : ''}`;
     const turnTxt = ps.done ? '' : iControl ? (ps.turn === handSeat ? (swapped ? 'À toi de jouer (déclarant)' : 'À toi de jouer') : 'À toi de jouer le mort') : 'Au tour de ' + NAMES[ps.turn] + (t.sieges[ctrlOf(ps.turn)] && t.sieges[ctrlOf(ps.turn)].robot ? ' (robot)' : '');
     return `${topBlock}
-      <div class="frame sframe">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (ps.shown && s === ps.dummy && t.sieges[s] && t.sieges[s].uid !== me() ? ' <span class="hcp">' + hcpOf(deal[s]) + 'H</span>' : '') + (s === c.decl ? '<span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
+      <div class="frame sframe">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (ps.shown && s === ps.dummy && t.sieges[s] && t.sieges[s].uid !== me() ? ' <span class="hcp">' + hcpOf(deal[s]) + 'H</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
         <div class="corner cl">NS<br><b>${ctr('NS')}</b></div><div class="corner cr">EO<br><b>${ctr('EO')}</b></div>
         <div class="trick" ${doneTrick ? 'data-act="cleartrick"' : ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
         ${showLast && !doneTrick ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
