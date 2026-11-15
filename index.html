@@ -395,6 +395,8 @@
   .rgrid .rn { grid-area: n; } .rgrid .ro { grid-area: o; } .rgrid .rc { grid-area: c; } .rgrid .re { grid-area: e; } .rgrid .rs { grid-area: s; }
   .rh { font-size: 14px; line-height: 1.35; } .rh .red { color: #c4262e; } .rh small { font-size: 11px; }
   @media (max-width: 420px) { .rgrid { grid-template-columns: 1fr 120px 1fr; } .rgrid .trick { transform: scale(.8); transform-origin: center; } .rh { font-size: 12.5px; } }
+  .bwrap { position: relative; display: inline-block; cursor: pointer; } .alertmark { position: absolute; top: -6px; right: -6px; background: #f2c94c; color: #1d2724; border-radius: 50%; width: 15px; height: 15px; font-size: 11px; font-weight: 900; line-height: 15px; text-align: center; }
+  .notebubble { margin: 6px 0 10px; }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
   .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
@@ -404,20 +406,21 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611151853"></script>
-<script src="fiche.js?v=202611151853"></script>
-<script src="deals.js?v=202611151853"></script>
-<script src="deals-duo.js?v=202611151853"></script>
-<script src="dds.js?v=202611151853"></script>
-<script src="jeu.js?v=202611151853"></script>
-<script src="adeux.js?v=202611151853"></script>
+<script src="questions.js?v=202611151913"></script>
+<script src="fiche.js?v=202611151913"></script>
+<script src="deals.js?v=202611151913"></script>
+<script src="deals-duo.js?v=202611151913"></script>
+<script src="dds.js?v=202611151913"></script>
+<script src="jeu.js?v=202611151913"></script>
+<script src="adeux.js?v=202611151913"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611151853"></script>
-<script src="ffb-01.js?v=202611151853"></script>
-<script src="ffb-02.js?v=202611151853"></script>
-<script src="salon.js?v=202611151853"></script>
+<script src="auth.js?v=202611151913"></script>
+<script src="ffb-01.js?v=202611151913"></script>
+<script src="ffb-02.js?v=202611151913"></script>
+<script src="bidder.js?v=202611151913"></script>
+<script src="salon.js?v=202611151913"></script>
 <script>
 (() => {
   'use strict';

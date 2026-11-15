@@ -201,7 +201,7 @@ function createSalon(env) {
       return { sieges: s };
     });
   }
-  function setRobot(seat, on) { tx(t => (!isMaster(t) || (on && t.sieges[seat]) ? null : { sieges: { ...t.sieges, [seat]: on ? { robot: true } : null } })); }
+  function setRobot(seat, on) { tx(t => (!isMaster(t) || (on && t.sieges[seat]) ? null : { sieges: { ...t.sieges, [seat]: on ? { robot: true, sys: 'sef' } : null } })); }
   function freeSeat(seat) { tx(t => (!isMaster(t) ? null : { sieges: { ...t.sieges, [seat]: null } })); }
   function leaveTable() {
     const id = curId;
@@ -225,7 +225,7 @@ function createSalon(env) {
     const pool = FFB_DEALS.filter(d => !seen.has(d.n));
     if (!pool.length) { ui.msg = 'Plus aucune donne neuve pour cette table : préviens Damien.'; renderTable(); return; }
     const pick = pool[Math.floor(Math.random() * pool.length)];
-    tx(x => (!isMaster(x) || x.etat === 'encheres' || x.etat === 'jeu' ? null : { n: pick.n, bids: [], plays: [], moves: 0, etat: 'encheres', fin: null }));
+    tx(x => (!isMaster(x) || x.etat === 'encheres' || x.etat === 'jeu' ? null : { n: pick.n, bids: [], notes: [], plays: [], moves: 0, etat: 'encheres', fin: null }));
   }
 
   // ───── Règles du jeu (tout est recalculé à partir des enchères et des cartes jouées)
@@ -329,7 +329,7 @@ function createSalon(env) {
     const A = auction(t, deal);
     if (t.etat === 'encheres') {
       if (A.ended) { if (isMaster(t)) tx(x => endAuction(x, deal)); return; }
-      if (isMaster(t) && t.sieges[A.turn] && t.sieges[A.turn].robot) robotTimer = setTimeout(() => move('bid', 'P', t.moves), 700);
+      if (isMaster(t) && t.sieges[A.turn] && t.sieges[A.turn].robot) robotTimer = setTimeout(() => { const r = RaimonBid.bid(deal[A.turn], t.bids, deal.d, deal.v, A.turn); move('bid', r.bid, t.moves, { e: r.expl, a: r.alert }); }, 900);
       return;
     }
     const ps = playState(t, deal, A.contract);
@@ -357,8 +357,8 @@ function createSalon(env) {
     const robots = SEATS.filter(s => x.sieges[s] && x.sieges[s].robot).length;
     const fin = { n: deal.n, contrat: contractTxt(c), levees: tricksDecl, ns, pct: p, robots, joueurs: Object.fromEntries(SEATS.map(s => [s, x.sieges[s] ? (x.sieges[s].robot ? 'Robot' : x.sieges[s].nom) : '—'])),
       uids: SEATS.map(s => x.sieges[s] && x.sieges[s].uid).filter(Boolean),
-      places: Object.fromEntries(SEATS.map(s => [s, (x.sieges[s] && x.sieges[s].uid) || null])), bids: x.bids, plays: x.plays || [] };
-    const { bids: _b, plays: _p, ...light } = fin; void _b; void _p;
+      places: Object.fromEntries(SEATS.map(s => [s, (x.sieges[s] && x.sieges[s].uid) || null])), bids: x.bids, notes: x.notes || [], plays: x.plays || [] };
+    const { bids: _b, plays: _p, notes: _n, ...light } = fin; void _b; void _p; void _n;
     return { etat: 'fin', fin, historique: [...(x.historique || []), light] };
   }
   async function markPlayed(n) {
@@ -367,7 +367,7 @@ function createSalon(env) {
     db.collection('joues').doc(me()).set({ nom: getPlayer(), liste: firebase.firestore.FieldValue.arrayUnion(n) }, { merge: true }).catch(() => {});
   }
   // Une enchère ou une carte : transaction (vérifie que c'est bien le tour et que rien n'a bougé entre-temps)
-  function move(kind, val, expected) {
+  function move(kind, val, expected, note) {
     return tx(x => {
       if (x.moves !== expected) return null;
       const deal = dealOf(x.n); if (!deal) return null;
@@ -376,7 +376,8 @@ function createSalon(env) {
         const A = auction(x, deal); if (A.ended) return null;
         if (bidRank(val) >= 0 && bidRank(val) <= A.last) return null;
         if ((val === 'X' && !A.canX) || (val === 'XX' && !A.canXX)) return null;
-        const bids = [...x.bids, val], upd = { bids, moves: x.moves + 1 };
+        const bids = [...x.bids, val], notes = [...(x.notes || []), ...Array(Math.max(0, x.bids.length - (x.notes || []).length)).fill(null), note || null].slice(0, bids.length);
+        const upd = { bids, notes, moves: x.moves + 1 };
         const A2 = auction({ ...x, bids }, deal);
         if (A2.ended && !A2.contract) return { ...upd, ...endDeal({ ...x, ...upd }, deal) };
         if (A2.ended) upd.etat = 'jeu';
@@ -444,6 +445,7 @@ function createSalon(env) {
     app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => freeSeat(b.dataset.free)));
     on('deal', nextDeal);
     on('resetscore', () => { if (confirm('Remettre à zéro les scores de cette table ?')) tx(x => (isMaster(x) ? { historique: [], fin: null, etat: x.etat === 'fin' ? 'attente' : x.etat } : null)); });
+    wireNotes(t.notes || [], t.bids);
     app.querySelectorAll('[data-bid]').forEach(b => b.addEventListener('click', () => {
       const v = b.dataset.bid;
       if (ui.choice !== v) { ui.choice = v; renderTable(); return; }
@@ -500,7 +502,8 @@ function createSalon(env) {
   function auctionTable(t, deal) {
     const order = ['O', 'N', 'E', 'S'], start = order.indexOf(deal.d), cells = [];
     for (let i = 0; i < start; i++) cells.push('<span></span>');
-    t.bids.forEach((b, i) => cells.push(bidCard(b, i === t.bids.length - 1 ? 'last' : '')));
+    const notes = t.notes || [];
+    t.bids.forEach((b, i) => { const n = notes[i]; cells.push(n ? `<span class="bwrap" data-note="${i}">${bidCard(b, (i === t.bids.length - 1 ? 'last ' : '') + (n.a ? 'alerted' : ''))}${n.a ? '<sup class="alertmark">!</sup>' : ''}</span>` : bidCard(b, i === t.bids.length - 1 ? 'last' : '')); });
     return `<div class="atab">${order.map(s => `<b>${NAMES[s]}</b>`).join('')}${cells.join('')}</div>`;
   }
   function handHtml(hand, seat, clickable, L) {
@@ -557,6 +560,15 @@ function createSalon(env) {
       `;
   }
 
+  // Toucher une enchère de robot : son explication (et l'alerte si elle est conventionnelle)
+  function wireNotes(notes, bids) {
+    app.querySelectorAll('[data-note]').forEach(x => x.addEventListener('click', () => {
+      const i = +x.dataset.note, n = notes[i]; if (!n) return;
+      let box = document.getElementById('notebox');
+      if (!box) { box = document.createElement('div'); box.id = 'notebox'; const fr = app.querySelector('.frame') || app.querySelector('.felt'); (fr || app).after(box); }
+      box.innerHTML = `<div class="notice notebubble">${n.a ? '<b>Alerte</b> · ' : ''}<b>${bids[i] === 'P' ? 'Passe' : fmt(bids[i])}</b> : ${esc(n.e || '')}</div>`;
+    }));
+  }
   // ───── Onglets du bas (comme sur BBO) : salle ou table · mes donnes · chat
   function tabBar() {
     const main = curId ? ['🂠', 'Table'] : ['🏠', 'Salon'];
@@ -624,7 +636,8 @@ function createSalon(env) {
     document.body.classList.remove('tablemode');
     app.innerHTML = topbar('Donne ' + r.n, from === 'hist' ? 'Mes donnes' : 'Table') + `
       <p style="margin:0 0 6px">${fmt(r.contrat)}${c ? ` · ${r.levees} levées` : ''} · NS ${r.ns > 0 ? '+' : ''}${r.ns} · <b>NS ${r.pct ?? '—'} %</b> <small class="muted">${deal.src.simu} du ${deal.src.date.split('-').reverse().join('/')}</small></p>
-      <div class="felt" style="padding:8px">${auctionTable({ bids }, deal)}</div>
+      <div class="felt" style="padding:8px">${auctionTable({ bids, notes: r.notes || [] }, deal)}</div>
+      <div id="notebox"></div>
       <div class="rgrid"><div class="rn">${handTxt('N')}</div><div class="ro">${handTxt('O')}</div>
         <div class="rc"><div class="trick">${slot('N', 'top')}${slot('O', 'left')}${slot('E', 'right')}${slot('S', 'bottom')}</div></div>
         <div class="re">${handTxt('E')}</div><div class="rs">${handTxt('S')}</div></div>
@@ -634,6 +647,7 @@ function createSalon(env) {
     on('back', () => { if (from === 'hist') histView(); else { tab = 'main'; render(); } });
     wireTabs();
     app.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => replayView(r, +b.dataset.st, from)));
+    wireNotes(r.notes || [], bids);
   }
 
   return { open, stop: () => { stopAll(); stopBeat(); } , _test: { auction, score, pctNS, weekStart } };
