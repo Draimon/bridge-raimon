@@ -1,0 +1,34 @@
+# Réassort automatique des donnes FFB du salon de bridge :
+# chaque lundi, s'il reste moins de 500 donnes jamais jouées, on en importe 500 de plus et on publie l'appli.
+name: Réassort des donnes FFB
+
+on:
+  schedule:
+    - cron: '0 5 * * 1'      # lundi, 6h (heure de Paris en hiver)
+  workflow_dispatch:          # lancement à la main depuis l'onglet Actions
+
+permissions:
+  contents: write
+
+jobs:
+  reassort:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compter les donnes jouées et réassortir si besoin
+        id: restock
+        run: node tools/restock.js 500 500
+      - name: Vérifier et publier
+        if: steps.restock.outputs.restock == 'oui'
+        run: |
+          node tools/check.js
+          node tools/stamp.js
+          git config user.name "Réassort automatique"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Réassort automatique : 500 nouvelles donnes FFB"
+          git push

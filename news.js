@@ -3,6 +3,11 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-reassort', date: '15/11/2026', pour: 'famille',
+    titre: '♻️ Des donnes FFB à volonté',
+    texte: `<p>Chaque lundi matin, l'appli vérifie combien de donnes du salon n'ont encore jamais été jouées. S'il en reste moins de 500, elle va en chercher <b>500 nouvelles</b> dans les simultanés FFB, toute seule.</p>`,
+  },
+  {
     id: '2026-11-15-carton-alerte', date: '15/11/2026', pour: 'tous',
     titre: '🟦 Le carton bleu ALERTE',
     texte: `<p>Comme dans une vraie boîte à enchères : quand vous choisissez votre enchère, touchez le carton bleu <b>ALERTE</b> et écrivez en quelques mots ce qu'elle veut dire (par ex. « Texas ♥ »), puis annoncez.</p>

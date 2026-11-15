@@ -442,6 +442,8 @@ function createSalon(env) {
     const key = 'raimon-joue:' + me() + ':' + n;
     try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) { /* pas grave */ }
     db.collection('joues').doc(me()).set({ nom: getPlayer(), liste: firebase.firestore.FieldValue.arrayUnion(n) }, { merge: true }).catch(() => {});
+    // compteur public des donnes jouées (numéros seulement) : sert au réassort automatique des donnes FFB
+    db.collection('stats').doc('ffb').set({ joues: firebase.firestore.FieldValue.arrayUnion(n) }, { merge: true }).catch(() => {});
   }
   // Une enchère ou une carte : transaction (vérifie que c'est bien le tour et que rien n'a bougé entre-temps)
   function move(kind, val, expected, note) {

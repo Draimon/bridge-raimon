@@ -91,6 +91,11 @@ service cloud.firestore {
       allow read: if famille() || (connecte() && resource.data.uid == request.auth.uid);
       allow update: if famille() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['statut']);
     }
+    // Compteur public des donnes FFB jouées (numéros seulement), lu par le réassort automatique (GitHub)
+    match /stats/{id} {
+      allow read: if true;
+      allow create, update: if connecte() && request.resource.data.keys().hasOnly(['joues']) && request.resource.data.joues is list;
+    }
     // Résultats : ajout seulement
     match /resultats/{res} {
       allow read, create: if connecte();
