@@ -408,7 +408,7 @@ function createSalon(env) {
       if (isMaster(t) && !done) db.collection('resultats').add({ ...t.fin, table: curId, t: now() }).catch(() => {});
     }
     if (t.etat === 'jeu' && t.claim && isMaster(t)) robotCheckClaim(t);
-    if (t.claim) return;                                                // rien ne bouge pendant une revendication
+    if (t.claim || t.undo) return;                                      // rien ne bouge pendant une revendication ou une demande d'annulation
     if (!t.n || (t.etat !== 'encheres' && t.etat !== 'jeu')) return;
     const deal = dealOf(t.n); if (!deal) return;
     const A = auction(t, deal);
@@ -460,7 +460,7 @@ function createSalon(env) {
   // Une enchère ou une carte : transaction (vérifie que c'est bien le tour et que rien n'a bougé entre-temps)
   function move(kind, val, expected, note) {
     return tx(x => {
-      if (x.moves !== expected) return null;
+      if (x.moves !== expected || x.undo) return null;
       const deal = dealOf(x.n); if (!deal) return null;
       if (kind === 'bid') {
         if (x.etat !== 'encheres') return null;
@@ -562,6 +562,7 @@ function createSalon(env) {
       + (!isGuest() ? '<button class="seatsbtn sysfab" data-sys>📖 Système</button>' : '')
       + ((t.etat === 'jeu' || t.etat === 'encheres') ? SEATS.filter(k => !t.sieges[k]).map(k => `<div class="notice">Place ${NAMES[k]} libre. ${!my ? `<button class="btn primary center sm" data-sit="${k}">M’asseoir en ${NAMES[k]}</button>` : ''}${isMaster(t) ? `<button class="btn center sm" data-robot="${k}:${(t.sieges[partner(k)] && t.sieges[partner(k)].sys) || 'sef'}">🤖 Mettre un robot</button>` : ''}</div>`).join('') : '')
       + (isMaster(t) && stuckSeat(t) ? `<div class="notice">${esc(t.sieges[stuckSeat(t)].nom)} (${NAMES[stuckSeat(t)]}) ne répond plus. <button class="btn primary center sm" data-act="replacebot" data-seat="${stuckSeat(t)}">🤖 Le remplacer par un robot</button></div>` : '')
+      + undoHtml(t, my)
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
     ui.msg = '';
     on('back', () => {
@@ -607,6 +608,10 @@ function createSalon(env) {
     app.querySelectorAll('[data-act="hidescores"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showScores = false; renderTable(); } }));
     app.querySelectorAll('[data-row]').forEach(x => x.addEventListener('click', () => { ui.openRow = ui.openRow === x.dataset.row ? null : x.dataset.row; renderTable(); }));
     app.querySelectorAll('[data-act="hideauction"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showAuction = false; renderTable(); } }));
+    on('undo', () => requestUndo());
+    on('undocancel', () => tx(x => (x.undo && x.undo.by === me() ? { undo: null } : null)));
+    on('undoyes', () => answerUndo(true));
+    on('undono', () => answerUndo(false));
     on('claimopen', () => openClaim(t));
     on('claimcancel', () => tx(x => (x.claim && x.claim.by === me() ? { claim: null } : null)));
     on('claimyes', () => answerClaim(true));
@@ -836,6 +841,61 @@ function createSalon(env) {
     return out;
   }
   const otherSide = sd => (sd === 'NS' ? 'EO' : 'NS');
+  // ═════ Annuler (undo) : sa dernière enchère ou sa dernière carte (et ce qui a suivi).
+  // Adversaires robots : immédiat. Un adversaire humain à la table : il doit accepter.
+  function ctrlSeat(t, c, s) { const sw = swapOf(t, c), dummy = partner(c.decl); return sw && (s === c.decl || s === dummy) ? sw.human : s === dummy ? c.decl : s; }
+  function lastMine(t, my) {
+    const deal = t.n && dealOf(t.n); if (!deal || !my) return null;
+    if (t.etat === 'encheres') {
+      let idx = -1; t.bids.forEach((b, i) => { if (SEATS[(SEATS.indexOf(deal.d) + i) % 4] === my) idx = i; });
+      return idx < 0 ? null : { kind: 'b', idx, what: t.bids[idx] };
+    }
+    if (t.etat === 'jeu' && t.plays.length < 52) {
+      const c = auction(t, deal).contract; let idx = -1;
+      for (let i = 0; i < t.plays.length; i++) { const seat = playState({ ...t, plays: t.plays.slice(0, i) }, deal, c).turn; if (ctrlSeat(t, c, seat) === my) idx = i; }
+      if (idx < 0) return null;
+      return { kind: 'c', idx, what: t.plays[idx] };
+    }
+    return null;
+  }
+  const humanOpps = (t, my) => SEATS.filter(s => sideOf(s) !== sideOf(my) && t.sieges[s] && !t.sieges[s].robot);
+  function applyUndo(x, u) {
+    if (u.kind === 'b') return { bids: x.bids.slice(0, u.idx), notes: (x.notes || []).slice(0, u.idx), moves: x.moves + 1, undo: null };
+    return { plays: x.plays.slice(0, u.idx), moves: x.moves + 1, undo: null };
+  }
+  function requestUndo() {
+    tx(x => {
+      if (x.undo || x.claim) return null;
+      const my = mySeat(x), u = lastMine(x, my); if (!u) return null;
+      if (!humanOpps(x, my).length) return applyUndo(x, u);
+      return { undo: { kind: u.kind, idx: u.idx, what: u.what, by: me(), nom: getPlayer(), seat: my, moves: x.moves } };
+    });
+  }
+  function answerUndo(yes) {
+    tx(x => {
+      const u = x.undo; if (!u) return null;
+      const my = mySeat(x); if (!my || sideOf(my) === sideOf(u.seat)) return null;     // seul un adversaire répond
+      if (!yes || x.moves !== u.moves) return { undo: null };
+      return applyUndo(x, u);
+    });
+  }
+  // ce qu'on annule, affiché sans jamais injecter le texte stocké (enchère ou carte brute, vérifiée)
+  function undoWhat(u) {
+    const w = String(u.what || '');
+    if (u.kind === 'b') return /^(P|XX?|[1-7](SA|♠|♥|♦|♣))$/.test(w) ? bidTxt(w) : '';
+    return /^[0-3][AKQJT2-9]$/.test(w) ? RLAB[12 - RCH.indexOf(w[1])] + SYM[+w[0]] : '';
+  }
+  function undoHtml(t, my) {
+    if (t.etat !== 'encheres' && t.etat !== 'jeu') return '';
+    const u = t.undo;
+    if (u) {
+      const toAnswer = my && sideOf(my) !== sideOf(u.seat) && !(t.sieges[my] || {}).robot;
+      return `<div class="undobox"><b>${esc(u.nom)}</b> demande d’annuler ${u.kind === 'b' ? 'son enchère' : 'sa carte'} <b>${undoWhat(u)}</b>.
+        ${u.by === me() ? '<p>En attente de la réponse des adversaires… <button class="link" data-act="undocancel">retirer la demande</button></p>' : toAnswer ? '<div class="row2"><button class="btn center sm" data-act="undono">✗ Refuser</button><button class="btn primary center sm" data-act="undoyes">✓ Accepter</button></div>' : '<p class="muted">En attente des adversaires…</p>'}</div>`;
+    }
+    if (t.claim || !lastMine(t, my)) return '';
+    return '<button class="seatsbtn undobtn" data-act="undo">↩️ Annuler</button>';
+  }
   function claimBar(t, deal, c, ps, my) {
     if (ps.done || !my) return '';
     const mySide = sideOf(my), cl = t.claim;

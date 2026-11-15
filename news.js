@@ -3,6 +3,13 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-annuler', date: '15/11/2026', pour: 'tous',
+    titre: '↩️ Annuler sa dernière enchère ou sa dernière carte',
+    texte: `<p>À la table, le bouton <b>↩️ Annuler</b> (en bas à gauche) reprend ta dernière enchère ou ta dernière carte, et ce qui a été joué après.</p>
+      <p>Contre des robots, c’est immédiat. Si un <b>adversaire humain</b> est assis, il reçoit la demande et doit l’accepter (ou la refuser). Pendant la demande, le jeu est en pause.</p>
+      <p>En fin de donne, ton <b>score en %</b> s’affiche maintenant en grand, en vert ou en rouge.</p>`,
+  },
+  {
     id: '2026-11-15-systeme-salon', date: '15/11/2026', pour: 'famille',
     titre: '📖 Le Système Raimon à portée de main au salon',
     texte: `<p>À la table du salon, le bouton <b>📖 Système</b> (en bas à droite) ouvre la fiche du Système Raimon par-dessus la partie, comme en mode solo : chapitres, recherche et fiche originale en PDF.</p>
