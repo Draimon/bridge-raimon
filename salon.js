@@ -835,8 +835,7 @@ function createSalon(env) {
         <div class="trick ${ps.shown && ps.dummy !== my && pos[ps.dummy] === 'left' ? 'sdl' : ps.shown && ps.dummy !== my && pos[ps.dummy] === 'right' ? 'sdr' : ''}" ${doneTrick ? 'data-act="cleartrick"' : ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
         ${showLast && !doneTrick ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
       <p class="center feltnote" style="margin:4px 0">${turnTxt}${ps.last && !showLast ? ' · <button class="link lastbtn" data-act="lasttrick">👁 Pli précédent</button>' : ''}${doneTrick ? ' · <small>touche le tapis pour le ranger</small>' : ''}</p>
-      ${claimBar(t, deal, c, ps, my)}
-      ${undoBtn(t, my) ? `<p class="center" style="margin:4px 0">${undoBtn(t, my)}</p>` : ''}
+      ${claimRow(claimBar(t, deal, c, ps, my), undoBtn(t, my))}
       ${my ? fanHtml(ps.hands[handSeat], iControl && ps.turn === handSeat, iControl && ps.turn === handSeat ? L : []) : ''}`;
   }
 
@@ -907,6 +906,11 @@ function createSalon(env) {
     return '';
   }
   const undoBtn = (t, my) => (t.undo || t.claim || !lastMine(t, my) ? '' : '<button class="btn sm undoinline" data-act="undo">↩️ Annuler</button>');
+  function claimRow(cb, ub) {
+    if (!ub) return cb;
+    if (cb.startsWith('<p class="center">') && cb.endsWith('</p>')) return cb.slice(0, -4) + ' ' + ub + '</p>';
+    return cb + `<p class="center" style="margin:4px 0">${ub}</p>`;
+  }
   function claimBar(t, deal, c, ps, my) {
     if (ps.done || !my) return '';
     const mySide = sideOf(my), cl = t.claim;
