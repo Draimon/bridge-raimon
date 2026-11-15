@@ -773,7 +773,9 @@ function createSalon(env) {
   }
   // Le mort sur le côté : une ligne par couleur, petites cartes (lecture seule : en défense, on ne le joue pas)
   function sideDummy(hand, side) {
-    const rows = ord(hand).map(k => `<div class="sdrow">${[...hand[k]].sort((a, b) => b - a).map(r => cardHtml(k, RLAB[r], 'xs')).join('') || '<span class="sdvoid">—</span>'}</div>`).join('');
+    // comme sur une vraie table : l'atout du côté du déclarant → en haut si le mort est à ta droite, en bas s'il est à ta gauche
+    const o = ord(hand); if (side === 'left') o.reverse();
+    const rows = o.map(k => `<div class="sdrow">${[...hand[k]].sort((a, b) => b - a).map(r => cardHtml(k, RLAB[r], 'xs')).join('') || '<span class="sdvoid">—</span>'}</div>`).join('');
     return `<div class="sdummy ${side}">${rows}</div>`;
   }
   const backsHtml = n => (n ? `<span class="mbacks">${'<i></i>'.repeat(n)}</span>` : '');
