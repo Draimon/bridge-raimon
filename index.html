@@ -463,24 +463,25 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152134"></script>
-<script src="fiche.js?v=202611152134"></script>
-<script src="deals.js?v=202611152134"></script>
-<script src="deals-duo.js?v=202611152134"></script>
-<script src="dds.js?v=202611152134"></script>
-<script src="jeu.js?v=202611152134"></script>
-<script src="adeux.js?v=202611152134"></script>
+<script src="questions.js?v=202611152135"></script>
+<script src="fiche.js?v=202611152135"></script>
+<script src="deals.js?v=202611152135"></script>
+<script src="deals-duo.js?v=202611152135"></script>
+<script src="dds.js?v=202611152135"></script>
+<script src="jeu.js?v=202611152135"></script>
+<script src="adeux.js?v=202611152135"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152134"></script>
-<script src="ffb-01.js?v=202611152134"></script>
-<script src="ffb-02.js?v=202611152134"></script>
-<script src="robot.js?v=202611152134"></script>
-<script src="bidder.js?v=202611152134"></script>
-<script src="player.js?v=202611152134"></script>
-<script src="news.js?v=202611152134"></script>
-<script src="salon.js?v=202611152134"></script>
+<script src="nosleep-media.js?v=202611152135"></script>
+<script src="auth.js?v=202611152135"></script>
+<script src="ffb-01.js?v=202611152135"></script>
+<script src="ffb-02.js?v=202611152135"></script>
+<script src="robot.js?v=202611152135"></script>
+<script src="bidder.js?v=202611152135"></script>
+<script src="player.js?v=202611152135"></script>
+<script src="news.js?v=202611152135"></script>
+<script src="salon.js?v=202611152135"></script>
 <script>
 (() => {
   'use strict';
@@ -490,17 +491,35 @@
   // (iPhone iOS 16.4 et plus, Chrome/Edge sur ordinateur). Le verrou saute quand l'appli passe en arrière-plan :
   // on le reprend au retour. Hors du jeu, le téléphone se met en veille normalement.
   const wake = (() => {
-    let lock = null;
+    let lock = null, video = null;
     const wanted = () => document.visibilityState === 'visible' && (document.body.classList.contains('tablemode') || document.body.classList.contains('salonmode'));
-    async function sync() {
-      if (!('wakeLock' in navigator)) return;
-      try {
-        if (wanted() && !lock) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); }
-        else if (!wanted() && lock) { const l = lock; lock = null; await l.release(); }
-      } catch (e) { lock = null; }                                       // refusé (économie d'énergie…) : tant pis
+    // Secours iPhone : le verrou d'iOS saute souvent dans l'appli écran d'accueil → petite vidéo muette en boucle (lancée au toucher)
+    function vid() {
+      if (!video && window.NOSLEEP_MP4) {
+        video = document.createElement('video');
+        video.setAttribute('playsinline', ''); video.setAttribute('muted', ''); video.muted = true; video.setAttribute('title', 'Écran allumé');
+        video.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:0;top:0';
+        const s = document.createElement('source'); s.src = window.NOSLEEP_MP4; s.type = 'video/mp4'; video.appendChild(s);
+        video.addEventListener('timeupdate', () => { if (video.currentTime > 0.5) video.currentTime = Math.random(); });
+        document.body.appendChild(video);
+      }
+      return video;
     }
-    new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    document.addEventListener('visibilitychange', sync);
+    async function sync(gesture) {
+      const on = wanted();
+      if ('wakeLock' in navigator) {
+        try {
+          if (on && !lock) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); }
+          else if (!on && lock) { const l = lock; lock = null; await l.release(); }
+        } catch (e) { lock = null; }
+      }
+      const v = (on && gesture === true) || (!on && video) ? vid() : null;
+      if (v) { if (on) { if (v.paused) v.play().catch(() => {}); } else if (!v.paused) v.pause(); }
+    }
+    new MutationObserver(() => sync()).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    document.addEventListener('visibilitychange', () => sync());
+    // chaque toucher reprend le verrou s'il a sauté et (re)lance la vidéo : iOS n'autorise la lecture qu'après un geste
+    document.addEventListener('pointerdown', () => sync(true), { passive: true });
     return { sync };
   })();
   void wake;
