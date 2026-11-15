@@ -758,6 +758,7 @@ function createSalon(env) {
         <div class="bidcenter" id="fb">${myTurn ? gridHtml(A) : waitGrid(A, t)}</div>
         <div class="vulnote">${vul}</div>
       </div>
+      ${undoBtn(t, my) ? `<p class="center" style="margin:4px 0">${undoBtn(t, my)}</p>` : ''}
       <div id="notebox"></div>
       ${hand ? arcHtml(window.suitOrder([0, 1, 2, 3].map(s => hand[s].length), null).flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, label: RLAB[r] })))) : ''}`;
   }
@@ -827,6 +828,7 @@ function createSalon(env) {
         ${showLast && !doneTrick ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
       <p class="center feltnote" style="margin:4px 0">${turnTxt}${ps.last && !showLast ? ' · <button class="link lastbtn" data-act="lasttrick">👁 Pli précédent</button>' : ''}${doneTrick ? ' · <small>touche le tapis pour le ranger</small>' : ''}</p>
       ${claimBar(t, deal, c, ps, my)}
+      ${undoBtn(t, my) ? `<p class="center" style="margin:4px 0">${undoBtn(t, my)}</p>` : ''}
       ${my ? fanHtml(ps.hands[handSeat], iControl && ps.turn === handSeat, iControl && ps.turn === handSeat ? L : []) : ''}`;
   }
 
@@ -894,9 +896,9 @@ function createSalon(env) {
       return `<div class="undobox"><b>${esc(u.nom)}</b> demande d’annuler ${u.kind === 'b' ? 'son enchère' : 'sa carte'} <b>${undoWhat(u)}</b>.
         ${u.by === me() ? '<p>En attente de la réponse des adversaires… <button class="link" data-act="undocancel">retirer la demande</button></p>' : toAnswer ? '<div class="row2"><button class="btn center sm" data-act="undono">✗ Refuser</button><button class="btn primary center sm" data-act="undoyes">✓ Accepter</button></div>' : '<p class="muted">En attente des adversaires…</p>'}</div>`;
     }
-    if (t.claim || !lastMine(t, my)) return '';
-    return '<button class="seatsbtn undobtn" data-act="undo">↩️ Annuler</button>';
+    return '';
   }
+  const undoBtn = (t, my) => (t.undo || t.claim || !lastMine(t, my) ? '' : '<button class="btn sm undoinline" data-act="undo">↩️ Annuler</button>');
   function claimBar(t, deal, c, ps, my) {
     if (ps.done || !my) return '';
     const mySide = sideOf(my), cl = t.claim;
