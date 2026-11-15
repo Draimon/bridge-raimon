@@ -254,17 +254,20 @@ function createSalon(env) {
     const hands = {}; SEATS.forEach(s => { hands[s] = parseHand(deal[s]); });
     const trump = c.s === 'SA' ? null : SUIT_OF[c.s];
     let leader = next(c.decl), trick = [], tricks = { NS: 0, EO: 0 }, last = null;
+    const played = [], voids = { N: [], E: [], S: [], O: [] }, firstLed = {};
     for (const p of t.plays) {
       const s = +p[0], r = 12 - RCH.indexOf(p[1]);
       const seat = trick.length ? SEATS[(SEATS.indexOf(leader) + trick.length) % 4] : leader;
       hands[seat][s] = hands[seat][s].filter(x => x !== r);
+      if (trick.length && s !== trick[0].s && !voids[seat].includes(trick[0].s)) voids[seat].push(trick[0].s);
+      if (!trick.length && firstLed[seat] === undefined) firstLed[seat] = s;
       trick.push({ seat, s, r });
       if (trick.length === 4) {
-        const w = winnerOf(trick, trump); tricks[sideOf(w.seat)]++; last = trick; leader = w.seat; trick = [];
+        const w = winnerOf(trick, trump); tricks[sideOf(w.seat)]++; last = trick; leader = w.seat; played.push(...trick); trick = [];
       }
     }
     const turn = trick.length ? SEATS[(SEATS.indexOf(leader) + trick.length) % 4] : leader;
-    return { hands, trump, trick, tricks, last, turn, leader, done: t.plays.length === 52, dummy: partner(c.decl), shown: t.plays.length > 0 };
+    return { hands, trump, trick, tricks, last, turn, leader, played, voids, firstLed, done: t.plays.length === 52, dummy: partner(c.decl), shown: t.plays.length > 0 };
   }
   function winnerOf(trick, trump) {
     return trick.reduce((w, x) => {
@@ -335,7 +338,7 @@ function createSalon(env) {
     const ps = playState(t, deal, A.contract);
     if (ps.done) { if (isMaster(t)) tx(x => endDeal(x, deal)); return; }
     const ctrl = ps.turn === ps.dummy ? A.contract.decl : ps.turn;
-    if (isMaster(t) && t.sieges[ctrl] && t.sieges[ctrl].robot) robotTimer = setTimeout(() => move('card', robotCard(ps, ps.turn, A.contract), t.moves), ps.trick.length === 0 && t.plays.length ? 1400 : 800);
+    if (isMaster(t) && t.sieges[ctrl] && t.sieges[ctrl].robot) robotTimer = setTimeout(() => move('card', robotPlay(t, deal, A, ps, ctrl), t.moves), ps.trick.length === 0 && t.plays.length ? 1200 : 600);
   }
   function endAuction(x, deal) {
     if (x.etat !== 'encheres') return null;
@@ -392,7 +395,19 @@ function createSalon(env) {
     });
   }
 
-  // ───── Robot provisoire : passe aux enchères ; au jeu, règles simples (entame 4e meilleure / tête de séquence,
+  // ───── Robot de jeu (player.js) : il reçoit seulement sa main, le mort une fois étalé et les cartes jouées
+  function robotPlay(t, deal, A, ps, ctrl) {
+    const c = A.contract, turn = ps.turn;
+    const visible = sideOf(ctrl) === sideOf(c.decl) ? [ctrl === turn ? partner(turn) : c.decl] : (ps.shown ? [ps.dummy] : []);
+    const known = {}; SEATS.forEach(x => { known[x] = x === turn || visible.includes(x) ? ps.hands[x] : [[], [], [], []]; });
+    const counts = {}; SEATS.forEach(x => { counts[x] = ps.hands[x].reduce((a, y) => a + y.length, 0); });
+    const named = {}; t.bids.forEach((b, i) => { const x = SEATS[(SEATS.indexOf(deal.d) + i) % 4]; if (bidRank(b) >= 0 && b.slice(1) !== 'SA' && named[x] === undefined) named[x] = SUIT_OF[b.slice(1)]; });
+    try {
+      return RaimonPlay.choose({ me: turn, hands: known, visible, trick: ps.trick, played: ps.played, trump: ps.trump, decl: c.decl, counts, voids: ps.voids,
+        partnerSuit: named[partner(turn)], partnerLed: ps.firstLed[partner(turn)], myLed: ps.firstLed[turn] }, 800);
+    } catch (e) { return robotCard(ps, turn, c); }
+  }
+  // ───── Robot de secours : passe aux enchères ; au jeu, règles simples (entame 4e meilleure / tête de séquence,
   // 2e joue bas, 3e joue haut, ne surprend pas son partenaire maître, défausse la plus petite).
   function robotCard(ps, seat, c) {
     const L = legal(ps, seat), trump = ps.trump;
