@@ -678,6 +678,39 @@
       if (tot === 4 && pi.min + e.hcp >= 36) return R(sb(7, t), 'Tous les As : grand chelem');
       return R(sb(6, t), 'Il ne manque qu’un As : petit chelem');
     }
+    // ── Défense sur 1SA adverse (fiche : 2e position X = du ♣ ; 4e position X = Landy 12H+)
+    if (!mine.length && !his.length && C.lastBid === '1SA' && C.them.length === 1 && C.them[0].b === '1SA') {
+      const direct = C.hist.length === C.them[0].i + 1;
+      const maj54 = L[0] >= 4 && L[1] >= 4 && L[0] + L[1] >= 9, minors = L[2] >= 5 && L[3] >= 5;
+      if (direct) {
+        if (maj54 && h >= 12) return R('2♣', 'Landy : les deux majeures (5-4), 12H et plus', true);
+        if (minors && h >= 8) return R('2SA', 'Bicolore mineur (5-5)', true);
+        for (const i of [0, 1, 2]) if (L[i] >= 6 && h >= 8) return R(sb(2, i), `Naturel : 6 cartes à ${SYM[i]}`);
+        if (L[3] >= 6 && h >= 8 && C.canX) return R('X', 'Du ♣ : 6 cartes à ♣ (jamais punitif)', true);
+        return P();
+      }
+      if (maj54 && h >= 12 && C.canX) return R('X', 'Landy avec 12H et plus', true);
+      if (maj54 && h >= 8) return R('2♣', 'Landy avec moins de 12H', true);
+      if (minors && h >= 8) return R('2SA', 'Bicolore mineur (5-5)', true);
+      for (const i of [0, 1, 2, 3]) if (L[i] >= 5 && h >= 8) { const b = i === 3 ? '3♣' : sb(2, i); if (rank(b) > C.last) return R(b, `Naturel : 5 cartes à ${SYM[i]}`); }
+      return P();
+    }
+    // ── Réponse à notre défense sur 1SA
+    if (!mine.length && his.length === 1 && C.them.length && C.them[0].b === '1SA' && C.lastBy !== C.seat) {
+      const pb = his[0].b, direct = his[0].i === C.them[0].i + 1;
+      if (pb === 'X' && direct) {
+        const x = [0, 1, 2].find(i => L[i] >= 6);
+        if (x !== undefined) { const b = cheapest(C, x); if (b && lvl(b) <= 2) return R(b, `6 cartes à ${SYM[x]}`); }
+        return L[3] >= 2 ? R(cheapest(C, 3), 'Je passe ou corrige : on joue à ♣') : R(cheapest(C, longest(e)), 'Pas de ♣ : ma couleur');
+      }
+      if ((pb === 'X' && !direct) || pb === '2♣') {
+        const m = L[1] > L[0] ? 1 : 0, strong = pb === 'X';
+        if (h >= (strong ? 10 : 12)) return R(sb(4, m), `Manche dans la majeure préférée`);
+        if (h >= (strong ? 7 : 10)) { const b = sb(3, m); if (rank(b) > C.last) return R(b, 'Proposition dans la majeure préférée'); }
+        return R(cheapest(C, m), 'Préférence faible');
+      }
+      if (pb === '2SA') { const m = L[2] > L[3] ? 2 : 3; return R(cheapest(C, m), `Préférence ${SYM[m]}`); }
+    }
     // ── Défense : Copenhague directement derrière l'ouvreur (bicolore 5-5)
     if (!mine.length && !his.length && C.them.length === 1 && C.hist.length === C.them[0].i + 1 && rank(C.them[0].b) >= 0 && lvl(C.them[0].b) === 1 && str(C.them[0].b) !== 'SA' && h >= 8) {
       const o = SI[str(C.them[0].b)], two = [0, 1, 2, 3].filter(i => i !== o && L[i] >= 5);
