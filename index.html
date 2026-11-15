@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Système Raimon">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1f6b45">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
@@ -451,6 +451,8 @@
   .pickveil { position: fixed; inset: 0; z-index: 6; }
   .seatsbtn { position: fixed; left: 10px; bottom: calc(58px + env(safe-area-inset-bottom) * .5); z-index: 35; border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(0,0,0,.45); color: #fff; font-size: 13px; cursor: pointer; }
   .seatspop { max-width: 420px; } .seatspop .tseat { background: #1f5f3c; }
+  /* barre d'état de l'iPhone : bande verte nette (l'appli passe dessous en mode black-translucent) */
+  body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: #1f5f3c; z-index: 100; pointer-events: none; }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
   .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
@@ -460,24 +462,24 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152129"></script>
-<script src="fiche.js?v=202611152129"></script>
-<script src="deals.js?v=202611152129"></script>
-<script src="deals-duo.js?v=202611152129"></script>
-<script src="dds.js?v=202611152129"></script>
-<script src="jeu.js?v=202611152129"></script>
-<script src="adeux.js?v=202611152129"></script>
+<script src="questions.js?v=202611152130"></script>
+<script src="fiche.js?v=202611152130"></script>
+<script src="deals.js?v=202611152130"></script>
+<script src="deals-duo.js?v=202611152130"></script>
+<script src="dds.js?v=202611152130"></script>
+<script src="jeu.js?v=202611152130"></script>
+<script src="adeux.js?v=202611152130"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152129"></script>
-<script src="ffb-01.js?v=202611152129"></script>
-<script src="ffb-02.js?v=202611152129"></script>
-<script src="robot.js?v=202611152129"></script>
-<script src="bidder.js?v=202611152129"></script>
-<script src="player.js?v=202611152129"></script>
-<script src="news.js?v=202611152129"></script>
-<script src="salon.js?v=202611152129"></script>
+<script src="auth.js?v=202611152130"></script>
+<script src="ffb-01.js?v=202611152130"></script>
+<script src="ffb-02.js?v=202611152130"></script>
+<script src="robot.js?v=202611152130"></script>
+<script src="bidder.js?v=202611152130"></script>
+<script src="player.js?v=202611152130"></script>
+<script src="news.js?v=202611152130"></script>
+<script src="salon.js?v=202611152130"></script>
 <script>
 (() => {
   'use strict';
