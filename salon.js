@@ -550,12 +550,14 @@ function createSalon(env) {
       const c0 = auction(t, deal).contract;
       if (c0) head = `<button class="cchip" data-act="showauction"><b>${c0.l}${fmt(c0.s)}${c0.dbl === 2 ? 'XX' : c0.dbl ? 'X' : ''}</b><small>par ${NAMES[c0.decl]} ▾</small></button>`;
     }
+    const seatsPop = ui.showSeats && (t.etat === 'jeu' || t.etat === 'encheres') ? `<div class="popveil" data-act="hideseats"><div class="pop seatspop"><h3>👥 Places</h3><div class="tseats">${seatsGrid(t, my)}</div><p class="muted" style="font-size:12px">Tu peux échanger deux places pendant la donne (ex. remettre un joueur revenu à sa place) : chacun retrouve la main de la place où il est assis.</p><button class="btn primary center" data-act="hideseats">Fermer</button></div></div>` : '';
     const pop = ui.showAuction && deal ? `<div class="popveil" data-act="hideauction"><div class="pop auctionpop"><h3>Enchères · ${t.n}</h3>
       <div class="felt" style="padding:8px">${auctionTable(t, deal)}</div>
       <p class="muted" style="font-size:13px;margin:4px 0">Donneur : ${NAMES[deal.d]} · ${{ none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none']}</p>
       <div id="notebox"></div>${hist.length ? '<button class="btn center" data-act="showscores">📊 Scores de la table et des autres tables</button>' : ''}
       <button class="btn primary center" data-act="hideauction">Fermer</button></div></div>` : '';
-    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head) + body + pop + spop
+    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head) + body + pop + spop + seatsPop
+      + (isMaster(t) && (t.etat === 'jeu' || t.etat === 'encheres') ? '<button class="seatsbtn" data-act="showseats">👥 Places</button>' : '')
       + ((t.etat === 'jeu' || t.etat === 'encheres') ? SEATS.filter(k => !t.sieges[k]).map(k => `<div class="notice">Place ${NAMES[k]} libre. ${!my ? `<button class="btn primary center sm" data-sit="${k}">M’asseoir en ${NAMES[k]}</button>` : ''}${isMaster(t) ? `<button class="btn center sm" data-robot="${k}:${(t.sieges[partner(k)] && t.sieges[partner(k)].sys) || 'sef'}">🤖 Mettre un robot</button>` : ''}</div>`).join('') : '')
       + (isMaster(t) && stuckSeat(t) ? `<div class="notice">${esc(t.sieges[stuckSeat(t)].nom)} (${NAMES[stuckSeat(t)]}) ne répond plus. <button class="btn primary center sm" data-act="replacebot" data-seat="${stuckSeat(t)}">🤖 Le remplacer par un robot</button></div>` : '')
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
@@ -597,6 +599,8 @@ function createSalon(env) {
     on('lasttrick', () => { ui.lastAt = ui.lastAt === t.moves ? null : t.moves; renderTable(); });
     on('cleartrick', () => { ui.clearedAt = t.moves; renderTable(); });
     on('showauction', () => { ui.showAuction = true; renderTable(); });
+    on('showseats', () => { ui.showSeats = true; renderTable(); });
+    app.querySelectorAll('[data-act="hideseats"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showSeats = false; renderTable(); } }));
     on('showscores', () => { ui.showAuction = false; ui.showScores = true; ui.openRow = null; renderTable(); loadSalonResults(t); });
     app.querySelectorAll('[data-act="hidescores"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showScores = false; renderTable(); } }));
     app.querySelectorAll('[data-row]').forEach(x => x.addEventListener('click', () => { ui.openRow = ui.openRow === x.dataset.row ? null : x.dataset.row; renderTable(); }));
@@ -613,15 +617,14 @@ function createSalon(env) {
       ui.sel = null; move('card', { s: s2, r }, t.moves);
     }));
   }
-  function lobbyHtml(t, my) {
+  function seatsGrid(t, my) {
     const master = isMaster(t);
-    const seatsHtml = SEATS.map(s => {
+    return SEATS.map(s => {
       const st = t.sieges[s];
       let act = '';
       const seated = SEATS.map(k => t.sieges[k] && t.sieges[k].uid).filter(Boolean);
       const guests = fresh().filter(p => p.ou === 'salon' && !seated.includes(p.id) && p.id !== me());
       const pend = Object.entries(t.invits || {}).filter(([, v]) => v.seat === s && v.t > now() - 10 * 60000);
-      const idle = t.etat !== 'encheres' && t.etat !== 'jeu';
       if (!st) {
         act = `${!my || my !== s ? `<button class="btn center sm" data-sit="${s}">M’asseoir</button>` : ''}${master ? `<button class="btn center sm" data-robot="${s}:sef">＋ Robot SEF</button><button class="btn center sm" data-robot="${s}:raimon">＋ Robot Raimon</button>` : ''}`;
         if (master && guests.length) act += `<select class="tsel" data-invite="${s}"><option value="">✉️ Inviter…</option>${guests.map(p => `<option value="${p.id}">${esc(p.nom)}</option>`).join('')}</select>`;
@@ -629,10 +632,14 @@ function createSalon(env) {
       } else {
         if (master && st.robot) act = `<button class="btn center sm" data-free="${s}">Libérer</button>`;
         else if (master && st.uid !== me()) act = `<button class="btn center sm" data-free="${s}" data-human="1">Sortir${isFresh(st.uid) ? '' : ' (absent)'}</button>`;
-        if (master && idle) act += `<select class="tsel" data-move="${s}"><option value="">↔ Déplacer…</option>${SEATS.filter(k => k !== s).map(k => `<option value="${k}">vers ${NAMES[k]}${t.sieges[k] ? ' (échange)' : ''}</option>`).join('')}</select>`;
+        if (master) act += `<select class="tsel" data-move="${s}"><option value="">↔ Déplacer…</option>${SEATS.filter(k => k !== s).map(k => `<option value="${k}">vers ${NAMES[k]}${t.sieges[k] ? ' (échange)' : ''}</option>`).join('')}</select>`;
       }
       return `<div class="tseat"><b>${NAMES[s]}</b><div>${seatLabel(st)}${st && st.uid === t.maitre ? ' 👑' : ''}</div>${act}</div>`;
     }).join('');
+  }
+  function lobbyHtml(t, my) {
+    const master = isMaster(t);
+    const seatsHtml = seatsGrid(t, my);
     const full = SEATS.every(s => t.sieges[s]);
     const fin = t.etat === 'fin' && t.fin ? resultHtml(t) : '';
     const hist = (t.historique || []);
@@ -711,7 +718,7 @@ function createSalon(env) {
   function gridHtml(A) {
     let rows = '';
     for (let l = 1; l <= 7; l++) if (bidRank(l + 'SA') > A.last) rows += GCOLS.map((c, k) => { const b = l + c; const ok = bidRank(b) > A.last; return `<button class="gb g${k} ${ui.choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : fmt(c)}</span></button>`; }).join('');
-    const big = ui.choice ? `<div class="bigbid-veil" data-act="unpick"></div>${ui.alert ? '<div class="gb galert bigalert">ALERTE</div>' : ''}<button class="gb bigbid ${bidKind(ui.choice)} ${ui.alert ? 'withalert' : ''}" data-act="announce">${bidTxt(ui.choice)}<small>Touche pour annoncer</small></button>
+    const big = ui.choice ? `<div class="pickveil" data-act="unpick"></div><div class="bigbid-veil" data-act="unpick"></div>${ui.alert ? '<div class="gb galert bigalert">ALERTE</div>' : ''}<button class="gb bigbid ${bidKind(ui.choice)} ${ui.alert ? 'withalert' : ''}" data-act="announce">${bidTxt(ui.choice)}<small>Touche pour annoncer</small></button>
       <div class="alertbar">${ui.alert
         ? `<input id="alerttxt" maxlength="80" placeholder="Que montre ton enchère ? (ex. Texas ♥)" value="${esc(ui.alertTxt || '')}"><button class="link" data-act="alertoff">sans alerte</button>`
         : '<button class="gb galert" data-act="alerton">ALERTE</button><small>Enchère conventionnelle ? Pose le carton bleu.</small>'}</div>` : '';
@@ -1056,7 +1063,7 @@ function createSalon(env) {
   }
   function moveSeat(from, to) {
     tx(t => {
-      if (!isMaster(t) || t.etat === 'encheres' || t.etat === 'jeu') return null;
+      if (!isMaster(t)) return null;
       const s = { ...t.sieges }; const a = s[from]; s[from] = s[to] || null; s[to] = a; return { sieges: s };
     });
   }

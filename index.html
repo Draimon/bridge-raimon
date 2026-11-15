@@ -448,6 +448,9 @@
   .srow .good { color: #1f8a4c; font-weight: 700; } .srow .bad { color: #c0392b; font-weight: 700; } .srow .red, .trow .red { color: #c4262e; }
   .tdetail { padding: 6px 8px 10px; background: var(--bg); border-bottom: 1px solid var(--line); font-size: 13px; }
   .travel { margin: 4px 0 8px; } .trow { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 2px 0; } .trow.mine { font-weight: 800; color: var(--accent); }
+  .pickveil { position: fixed; inset: 0; z-index: 6; }
+  .seatsbtn { position: fixed; left: 10px; bottom: calc(58px + env(safe-area-inset-bottom) * .5); z-index: 35; border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(0,0,0,.45); color: #fff; font-size: 13px; cursor: pointer; }
+  .seatspop { max-width: 420px; } .seatspop .tseat { background: #1f5f3c; }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
   .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
@@ -457,24 +460,24 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152127"></script>
-<script src="fiche.js?v=202611152127"></script>
-<script src="deals.js?v=202611152127"></script>
-<script src="deals-duo.js?v=202611152127"></script>
-<script src="dds.js?v=202611152127"></script>
-<script src="jeu.js?v=202611152127"></script>
-<script src="adeux.js?v=202611152127"></script>
+<script src="questions.js?v=202611152129"></script>
+<script src="fiche.js?v=202611152129"></script>
+<script src="deals.js?v=202611152129"></script>
+<script src="deals-duo.js?v=202611152129"></script>
+<script src="dds.js?v=202611152129"></script>
+<script src="jeu.js?v=202611152129"></script>
+<script src="adeux.js?v=202611152129"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152127"></script>
-<script src="ffb-01.js?v=202611152127"></script>
-<script src="ffb-02.js?v=202611152127"></script>
-<script src="robot.js?v=202611152127"></script>
-<script src="bidder.js?v=202611152127"></script>
-<script src="player.js?v=202611152127"></script>
-<script src="news.js?v=202611152127"></script>
-<script src="salon.js?v=202611152127"></script>
+<script src="auth.js?v=202611152129"></script>
+<script src="ffb-01.js?v=202611152129"></script>
+<script src="ffb-02.js?v=202611152129"></script>
+<script src="robot.js?v=202611152129"></script>
+<script src="bidder.js?v=202611152129"></script>
+<script src="player.js?v=202611152129"></script>
+<script src="news.js?v=202611152129"></script>
+<script src="salon.js?v=202611152129"></script>
 <script>
 (() => {
   'use strict';
