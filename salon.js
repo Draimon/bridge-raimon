@@ -538,13 +538,15 @@ function createSalon(env) {
       <p style="margin:6px 0">${fmt(f.contrat)}${f.contrat !== 'Passe générale' ? ` · ${f.levees} levées` : ''} · <b>NS ${f.ns > 0 ? '+' : ''}${f.ns}</b></p>
       <p style="margin:6px 0;font-size:18px"><b>NS ${f.pct ?? '—'} %</b> · EO ${f.pct === null ? '—' : Math.round((100 - f.pct) * 10) / 10} % <small class="muted">face à ${total} tables</small></p>
       ${f.robots ? '<p class="muted" style="font-size:13px;margin:0 0 6px">Avec des robots à la table, ce pourcentage est indicatif.</p>' : ''}
-      <div class="fhands">${SEATS.map(s => `<div><b>${NAMES[s]}</b> <small class="muted">${esc(f.joueurs[s])}</small><br>${line(s)}</div>`).join('')}</div>
+      <div class="fhands">${SEATS.map(s => `<div><b>${NAMES[s]}</b> <small class="muted">${esc(f.joueurs[s])} · ${hcpOf(deal[s])}H</small><br>${line(s)}</div>`).join('')}</div>
       ${f.plays ? '<button class="btn center" data-act="replay" style="margin-top:8px">▶ Revoir la donne carte par carte</button>' : ''}
       ${f.robots ? '<button class="btn center" data-act="fixbot">🛠️ Corriger le bot</button>' : ''}
       <details style="margin-top:8px"><summary class="muted">Résultats de la salle</summary><div class="hist">${near.map(([sc, k]) => `<div><span>NS ${sc > 0 ? '+' : ''}${sc}</span><span>${k} table(s)</span></div>`).join('')}</div></details></div>`;
   }
+  const hcpOf = h => h.replace(/[^AKQJ]/g, '').split('').reduce((n, c) => n + { A: 4, K: 3, Q: 2, J: 1 }[c], 0);
   function plate(t, deal, s, pos, extra, turn) {
     const st = t.sieges[s], vul = isVul(deal, sideOf(s));
+    if (st && st.uid === me()) extra = ` <span class="hcp">${hcpOf(deal[s])}H</span>` + (extra || '');
     return `<div class="plate ${pos} ${turn === s ? 'turn' : ''}"><span class="seat ${vul ? '' : 'nv'}">${s}</span>${st ? (st.robot ? '🤖' : esc(st.nom)) : '—'}${deal.d === s ? '<span class="dealer">D</span>' : ''}${extra || ''}</div>`;
   }
   function auctionTable(t, deal) {
@@ -557,11 +559,11 @@ function createSalon(env) {
   function handHtml(hand, seat, clickable, L) {
     const cards = DISPLAY.flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, r })));
     const multiSuits = new Set(L.map(c => c.s)).size > 1;
-    return `<div class="fan thand">${cards.map(c => {
+    return arcHtml(cards.map(c => {
       const ok = clickable && L.some(x => x.s === c.s && x.r === c.r);
-      const cls = 'md ' + (ok ? (ui.sel === c.s ? 'play' : 'can') : clickable ? 'dim' : '');
-      return cardBtn(c.s, c.r, cls, ok ? `data-card="${c.s}:${c.r}" data-multi="${multiSuits && ui.sel !== c.s ? 1 : 0}"` : '');
-    }).join('')}</div>`;
+      return { s: c.s, label: RLAB[c.r], cls: ok ? (ui.sel === c.s ? 'play sel' : 'can') : clickable ? 'dim' : '',
+        attrs: ok ? `data-card="${c.s}:${c.r}" data-multi="${multiSuits && ui.sel !== c.s ? 1 : 0}"` : '' };
+    }));
   }
   function biddingHtml(t, deal, A, my, P) {
     const myTurn = my && A.turn === my;
@@ -820,7 +822,7 @@ function createSalon(env) {
       : { hands: Object.fromEntries(SEATS.map(x => [x, parseHand(deal[x])])), trick: [], tricks: { NS: 0, EO: 0 }, last: null, trump: null };
     const shown = ps.trick.length ? ps.trick : (ps.last || []);
     const w = shown.length === 4 ? winnerOf(shown, ps.trump) : null;
-    const handTxt = x => `<div class="rh"><b>${NAMES[x]}</b> <small class="muted">${esc((r.joueurs || {})[x] || '')}</small>${DISPLAY.map(k => `<div><span class="${red(k) ? 'red' : ''}">${SYM[k]}</span> ${[...ps.hands[x][k]].sort((a, b) => b - a).map(q => RLAB[q]).join(' ') || '—'}</div>`).join('')}</div>`;
+    const handTxt = x => `<div class="rh"><b>${NAMES[x]}</b> <small class="muted">${esc((r.joueurs || {})[x] || '')} · ${hcpOf(deal[x])}H</small>${DISPLAY.map(k => `<div><span class="${red(k) ? 'red' : ''}">${SYM[k]}</span> ${[...ps.hands[x][k]].sort((a, b) => b - a).map(q => RLAB[q]).join(' ') || '—'}</div>`).join('')}</div>`;
     const slot = (x, pos) => { const y = shown.find(k => k.seat === x); return `<div class="slot ${pos}">${y ? cardBtn(y.s, y.r, 'md ' + (w && w.seat === x ? 'win' : '')) : ''}</div>`; };
     document.body.classList.remove('tablemode');
     app.innerHTML = topbar('Donne ' + r.n, from === 'hist' ? 'Mes donnes' : 'Table') + `
