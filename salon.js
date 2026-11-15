@@ -263,7 +263,7 @@ function createSalon(env) {
     const pool = FFB_DEALS.filter(d => !seen.has(d.n));
     if (!pool.length) { ui.msg = 'Plus aucune donne neuve pour cette table : préviens Damien.'; renderTable(); return; }
     const pick = pool[Math.floor(Math.random() * pool.length)];
-    tx(x => (!isMaster(x) || x.etat === 'encheres' || x.etat === 'jeu' ? null : { n: pick.n, bids: [], notes: [], plays: [], moves: 0, etat: 'encheres', fin: null }));
+    tx(x => (!isMaster(x) || x.etat === 'encheres' || x.etat === 'jeu' ? null : { n: pick.n, bids: [], notes: [], plays: [], moves: 0, etat: 'encheres', fin: null, claim: null }));
   }
 
   // ───── Règles du jeu (tout est recalculé à partir des enchères et des cartes jouées)
@@ -405,6 +405,8 @@ function createSalon(env) {
       let done = false; try { done = !!sessionStorage.getItem(k); sessionStorage.setItem(k, '1'); } catch (e) { /* pas grave */ }
       if (isMaster(t) && !done) db.collection('resultats').add({ ...t.fin, table: curId, t: now() }).catch(() => {});
     }
+    if (t.etat === 'jeu' && t.claim && isMaster(t)) robotCheckClaim(t);
+    if (t.claim) return;                                                // rien ne bouge pendant une revendication
     if (!t.n || (t.etat !== 'encheres' && t.etat !== 'jeu')) return;
     const deal = dealOf(t.n); if (!deal) return;
     const A = auction(t, deal);
@@ -430,8 +432,10 @@ function createSalon(env) {
     const A = auction(x, deal), c = A.contract;
     let tricksDecl = 0, ns = 0;
     if (c) {
-      const ps = playState(x, deal, c); if (!ps.done) return null;
-      tricksDecl = ps.tricks[sideOf(c.decl)];
+      const ps = playState(x, deal, c);
+      const cl = x.claim && x.claim.accepted ? x.claim : null;
+      if (!ps.done && !cl) return null;
+      tricksDecl = ps.tricks[sideOf(c.decl)] + (cl ? (cl.side === sideOf(c.decl) ? cl.k : cl.r - cl.k) : 0);
       const sc = score(c, tricksDecl, isVul(deal, sideOf(c.decl)));
       ns = sideOf(c.decl) === 'NS' ? sc : -sc;
     }
@@ -468,7 +472,7 @@ function createSalon(env) {
         if (A2.ended) upd.etat = 'jeu';
         return upd;
       }
-      if (x.etat !== 'jeu') return null;
+      if (x.etat !== 'jeu' || x.claim) return null;
       const A = auction(x, deal), ps = playState(x, deal, A.contract);
       const ok = legal(ps, ps.turn).some(c => c.s === val.s && c.r === val.r); if (!ok) return null;
       const plays = [...x.plays, val.s + RCH[12 - val.r]], upd = { plays, moves: x.moves + 1 };
@@ -569,6 +573,11 @@ function createSalon(env) {
     on('alertoff', () => { ui.alert = false; ui.alertTxt = ''; renderTable(); });
     const at = document.getElementById('alerttxt'); if (at) at.addEventListener('input', () => { ui.alertTxt = at.value; });
     on('lasttrick', () => { ui.lastAt = ui.lastAt === t.moves ? null : t.moves; renderTable(); });
+    on('cleartrick', () => { ui.clearedAt = t.moves; renderTable(); });
+    on('claimopen', () => openClaim(t));
+    on('claimcancel', () => tx(x => (x.claim && x.claim.by === me() ? { claim: null } : null)));
+    on('claimyes', () => answerClaim(true));
+    on('claimno', () => answerClaim(false));
     app.querySelectorAll('[data-play]').forEach(b => b.addEventListener('click', () => {
       const [s2, r] = b.dataset.play.split(':').map(Number);
       const deal = dealOf(t.n), A = auction(t, deal), ps = playState(t, deal, A.contract);
@@ -737,7 +746,9 @@ function createSalon(env) {
     const pos = { [P.top]: 'top', [P.left]: 'left', [P.right]: 'right', [P.bottom]: 'bottom' };
     const count = s => ps.hands[s].reduce((n, x) => n + x.length, 0);
     // le pli au centre ; le pli précédent se revoit en touchant le bouton, jusqu'à la carte suivante
-    const showLast = ui.lastAt === t.moves && ps.last;
+    // pli terminé : il reste au centre tant qu'on n'a pas touché le tapis et que la carte suivante n'est pas jouée
+    const doneTrick = !ps.trick.length && ps.last && ui.clearedAt !== t.moves;
+    const showLast = (ui.lastAt === t.moves && ps.last) || doneTrick;
     const shown = showLast ? ps.last : ps.trick;
     const w = shown.length === 4 ? winnerOf(shown, ps.trump) : null;
     const slots = SEATS.map(s => { const x = shown.find(k => k.seat === s); return `<div class="slot ${pos[s]}">${x ? cardHtml(x.s, RLAB[x.r], 'md ' + (w && w.seat === s ? 'win' : '')) : ''}</div>`; }).join('');
@@ -754,10 +765,113 @@ function createSalon(env) {
     return `${topBlock}
       <div class="frame sframe">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (ps.shown && s === ps.dummy && t.sieges[s] && t.sieges[s].uid !== me() ? ' <span class="hcp">' + hcpOf(deal[s]) + 'H</span>' : '') + (s === c.decl ? '<span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
         <div class="corner cl">NS<br><b>${ctr('NS')}</b></div><div class="corner cr">EO<br><b>${ctr('EO')}</b></div>
-        <div class="trick" ${ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
-        ${showLast ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
-      <p class="center feltnote" style="margin:4px 0">${turnTxt}${ps.last && !showLast ? ' · <button class="link lastbtn" data-act="lasttrick">👁 Pli précédent</button>' : ''}</p>
+        <div class="trick" ${doneTrick ? 'data-act="cleartrick"' : ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
+        ${showLast && !doneTrick ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
+      <p class="center feltnote" style="margin:4px 0">${turnTxt}${ps.last && !showLast ? ' · <button class="link lastbtn" data-act="lasttrick">👁 Pli précédent</button>' : ''}${doneTrick ? ' · <small>touche le tapis pour le ranger</small>' : ''}</p>
+      ${claimBar(t, deal, c, ps, my)}
       ${my ? fanHtml(ps.hands[handSeat], iControl && ps.turn === handSeat, iControl && ps.turn === handSeat ? L : []) : ''}`;
+  }
+
+  // ═════ Revendiquer (camp du déclarant) / Céder (défense) — comme sur BBO
+  // Les adversaires humains acceptent ou refusent ; s'il y a un robot en face, il vérifie en double mort.
+  function controllers(t, c, side) {
+    const sw = swapOf(t, c), out = [];
+    SEATS.filter(x => sideOf(x) === side).forEach(x => {
+      const ctl = sw && (x === c.decl || x === partner(c.decl)) ? sw.human : x === partner(c.decl) ? c.decl : x;
+      const st = t.sieges[ctl]; if (st) out.push(st);
+    });
+    return out;
+  }
+  const otherSide = sd => (sd === 'NS' ? 'EO' : 'NS');
+  function claimBar(t, deal, c, ps, my) {
+    if (ps.done || !my) return '';
+    const mySide = sideOf(my), cl = t.claim;
+    if (!cl) {
+      const r = 13 - (ps.tricks.NS + ps.tricks.EO);
+      if (r < 1) return '';
+      const declSide = sideOf(c.decl) === mySide;
+      return `<p class="center"><button class="btn center sm claimbtn" data-act="claimopen">${declSide ? '🏳️ Revendiquer' : '🤝 Céder'}</button></p>`;
+    }
+    const verb = cl.side === sideOf(c.decl) ? 'revendique' : 'cède';
+    const what = cl.side === sideOf(c.decl) ? `${cl.k} levée(s) sur les ${cl.r} restantes` : `et ne demande que ${cl.k} levée(s) sur les ${cl.r} restantes`;
+    // les cartes du camp qui revendique, visibles pour vérifier
+    const cards = SEATS.filter(x => sideOf(x) === cl.side).map(x => `<div><b>${NAMES[x]}</b> ${DISPLAY.map(k => `<span class="${red(k) ? 'red' : ''}">${SYM[k]}</span>${[...ps.hands[x][k]].sort((a, b) => b - a).map(q => RLAB[q]).join('') || '—'}`).join(' ')}</div>`).join('');
+    const mineToAnswer = mySide !== cl.side && controllers(t, c, otherSide(cl.side)).some(st => st.uid === me()) && !(cl.ok || {})[me()];
+    return `<div class="notice claimbox"><b>${esc(cl.nom)} ${verb}</b> ${what}.<div class="claimcards">${cards}</div>
+      ${cl.by === me() ? '<p>En attente de la réponse des adversaires… <button class="link" data-act="claimcancel">annuler</button></p>' : ''}
+      ${mineToAnswer ? '<div class="row2"><button class="btn center" data-act="claimno">✗ Refuser</button><button class="btn primary center" data-act="claimyes">✓ Accepter</button></div>' : (cl.by !== me() ? '<p class="muted">En attente…</p>' : '')}</div>`;
+  }
+  function openClaim(t) {
+    const deal = dealOf(t.n), A = auction(t, deal), c = A.contract, ps = playState(t, deal, c), my = mySeat(t);
+    const r = 13 - (ps.tricks.NS + ps.tricks.EO), mySide = sideOf(my), declSide = sideOf(c.decl) === mySide;
+    const veil = document.createElement('div'); veil.className = 'popveil';
+    veil.innerHTML = `<div class="pop"><h3>${declSide ? '🏳️ Revendiquer' : '🤝 Céder'}</h3>
+      <p>Combien de levées pour ton camp, sur les <b>${r}</b> restantes ?</p>
+      <div class="claimgrid">${Array.from({ length: r + 1 }, (_, k) => r - k).map(k => `<button class="dcell" data-k="${k}">${k}</button>`).join('')}</div>
+      <p class="muted" style="font-size:13px">Les adversaires voient tes cartes et acceptent ou refusent. Un robot accepte si tu ne peux pas faire moins, même contre la meilleure défense.</p>
+      <button class="link" data-x="1">Annuler</button></div>`;
+    document.body.appendChild(veil);
+    veil.querySelector('[data-x]').addEventListener('click', () => veil.remove());
+    veil.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => {
+      veil.remove();
+      tx(x => (x.etat !== 'jeu' || x.claim ? null : { claim: { side: mySide, k: +b.dataset.k, r, by: me(), nom: getPlayer(), moves: x.moves, ok: {} } }));
+    }));
+  }
+  // Une réponse humaine ; si tout le monde a accepté (et le robot aussi), la donne se termine
+  function answerClaim(yes) {
+    tx(x => {
+      const cl = x.claim; if (!cl) return null;
+      if (!yes) return { claim: null };
+      const ok = { ...(cl.ok || {}), [me()]: true };
+      return settleClaim(x, { ...cl, ok });
+    });
+  }
+  function settleClaim(x, cl) {
+    const deal = dealOf(x.n), c = auction(x, deal).contract;
+    const opp = controllers(x, c, otherSide(cl.side));
+    const humansOk = opp.filter(st => st.uid).every(st => cl.ok[st.uid]);
+    const robotsOk = !opp.some(st => st.robot) || cl.robotOk;
+    if (!humansOk || !robotsOk) return { claim: cl };
+    const done = { ...x, claim: { ...cl, accepted: true } };
+    return { claim: done.claim, ...endDeal(done, deal) };
+  }
+  // Robot en face : le téléphone du maître vérifie en double mort (cartes réelles), comme la réclamation du mode solo
+  // Levées maîtresses sûres d'un camp (cartes maîtresses de tête, sans atout adverse qui traîne)
+  function sureTricks(ps, side) {
+    const mine = SEATS.filter(x => sideOf(x) === side), theirs = SEATS.filter(x => sideOf(x) !== side);
+    if (ps.trick.length) return 0;                                       // seulement en début de pli
+    if (ps.trump !== null && theirs.some(x => ps.hands[x][ps.trump].length)) return 0;
+    let n = 0;
+    for (let su = 0; su < 4; su++) {
+      const all = SEATS.flatMap(x => ps.hands[x][su].map(r => ({ r, mine: mine.includes(x) }))).sort((a, b) => b.r - a.r);
+      let top = 0; for (const c of all) { if (!c.mine) break; top++; }
+      n += Math.min(top, Math.max(...mine.map(x => ps.hands[x][su].length)));
+    }
+    return n;
+  }
+  const claimChecks = new Set();
+  function robotCheckClaim(t) {
+    const cl = t.claim; if (!cl || cl.robotOk) return;
+    const key = curId + cl.by + cl.moves + cl.k; if (claimChecks.has(key)) return;
+    const deal = dealOf(t.n), c = auction(t, deal).contract;
+    if (!controllers(t, c, otherSide(cl.side)).some(st => st.robot)) return;
+    claimChecks.add(key);
+    setTimeout(() => {
+      const ps = playState(t, deal, c);
+      const masks = SEATS.map(x => ps.hands[x].map(rs => rs.reduce((m, r) => m | (1 << r), 0)));
+      const leader = ps.trick.length ? ps.trick[0].seat : ps.turn;
+      const cur = ps.trick.map(k => ({ p: SEATS.indexOf(k.seat), s: k.s, r: k.r }));
+      let dd = null;
+      if (cl.k > 0 && cl.k > sureTricks(ps, cl.side)) { try { dd = RaimonDDS.solve(masks, ps.trump === null ? -1 : ps.trump, SEATS.indexOf(leader), undefined, 3e6, cur); } catch (e) { dd = null; } }
+      // céder tout, ou ne demander que des levées maîtresses : accepté sans calcul
+      const can = cl.k === 0 || cl.k <= sureTricks(ps, cl.side) ? cl.k : dd === null ? null : (cl.side === 'NS' ? dd : cl.r - dd);
+      if (can === null || can < cl.k) {
+        tx(x => (x.claim && x.claim.by === cl.by ? { claim: null } : null));
+        ui.msg = can === null ? 'Revendication refusée : trop tôt pour vérifier, jouez encore quelques cartes.' : `Revendication refusée par le robot : au mieux ${can} levée(s) contre une défense parfaite.`;
+        return;
+      }
+      tx(x => (x.claim && x.claim.by === cl.by ? settleClaim(x, { ...x.claim, robotOk: true }) : null));
+    }, 300);
   }
 
   // Toucher une enchère de robot : son explication (et l'alerte si elle est conventionnelle)

@@ -3,6 +3,13 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-revendiquer', date: '15/11/2026', pour: 'tous',
+    titre: '🏳️ Revendiquer / 🤝 Céder · le pli reste sur la table',
+    texte: `<ul><li>Un pli terminé <b>reste sur le tapis</b> : touchez le centre pour le ranger (ou jouez la carte suivante).</li>
+      <li>Au jeu de la carte, le camp du déclarant peut <b>revendiquer</b> et la défense <b>céder</b> : vous choisissez le nombre de levées pour votre camp, vos cartes sont montrées aux adversaires.</li>
+      <li>Un adversaire humain <b>accepte ou refuse</b>. Un robot vérifie : il accepte si vous ne pouvez pas faire moins, même contre la meilleure défense. Céder, ou ne réclamer que des levées maîtresses, est accepté tout de suite.</li></ul>`,
+  },
+  {
     id: '2026-11-15-maj-auto', date: '15/11/2026', pour: 'tous',
     titre: '🔄 Mises à jour automatiques au salon',
     texte: `<p>Quand une nouvelle version de l'appli est publiée pendant que vous jouez au salon, elle s'installe <b>toute seule entre deux donnes</b>, pendant l'affichage du résultat — jamais en pleine donne — et vous revenez directement à votre table.</p>`,

@@ -418,6 +418,9 @@
   .frame.sframe.bidframe .plate.left { top: 24%; } .frame.sframe.bidframe .plate.right { top: 76%; }
   .sframe .bidstack.E .gb.stack, .sframe .bidstack.O .gb.stack { height: 30px; } .sframe .bidstack.E, .sframe .bidstack.O { gap: 3px; }
   .gridwait { opacity: .4; pointer-events: none; filter: saturate(.6); }
+  .claimbtn { width: auto; display: inline-block; padding: 6px 14px; }
+  .claimbox { margin: 6px 0; } .claimcards { font-size: 14px; margin: 6px 0; } .claimcards .red { color: #c4262e; }
+  .claimgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 10px 0; } .claimgrid .dcell { font-size: 18px; padding: 8px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
   .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
@@ -427,24 +430,24 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152109"></script>
-<script src="fiche.js?v=202611152109"></script>
-<script src="deals.js?v=202611152109"></script>
-<script src="deals-duo.js?v=202611152109"></script>
-<script src="dds.js?v=202611152109"></script>
-<script src="jeu.js?v=202611152109"></script>
-<script src="adeux.js?v=202611152109"></script>
+<script src="questions.js?v=202611152114"></script>
+<script src="fiche.js?v=202611152114"></script>
+<script src="deals.js?v=202611152114"></script>
+<script src="deals-duo.js?v=202611152114"></script>
+<script src="dds.js?v=202611152114"></script>
+<script src="jeu.js?v=202611152114"></script>
+<script src="adeux.js?v=202611152114"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152109"></script>
-<script src="ffb-01.js?v=202611152109"></script>
-<script src="ffb-02.js?v=202611152109"></script>
-<script src="robot.js?v=202611152109"></script>
-<script src="bidder.js?v=202611152109"></script>
-<script src="player.js?v=202611152109"></script>
-<script src="news.js?v=202611152109"></script>
-<script src="salon.js?v=202611152109"></script>
+<script src="auth.js?v=202611152114"></script>
+<script src="ffb-01.js?v=202611152114"></script>
+<script src="ffb-02.js?v=202611152114"></script>
+<script src="robot.js?v=202611152114"></script>
+<script src="bidder.js?v=202611152114"></script>
+<script src="player.js?v=202611152114"></script>
+<script src="news.js?v=202611152114"></script>
+<script src="salon.js?v=202611152114"></script>
 <script>
 (() => {
   'use strict';
