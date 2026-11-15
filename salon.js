@@ -16,7 +16,8 @@ function createSalon(env) {
   const SYM = ['♠', '♥', '♦', '♣'], RCH = 'AKQJT98765432';
   const RLAB = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'V', 'D', 'R', 'A'];
   const DISPLAY = [0, 1, 3, 2];
-  let ORDER = DISPLAY;                                              // au jeu : l'atout d'abord, à gauche
+  let TRUMP = null;                                                 // au jeu : l'atout à gauche, puis noir / rouge en alternance
+  const ord = hand => window.suitOrder([0, 1, 2, 3].map(s => hand[s].length), TRUMP);
   const next = s => SEATS[(SEATS.indexOf(s) + 1) % 4];
   const partner = s => SEATS[(SEATS.indexOf(s) + 2) % 4];
   const sideOf = s => (s === 'N' || s === 'S' ? 'NS' : 'EO');
@@ -746,7 +747,7 @@ function createSalon(env) {
         <div class="vulnote">${vul}</div>
       </div>
       <div id="notebox"></div>
-      ${hand ? arcHtml(DISPLAY.flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, label: RLAB[r] })))) : ''}`;
+      ${hand ? arcHtml(window.suitOrder([0, 1, 2, 3].map(s => hand[s].length), null).flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, label: RLAB[r] })))) : ''}`;
   }
   // ── Jeu de la carte
   function selSuit(L) { const ss = [...new Set(L.map(c => c.s))]; return ss.length === 1 ? ss[0] : (ss.includes(ui.sel) ? ui.sel : null); }
@@ -755,7 +756,7 @@ function createSalon(env) {
     const hasOpen = open !== null && hand[open].length;
     const attrs = (s, r) => (clickable && L.some(x => x.s === s && x.r === r) ? `data-play="${s}:${r}"` : '');
     const cls = (s, r) => { const ok = clickable && L.some(x => x.s === s && x.r === r); return !clickable ? '' : !ok ? 'dim' : open === s ? 'can sel' : open === null ? 'can' : 'can off'; };
-    const cards = ORDER.flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, r })));
+    const cards = ord(hand).flatMap(s => [...hand[s]].sort((a, b) => b - a).map(r => ({ s, r })));
     const arc = arcHtml(cards.map(c => (hasOpen && c.s === open ? { s: c.s, label: RLAB[c.r], cls: 'ghost' } : { s: c.s, label: RLAB[c.r], cls: cls(c.s, c.r), attrs: attrs(c.s, c.r) })));
     const row = hasOpen ? `<div class="hpick ${hand[open].length > 5 ? 'tight' : ''}">${[...hand[open]].sort((a, b) => b - a).map(r => cardHtml(open, RLAB[r], 'md can sel', attrs(open, r))).join('')}</div>` : '';
     return `<div class="handwrap">${row}${arc}</div>`;
@@ -763,7 +764,7 @@ function createSalon(env) {
   function columnsHtml(hand, clickable, L, label) {
     const open = clickable ? selSuit(L) : null;
     const attrs = (s, r) => (clickable && L.some(x => x.s === s && x.r === r) ? `data-play="${s}:${r}"` : '');
-    const cols = ORDER.filter(s => hand[s].length).map(s => `<div class="dcol ${open === s ? 'ghost' : ''}">${[...hand[s]].sort((a, b) => b - a).map(r => {
+    const cols = ord(hand).filter(s => hand[s].length).map(s => `<div class="dcol ${open === s ? 'ghost' : ''}">${[...hand[s]].sort((a, b) => b - a).map(r => {
       const ok = clickable && L.some(x => x.s === s && x.r === r);
       return cardHtml(s, RLAB[r], 'md ' + (clickable ? (ok ? (open === null ? 'can' : open === s ? '' : 'can off') : 'dim') : ''), open === s ? '' : attrs(s, r));
     }).join('')}</div>`).join('');
@@ -772,13 +773,13 @@ function createSalon(env) {
   }
   // Le mort sur le côté : une ligne par couleur, petites cartes (lecture seule : en défense, on ne le joue pas)
   function sideDummy(hand, side) {
-    const rows = ORDER.map(k => `<div class="sdrow">${[...hand[k]].sort((a, b) => b - a).map(r => cardHtml(k, RLAB[r], 'xs')).join('') || '<span class="sdvoid">—</span>'}</div>`).join('');
+    const rows = ord(hand).map(k => `<div class="sdrow">${[...hand[k]].sort((a, b) => b - a).map(r => cardHtml(k, RLAB[r], 'xs')).join('') || '<span class="sdvoid">—</span>'}</div>`).join('');
     return `<div class="sdummy ${side}">${rows}</div>`;
   }
   const backsHtml = n => (n ? `<span class="mbacks">${'<i></i>'.repeat(n)}</span>` : '');
   function playHtml(t, deal, A, my, P) {
     const c = A.contract, ps = playState(t, deal, c);
-    ORDER = ps.trump === null ? DISPLAY : [ps.trump, ...DISPLAY.filter(x => x !== ps.trump)];
+    TRUMP = ps.trump;
     const sw = swapOf(t, c), swapped = sw && sw.human === my;
     const ctrlOf = s => (sw && (s === c.decl || s === ps.dummy) ? sw.human : s === ps.dummy ? c.decl : s);
     const iControl = my && !ps.done && ctrlOf(ps.turn) === my;

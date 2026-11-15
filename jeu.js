@@ -4,6 +4,24 @@
 // Cartes à jouer dessinées (partagées avec index.html). s : 0 ♠, 1 ♥, 2 ♦, 3 ♣ ; label : 'A', 'R', '10'…
 const CARD_SYM = ['♠', '♥', '♦', '♣'];
 const DISPLAY_SUITS = [0, 1, 3, 2];          // ♠ ♥ ♣ ♦ : on alterne noir / rouge, comme sur une vraie table
+// Ordre d'affichage d'une main : l'atout à gauche (s'il y en a un), puis les couleurs en alternant noir / rouge
+// parmi celles qui ne sont pas vides ; à égalité, l'ordre habituel ♠ ♥ ♣ ♦. lens = longueurs [♠, ♥, ♦, ♣].
+function suitOrder(lens, trump) {
+  const isRed = s => s === 1 || s === 2, t = trump === null || trump === undefined || trump < 0 ? null : trump;
+  const perms = []; const rec = (p, rest) => { if (!rest.length) perms.push(p); rest.forEach(x => rec([...p, x], rest.filter(y => y !== x))); };
+  rec([], [0, 1, 2, 3]);
+  let best = null, bestScore = Infinity;
+  for (const p of perms) {
+    if (t !== null && p[0] !== t) continue;
+    const ne = p.filter(s => lens[s] > 0);
+    let same = 0; for (let i = 1; i < ne.length; i++) if (isRed(ne[i]) === isRed(ne[i - 1])) same++;
+    const dist = p.reduce((a, s, i) => a + Math.abs(i - DISPLAY_SUITS.indexOf(s)), 0);
+    const score = same * 100 + dist;
+    if (score < bestScore) { bestScore = score; best = p; }
+  }
+  return best;
+}
+if (typeof window !== 'undefined') window.suitOrder = suitOrder;
 function cardHtml(s, label, cls, attrs) {
   return `<div class="pcard ${s === 1 || s === 2 ? 'red' : ''} ${cls || ''}" ${attrs || ''}><span class="rk">${label}</span><span class="st">${CARD_SYM[s]}</span><span class="big">${CARD_SYM[s]}</span></div>`;
 }
@@ -292,7 +310,7 @@ function createPlay(env) {
   // Main en éventail (le déclarant, en bas)
   function fanHtml(seat, clickable) {
     const l = clickable ? legal(seat) : [];
-    const cards = DISPLAY_SUITS.flatMap(s => G.hands[seat][s].map(r => ({ s, r })));
+    const cards = suitOrder(G.hands[seat].map(x => x.length), G.trump).flatMap(s => G.hands[seat][s].map(r => ({ s, r })));
     const open = clickable ? selSuit(seat) : null;
     const hasOpen = open !== null && open !== undefined && G.hands[seat][open].length;
     const arc = arcHtml(cards.map(c => {
@@ -311,7 +329,7 @@ function createPlay(env) {
     const l = clickable ? legal(seat) : [];
     const open = clickable ? selSuit(seat) : null;
     // Couleur choisie : ses cartes descendent sous le mort, posées côte à côte face à toi (sans décaler l'écran).
-    const cols = DISPLAY_SUITS.filter(s => G.hands[seat][s].length).map(s => `<div class="dcol ${open === s ? 'ghost' : ''}">${G.hands[seat][s].map(r => {
+    const cols = suitOrder(G.hands[seat].map(x => x.length), G.trump).filter(s => G.hands[seat][s].length).map(s => `<div class="dcol ${open === s ? 'ghost' : ''}">${G.hands[seat][s].map(r => {
       const ok = l.some(x => x.s === s && x.r === r);
       if (open === s) return cardHtml(s, RLAB[r], 'md');
       return cardHtml(s, RLAB[r], 'md ' + (clickable ? pickCls(seat, { s, r }, ok) : ''), cardAttrs(seat, { s, r }, ok));
