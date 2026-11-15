@@ -657,6 +657,15 @@ function createSalon(env) {
     const cls = { [P.top]: 'N', [P.bottom]: 'S', [P.left]: 'O', [P.right]: 'E' };
     return SEATS.map(s => (stacks[s].length ? `<div class="bidstack ${cls[s]}">${stacks[s].join('')}</div>` : '')).join('');
   }
+  // Pas mon tour : la boîte d'enchères reste au centre (grisée), pour que le tapis ne bouge pas
+  function waitGrid(A, t) {
+    let rows = '';
+    for (let l = 1; l <= 7; l++) if (bidRank(l + 'SA') > A.last) rows += GCOLS.map((c, k) => { const b = l + c; return `<button class="gb g${k}" ${bidRank(b) > A.last ? '' : 'disabled'} tabindex="-1">${l}<span>${c === 'SA' ? 'SA' : fmt(c)}</span></button>`; }).join('');
+    const who = A.turn ? `Au tour de ${NAMES[A.turn]}${t.sieges[A.turn] && t.sieges[A.turn].robot ? ' (robot)' : ''}…` : '';
+    return `<div class="gridwrap gridwait"><div class="gridbox">${rows}</div>
+      <div class="gspecial"><button class="gb gpass" tabindex="-1">PASSE</button><button class="gb gx" disabled>X</button><button class="gb gxx" disabled>XX</button></div></div>
+      <p class="gridhint">${who}</p>`;
+  }
   function gridHtml(A) {
     let rows = '';
     for (let l = 1; l <= 7; l++) if (bidRank(l + 'SA') > A.last) rows += GCOLS.map((c, k) => { const b = l + c; const ok = bidRank(b) > A.last; return `<button class="gb g${k} ${ui.choice === b ? 'sel' : ''}" ${ok ? `data-gb="${b}"` : 'disabled'}>${l}<span>${c === 'SA' ? 'SA' : fmt(c)}</span></button>`; }).join('');
@@ -683,7 +692,7 @@ function createSalon(env) {
     return `<div class="frame bidframe sframe">
         ${plateB(t, deal, P.top, 'top', A.turn)}${plateB(t, deal, P.left, 'left', A.turn)}${plateB(t, deal, P.right, 'right', A.turn)}${plateB(t, deal, P.bottom, 'bottom', A.turn)}
         ${stacksHtml(t, deal, P)}
-        <div class="bidcenter" id="fb">${myTurn ? gridHtml(A) : waitTxt}</div>
+        <div class="bidcenter" id="fb">${myTurn ? gridHtml(A) : waitGrid(A, t)}</div>
         <div class="vulnote">${vul}</div>
       </div>
       <div id="notebox"></div>
