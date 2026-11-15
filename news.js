@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-corriger-inviter', date: '15/11/2026', pour: 'tous',
+    titre: '🛠️ Corriger les robots · ✉️ Inviter à sa table',
+    texte: `<ul><li>En fin de donne (et dans « Mes donnes »), le bouton <b>🛠️ Corriger le bot</b> : vous dites ce que le robot aurait dû faire, aux enchères ou au jeu de la carte. Damien relit chaque remarque, et les robots s'améliorent.</li>
+      <li>Le <b>maître de table 👑</b> peut <b>inviter</b> un joueur présent au salon sur la place de son choix (« ✉️ Inviter… »), et <b>déplacer</b> les joueurs entre deux donnes (« ↔ Déplacer… »). L'invité reçoit une fenêtre pour accepter.</li></ul>`,
+  },
+  {
     id: '2026-11-15-robots', date: '15/11/2026', pour: 'tous',
     titre: '🤖 Les vrais robots sont arrivés !',
     texte: `<p>Plus besoin d'être 4 : on peut maintenant <b>jouer contre des robots</b>, et même avec un robot comme partenaire. Pour chaque place libre, le maître de table choisit :</p>

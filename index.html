@@ -399,6 +399,8 @@
   .notebubble { margin: 6px 0 10px; }
   .newspop { max-width: 440px; max-height: 82vh; overflow-y: auto; text-align: left; } .newspop h3, .newspop .pop-ico { text-align: center; }
   .newsitem { border-top: 1px solid var(--line); padding-top: 8px; margin-top: 8px; font-size: 15px; } .newsitem h4 { margin: 0 0 4px; } .newsitem ul { padding-left: 18px; margin: 4px 0; } .newsitem p { margin: 4px 0; }
+  .tsel { display: block; width: 100%; margin: 6px 0 0; font-size: 14px; padding: 6px; border-radius: 8px; }
+  .tabbar .tab em { font-style: normal; font-size: 11px; }
   .tscore { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; text-align: center; } .tscore div { background: var(--accent-soft); border-radius: 10px; padding: 6px; } .tscore b { display: block; font-size: 22px; } .tscore small { color: var(--muted); }
   .fhands { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; margin-top: 6px; } .fhands .red { color: #c4262e; }
   .thand { flex-wrap: nowrap; } .thand .pcard + .pcard { margin-left: -28px; } .thand .pcard.can { cursor: pointer; } .thand .pcard.play { cursor: pointer; }
@@ -408,23 +410,23 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611151932"></script>
-<script src="fiche.js?v=202611151932"></script>
-<script src="deals.js?v=202611151932"></script>
-<script src="deals-duo.js?v=202611151932"></script>
-<script src="dds.js?v=202611151932"></script>
-<script src="jeu.js?v=202611151932"></script>
-<script src="adeux.js?v=202611151932"></script>
+<script src="questions.js?v=202611151946"></script>
+<script src="fiche.js?v=202611151946"></script>
+<script src="deals.js?v=202611151946"></script>
+<script src="deals-duo.js?v=202611151946"></script>
+<script src="dds.js?v=202611151946"></script>
+<script src="jeu.js?v=202611151946"></script>
+<script src="adeux.js?v=202611151946"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611151932"></script>
-<script src="ffb-01.js?v=202611151932"></script>
-<script src="ffb-02.js?v=202611151932"></script>
-<script src="bidder.js?v=202611151932"></script>
-<script src="player.js?v=202611151932"></script>
-<script src="news.js?v=202611151932"></script>
-<script src="salon.js?v=202611151932"></script>
+<script src="auth.js?v=202611151946"></script>
+<script src="ffb-01.js?v=202611151946"></script>
+<script src="ffb-02.js?v=202611151946"></script>
+<script src="bidder.js?v=202611151946"></script>
+<script src="player.js?v=202611151946"></script>
+<script src="news.js?v=202611151946"></script>
+<script src="salon.js?v=202611151946"></script>
 <script>
 (() => {
   'use strict';
@@ -620,6 +622,7 @@
       <div class="section-title">Jouer</div>
       <button class="btn primary mode" data-act="deals"><span class="mode-ico">♠</span><span>Jouer au bridge<small>${DEALS.length} donnes · ${playedOk} réussies sans faute · enchères puis jeu de la carte</small></span></button>
       <button class="btn primary mode" data-act="duo"><span class="mode-ico">⇄</span><span>Jouer à deux<small id="duowait">Enchères au tour par tour avec Michèle, Damien ou Hélène</small></span></button>
+      <div id="validcard"></div>
       <button class="btn primary mode" data-act="salon"><span class="mode-ico">🃏</span><span>Salon de bridge<small>Tables à 4 en direct (joueurs ou robots), donnes de simultanés FFB, classement en %</small></span></button>
       <div class="section-title">Consulter</div>
       <button class="btn" data-act="fiche">Fiche système<small>Toutes les conventions, par thème</small></button>
@@ -633,6 +636,8 @@
     on('deals', () => go(dealList));
     on('duo', () => DUO.list());
     on('salon', () => SALON.open());
+    // Damien : remarques des autres joueurs sur les robots, à valider
+    SALON.pendingCount().then(n => { const el = document.getElementById('validcard'); if (!el || !n) return; el.innerHTML = `<button class="btn mode" data-act="valid" style="border-color:#e0452b"><span class="mode-ico">📝</span><span><b>${n} remarque${n > 1 ? 's' : ''} sur les robots à valider</b><small>Relis, corrige ou rejette avant envoi à Claude</small></span></button>`; on('valid', () => SALON.openValidation()); });
     DUO.waitingDetail().then(w => {
       const k = w.total, el = document.getElementById('duowait');
       if (el && k) el.innerHTML = '<b>' + k + ' donne' + (k > 1 ? 's' : '') + ' t’attend' + (k > 1 ? 'ent' : '') + '</b> · enchères au tour par tour';

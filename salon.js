@@ -91,7 +91,7 @@ function createSalon(env) {
   }
 
   // ───── Salon
-  async function open() {
+  async function open(startTab) {
     stopAll(); current = null; curId = null; tab = 'main';
     document.body.classList.remove('tablemode'); document.body.classList.add('salonmode');
     app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil') + '<p class="center muted">Entrée dans le salon…</p>';
@@ -110,9 +110,10 @@ function createSalon(env) {
     startBeat('salon');
     cleanup();
     unsubs.push(db.collection('presence').onSnapshot(s => { if (!onPresence(s)) renderSalon(); }));
-    unsubs.push(db.collection('tables').where('maj', '>', now() - 12 * 3600000).onSnapshot(s => { tables = s.docs.map(d => ({ id: d.id, ...d.data() })); renderSalon(); }));
-    listenChat();
-    renderSalon();
+    unsubs.push(db.collection('tables').where('maj', '>', now() - 12 * 3600000).onSnapshot(s => { tables = s.docs.map(d => ({ id: d.id, ...d.data() })); renderSalon(); checkInvites(); }));
+    listenChat(); listenPending();
+    if (startTab) tab = startTab;
+    render();
   }
   function listenChat() {
     unsubs.push(db.collection('chat').where('t', '>=', weekStart()).orderBy('t', 'desc').limit(50).onSnapshot(s => {
@@ -185,7 +186,7 @@ function createSalon(env) {
       afterUpdate();
       if (tab === 'main') renderTable(); else markTableTab();
     }));
-    listenChat();
+    listenChat(); listenPending();
   }
   const mySeat = t => SEATS.find(s => t.sieges[s] && t.sieges[s].uid === me()) || null;
   const isMaster = t => t.maitre === me();
@@ -375,7 +376,8 @@ function createSalon(env) {
     const robots = SEATS.filter(s => x.sieges[s] && x.sieges[s].robot).length;
     const fin = { n: deal.n, contrat: contractTxt(c), levees: tricksDecl, ns, pct: p, robots, joueurs: Object.fromEntries(SEATS.map(s => [s, x.sieges[s] ? (x.sieges[s].robot ? 'Robot' : x.sieges[s].nom) : '—'])),
       uids: SEATS.map(s => x.sieges[s] && x.sieges[s].uid).filter(Boolean),
-      places: Object.fromEntries(SEATS.map(s => [s, (x.sieges[s] && x.sieges[s].uid) || null])), bids: x.bids, notes: x.notes || [], plays: x.plays || [] };
+      places: Object.fromEntries(SEATS.map(s => [s, (x.sieges[s] && x.sieges[s].uid) || null])),
+      systemes: Object.fromEntries(SEATS.map(s => [s, x.sieges[s] && x.sieges[s].robot ? (x.sieges[s].sys || 'sef') : null])), bids: x.bids, notes: x.notes || [], plays: x.plays || [] };
     const { bids: _b, plays: _p, notes: _n, ...light } = fin; void _b; void _p; void _n;
     return { etat: 'fin', fin, historique: [...(x.historique || []), light] };
   }
@@ -474,6 +476,9 @@ function createSalon(env) {
     app.querySelectorAll('[data-robot]').forEach(b => b.addEventListener('click', () => { const [seat, sys] = b.dataset.robot.split(':'); setRobot(seat, sys || 'sef'); }));
     app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => freeSeat(b.dataset.free)));
     on('deal', nextDeal);
+    on('fixbot', () => openFix(t.fin));
+    app.querySelectorAll('[data-invite]').forEach(x => x.addEventListener('change', () => { if (x.value) invite(x.dataset.invite, x.value); }));
+    app.querySelectorAll('[data-move]').forEach(x => x.addEventListener('change', () => { if (x.value) moveSeat(x.dataset.move, x.value); }));
     on('resetscore', () => { if (confirm('Remettre à zéro les scores de cette table ?')) tx(x => (isMaster(x) ? { historique: [], fin: null, etat: x.etat === 'fin' ? 'attente' : x.etat } : null)); });
     wireNotes(t.notes || [], t.bids);
     app.querySelectorAll('[data-bid]').forEach(b => b.addEventListener('click', () => {
@@ -492,8 +497,18 @@ function createSalon(env) {
     const seatsHtml = SEATS.map(s => {
       const st = t.sieges[s];
       let act = '';
-      if (!st) act = `${!my || my !== s ? `<button class="btn center sm" data-sit="${s}">M’asseoir</button>` : ''}${master ? `<button class="btn center sm" data-robot="${s}:sef">＋ Robot SEF</button><button class="btn center sm" data-robot="${s}:raimon">＋ Robot Raimon</button>` : ''}`;
-      else if (master && (st.robot || (st.uid !== me() && !isFresh(st.uid)))) act = `<button class="btn center sm" data-free="${s}">Libérer</button>`;
+      const seated = SEATS.map(k => t.sieges[k] && t.sieges[k].uid).filter(Boolean);
+      const guests = fresh().filter(p => p.ou === 'salon' && !seated.includes(p.id) && p.id !== me());
+      const pend = Object.entries(t.invits || {}).filter(([, v]) => v.seat === s && v.t > now() - 10 * 60000);
+      const idle = t.etat !== 'encheres' && t.etat !== 'jeu';
+      if (!st) {
+        act = `${!my || my !== s ? `<button class="btn center sm" data-sit="${s}">M’asseoir</button>` : ''}${master ? `<button class="btn center sm" data-robot="${s}:sef">＋ Robot SEF</button><button class="btn center sm" data-robot="${s}:raimon">＋ Robot Raimon</button>` : ''}`;
+        if (master && guests.length) act += `<select class="tsel" data-invite="${s}"><option value="">✉️ Inviter…</option>${guests.map(p => `<option value="${p.id}">${esc(p.nom)}</option>`).join('')}</select>`;
+        if (pend.length) act += `<div class="feltnote" style="font-size:12px">Invité : ${pend.map(([, v]) => esc(v.nom)).join(', ')}…</div>`;
+      } else {
+        if (master && (st.robot || (st.uid !== me() && !isFresh(st.uid)))) act = `<button class="btn center sm" data-free="${s}">Libérer</button>`;
+        if (master && idle) act += `<select class="tsel" data-move="${s}"><option value="">↔ Déplacer…</option>${SEATS.filter(k => k !== s).map(k => `<option value="${k}">vers ${NAMES[k]}${t.sieges[k] ? ' (échange)' : ''}</option>`).join('')}</select>`;
+      }
       return `<div class="tseat"><b>${NAMES[s]}</b><div>${seatLabel(st)}${st && st.uid === t.maitre ? ' 👑' : ''}</div>${act}</div>`;
     }).join('');
     const full = SEATS.every(s => t.sieges[s]);
@@ -523,6 +538,7 @@ function createSalon(env) {
       ${f.robots ? '<p class="muted" style="font-size:13px;margin:0 0 6px">Avec des robots à la table, ce pourcentage est indicatif.</p>' : ''}
       <div class="fhands">${SEATS.map(s => `<div><b>${NAMES[s]}</b> <small class="muted">${esc(f.joueurs[s])}</small><br>${line(s)}</div>`).join('')}</div>
       ${f.plays ? '<button class="btn center" data-act="replay" style="margin-top:8px">▶ Revoir la donne carte par carte</button>' : ''}
+      ${f.robots ? '<button class="btn center" data-act="fixbot">🛠️ Corriger le bot</button>' : ''}
       <details style="margin-top:8px"><summary class="muted">Résultats de la salle</summary><div class="hist">${near.map(([sc, k]) => `<div><span>NS ${sc > 0 ? '+' : ''}${sc}</span><span>${k} table(s)</span></div>`).join('')}</div></details></div>`;
   }
   function plate(t, deal, s, pos, extra, turn) {
@@ -599,17 +615,158 @@ function createSalon(env) {
       box.innerHTML = `<div class="notice notebubble">${n.a ? '<b>Alerte</b> · ' : ''}<b>${bids[i] === 'P' ? 'Passe' : fmt(bids[i])}</b> : ${esc(n.e || '')}</div>`;
     }));
   }
+  // ═════ « Corriger le bot » : Damien écrit directement dans les corrections ; les autres proposent, Damien valide
+  const isBoss = () => getPlayer() === 'Damien' && !isGuest();
+  let pendingN = 0;
+  function bidsTxt(r, deal) {
+    return (r.bids || []).map((b, i) => {
+      const seat = SEATS[(SEATS.indexOf(deal.d) + i) % 4], n = (r.notes || [])[i];
+      const who = r.systemes && r.systemes[seat] ? `robot ${r.systemes[seat] === 'raimon' ? 'Raimon' : 'SEF'}` : (r.joueurs || {})[seat] || '';
+      return `${i + 1}. ${seat} (${who}) ${b === 'P' ? 'Passe' : b}${n && n.e ? ' — ' + n.e : ''}`;
+    }).join('\n');
+  }
+  function playsTxt(r, deal) {
+    const A = auction({ bids: r.bids || [] }, deal); if (!A.contract || !(r.plays || []).length) return '';
+    const out = []; let leader = next(A.contract.decl), trick = [];
+    const trump = A.contract.s === 'SA' ? null : SUIT_OF[A.contract.s];
+    r.plays.forEach(p => {
+      const s = +p[0], rk = 12 - RCH.indexOf(p[1]);
+      const seat = trick.length ? SEATS[(SEATS.indexOf(leader) + trick.length) % 4] : leader;
+      trick.push({ seat, s, r: rk });
+      if (trick.length === 4) { const w = winnerOf(trick, trump); out.push(`Pli ${out.length + 1} : ` + trick.map(x => `${x.seat} ${SYM[x.s]}${RLAB[x.r]}`).join(' ') + ` → ${w.seat}`); leader = w.seat; trick = []; }
+    });
+    return out.join('\n');
+  }
+  function openFix(r) {
+    const deal = dealOf(r.n); if (!deal) return;
+    const robotBids = (r.bids || []).map((b, i) => ({ b, i, seat: SEATS[(SEATS.indexOf(deal.d) + i) % 4] })).filter(x => r.systemes ? r.systemes[x.seat] : (r.joueurs || {})[x.seat] === 'Robot');
+    const nTricks = Math.floor((r.plays || []).length / 4);
+    const veil = document.createElement('div'); veil.className = 'popveil';
+    veil.innerHTML = `<div class="pop newspop"><h3>🛠️ Corriger le bot · ${r.n}</h3>
+      <p class="muted" style="font-size:14px">${isBoss() ? 'Ta remarque part directement à Claude.' : 'Ta remarque sera relue par Damien avant d’être prise en compte.'}</p>
+      <div class="row2"><button class="btn center ${robotBids.length ? 'primary' : ''}" data-q="encheres">Enchères</button><button class="btn center ${robotBids.length ? '' : 'primary'}" data-q="jeu" ${nTricks ? '' : 'disabled'}>Jeu de la carte</button></div>
+      <div id="fixwhich" style="margin:10px 0"></div>
+      <textarea id="fixtxt" rows="4" placeholder="Qu’aurait dû faire le robot, et pourquoi ?" style="width:100%;box-sizing:border-box;font-size:16px;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"></textarea>
+      <p id="fixerr" style="color:#c0392b;font-size:14px;min-height:18px;margin:4px 0"></p>
+      <div class="row2"><button class="btn center" data-fx="cancel">Annuler</button><button class="btn primary center" data-fx="send">Envoyer</button></div></div>`;
+    document.body.appendChild(veil);
+    let quoi = robotBids.length ? 'encheres' : 'jeu';
+    const which = () => {
+      const box = veil.querySelector('#fixwhich');
+      veil.querySelectorAll('[data-q]').forEach(b => b.classList.toggle('primary', b.dataset.q === quoi));
+      box.innerHTML = quoi === 'encheres'
+        ? `<label style="font-size:14px">Quelle enchère ?<br><select id="fixref" style="font-size:16px;width:100%;padding:6px">${robotBids.map(x => `<option value="${x.i}">${x.i + 1}. ${NAMES[x.seat]} : ${x.b === 'P' ? 'Passe' : x.b}</option>`).join('')}<option value="-1">Toute la séquence</option></select></label>`
+        : `<label style="font-size:14px">Quel pli ?<br><select id="fixref" style="font-size:16px;width:100%;padding:6px">${Array.from({ length: nTricks }, (_, k) => `<option value="${k}">Pli ${k + 1}</option>`).join('')}<option value="-1">Tout le jeu</option></select></label>`;
+    };
+    which();
+    veil.querySelectorAll('[data-q]').forEach(b => b.addEventListener('click', () => { quoi = b.dataset.q; which(); }));
+    veil.querySelector('[data-fx="cancel"]').addEventListener('click', () => veil.remove());
+    veil.querySelector('[data-fx="send"]').addEventListener('click', async () => {
+      const texte = veil.querySelector('#fixtxt').value.trim(), ref = +veil.querySelector('#fixref').value;
+      if (texte.length < 3) { veil.querySelector('#fixerr').textContent = 'Écris ta remarque.'; return; }
+      const data = {
+        type: 'robot salon', quoi, ref, donne: r.n, texte, auteur: getPlayer(), date: now(), statut: 'nouveau',
+        rapport: `Donne ${r.n} (${deal.src.simu} du ${deal.src.date}, donne ${deal.src.num}) · donneur ${deal.d} · vul ${deal.v}\nMains : N ${deal.N} | E ${deal.E} | S ${deal.S} | O ${deal.O}\nContrat : ${r.contrat}${r.levees !== undefined ? ' · ' + r.levees + ' levées' : ''}\n— Enchères —\n${bidsTxt(r, deal)}${playsTxt(r, deal) ? '\n— Jeu —\n' + playsTxt(r, deal) : ''}\nRemarque sur : ${quoi === 'encheres' ? (ref < 0 ? 'toute la séquence' : 'enchère n° ' + (ref + 1)) : (ref < 0 ? 'tout le jeu' : 'pli ' + (ref + 1))}`,
+        bids: r.bids || [], notes: r.notes || [], plays: r.plays || [], joueurs: r.joueurs || {}, systemes: r.systemes || {}, contrat: r.contrat, levees: r.levees ?? null, ns: r.ns ?? null, pct: r.pct ?? null, n: r.n,
+      };
+      veil.querySelector('#fixerr').textContent = 'Envoi…';
+      try {
+        if (isBoss()) await db.collection('corrections').add({ data: JSON.stringify(data) });
+        else await db.collection('propositions').add({ uid: me(), statut: 'a_valider', t: now(), data: JSON.stringify(data) });
+        veil.querySelector('.pop').innerHTML = `<div class="pop-ico">✓</div><h3>Merci !</h3><p>${isBoss() ? 'Correction enregistrée.' : 'Damien va relire ta remarque.'}</p><button class="btn primary center" data-fx="ok">OK</button>`;
+        veil.querySelector('[data-fx="ok"]').addEventListener('click', () => veil.remove());
+      } catch (e) { veil.querySelector('#fixerr').textContent = 'Envoi impossible pour l’instant.'; }
+    });
+  }
+  // Boîte « À valider » de Damien
+  function listenPending() {
+    if (!isBoss()) return;
+    unsubs.push(db.collection('propositions').where('statut', '==', 'a_valider').onSnapshot(s => {
+      pendingN = s.size;
+      const b = document.getElementById('tabvalid'); if (b) { b.classList.toggle('dotted', pendingN > 0); b.querySelector('em').textContent = pendingN ? `(${pendingN})` : ''; }
+      if (tab === 'valid') validView();
+    }, () => {}));
+  }
+  async function validView() {
+    document.body.classList.remove('tablemode');
+    let items = [];
+    try { const q = await db.collection('propositions').where('statut', '==', 'a_valider').get(); items = q.docs.map(d => ({ id: d.id, ...JSON.parse(d.data().data) })).sort((a, b) => a.date - b.date); } catch (e) { items = []; }
+    if (tab !== 'valid') return;
+    app.innerHTML = topbar('Remarques à valider', curId ? 'Table' : 'Salon') + (items.length ? items.map(p => `<div class="card">
+        <b>${esc(p.auteur)}</b> · donne ${p.donne} · ${p.quoi === 'encheres' ? 'enchères' : 'jeu de la carte'}${p.ref >= 0 ? (p.quoi === 'encheres' ? ` (enchère n° ${p.ref + 1} : ${p.bids[p.ref] === 'P' ? 'Passe' : fmt(p.bids[p.ref])})` : ` (pli ${p.ref + 1})`) : ''}
+        <small class="muted"> · ${new Date(p.date).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</small>
+        <textarea data-txt="${p.id}" rows="3" style="width:100%;box-sizing:border-box;font-size:15px;margin:8px 0;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)">${esc(p.texte)}</textarea>
+        <button class="btn center" data-see="${p.id}">▶ Voir la donne (enchères et jeu)</button>
+        <div class="row2"><button class="btn center" data-rej="${p.id}">✗ Rejeter</button><button class="btn primary center" data-ok="${p.id}">✓ Valider</button></div></div>`).join('')
+      : '<p class="center muted">Aucune remarque en attente.</p>') + tabBar();
+    on('back', () => { tab = 'main'; render(); }); wireTabs();
+    const byId = id => items.find(x => x.id === id);
+    app.querySelectorAll('[data-see]').forEach(b => b.addEventListener('click', () => replayView(byId(b.dataset.see), 0, 'valid')));
+    app.querySelectorAll('[data-ok]').forEach(b => b.addEventListener('click', async () => {
+      const p = byId(b.dataset.ok), txt = app.querySelector(`[data-txt="${p.id}"]`).value.trim();
+      const { id, ...rest } = p;
+      b.disabled = true;
+      try {
+        await db.collection('corrections').add({ data: JSON.stringify({ ...rest, texte: txt, texteInitial: p.texte, validePar: 'Damien', statut: 'nouveau' }) });
+        await db.collection('propositions').doc(id).update({ statut: 'validee' });
+      } catch (e) { b.disabled = false; }
+    }));
+    app.querySelectorAll('[data-rej]').forEach(b => b.addEventListener('click', async () => { b.disabled = true; try { await db.collection('propositions').doc(b.dataset.rej).update({ statut: 'rejetee' }); } catch (e) { b.disabled = false; } }));
+  }
+
+  // ═════ Invitations et déplacements (maître de table)
+  function invite(seat, uid) {
+    const p = fresh().find(x => x.id === uid); if (!p) return;
+    tx(t => (!isMaster(t) || t.sieges[seat] ? null : { ['invits.' + uid]: { seat, nom: p.nom, de: getPlayer(), t: now() } }));
+  }
+  function moveSeat(from, to) {
+    tx(t => {
+      if (!isMaster(t) || t.etat === 'encheres' || t.etat === 'jeu') return null;
+      const s = { ...t.sieges }; const a = s[from]; s[from] = s[to] || null; s[to] = a; return { sieges: s };
+    });
+  }
+  // Invitation reçue (au salon) : fenêtre Accepter / Refuser
+  const answered = new Set();
+  function checkInvites() {
+    if (curId) return;
+    const t = tables.find(x => x.invits && x.invits[me()] && x.invits[me()].t > now() - 10 * 60000 && !answered.has(x.id + x.invits[me()].t) && x.etat !== 'fermee');
+    if (!t || document.querySelector('.invveil')) return;
+    const inv = t.invits[me()];
+    answered.add(t.id + inv.t);
+    const veil = document.createElement('div'); veil.className = 'popveil invveil';
+    veil.innerHTML = `<div class="pop"><div class="pop-ico">🃏</div><h3>Invitation</h3><p><b>${esc(inv.de)}</b> t’invite à sa table, place <b>${NAMES[inv.seat]}</b>.</p>
+      <div class="row2"><button class="btn center" data-inv="non">Non merci</button><button class="btn primary center" data-inv="oui">J’y vais !</button></div></div>`;
+    document.body.appendChild(veil);
+    veil.querySelectorAll('[data-inv]').forEach(b => b.addEventListener('click', async () => {
+      veil.remove();
+      const ref = db.collection('tables').doc(t.id);
+      if (b.dataset.inv === 'non') { ref.update({ ['invits.' + me()]: firebase.firestore.FieldValue.delete() }).catch(() => {}); return; }
+      try {
+        await db.runTransaction(async T => {
+          const d = await T.get(ref); const x = d.data(); if (!x) return;
+          const upd = { ['invits.' + me()]: firebase.firestore.FieldValue.delete(), maj: now() };
+          if (!x.sieges[inv.seat] || x.sieges[inv.seat].robot) {
+            const s = { ...x.sieges }; SEATS.forEach(k => { if (s[k] && s[k].uid === me()) s[k] = null; }); s[inv.seat] = { uid: me(), nom: getPlayer() }; upd.sieges = s;
+          }
+          T.update(ref, upd);
+        });
+      } catch (e) { /* place prise entre-temps */ }
+      enterTable(t.id);
+    }));
+  }
+
   // ───── Onglets du bas (comme sur BBO) : salle ou table · mes donnes · chat
   function tabBar() {
     const main = curId ? ['🂠', 'Table'] : ['🏠', 'Salon'];
     const b = (k, ico, txt) => `<button class="tab ${tab === k ? 'on' : ''}" id="tab${k}" data-tab="${k}"><span>${ico}</span>${txt}</button>`;
-    return `<nav class="tabbar">${b('main', main[0], main[1])}${b('hist', '📜', 'Mes donnes')}${b('chat', '💬', 'Chat')}</nav>`;
+    return `<nav class="tabbar">${b('main', main[0], main[1])}${b('hist', '📜', 'Mes donnes')}${b('chat', '💬', 'Chat')}${isBoss() ? b('valid', '📝', 'À valider <em>' + (pendingN ? '(' + pendingN + ')' : '') + '</em>') : ''}</nav>`;
   }
-  function wireTabs() { app.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { tab = x.dataset.tab; render(); })); markChatTab(); }
+  function wireTabs() { app.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { tab = x.dataset.tab; render(); })); markChatTab(); const v = document.getElementById('tabvalid'); if (v) v.classList.toggle('dotted', pendingN > 0); }
   function render() {
     window.scrollTo(0, 0);
     if (tab === 'hist') return histView();
     if (tab === 'chat') return chatView();
+    if (tab === 'valid') return validView();
     return curId ? renderTable() : renderSalon();
   }
   // Pendant qu'on regarde un autre onglet : pastille sur « Table » quand c'est à nous de jouer
@@ -673,12 +830,15 @@ function createSalon(env) {
         <div class="re">${handTxt('E')}</div><div class="rs">${handTxt('S')}</div></div>
       ${plays.length ? `<div class="solnav"><button class="btn center" data-st="0">⏮</button><button class="btn center" data-st="${step - 1}">◀</button><button class="btn center" data-st="${step + 1}">▶</button><button class="btn center" data-st="${Math.min(plays.length, (Math.floor(step / 4) + 1) * 4)}">Levée ⏭</button></div>
         <p class="center muted" style="font-size:13px">Carte ${step}/${plays.length} · NS ${ps.tricks.NS} levée(s) · EO ${ps.tricks.EO}</p>` : '<p class="center muted">Pas de jeu de la carte (passe générale ou donne ancienne).</p>'}
+      ${from !== 'valid' && (r.robots || Object.values(r.systemes || {}).some(Boolean)) ? '<button class="btn center" data-act="fixbot">🛠️ Corriger le bot</button>' : ''}
       ${tabBar()}`;
-    on('back', () => { if (from === 'hist') histView(); else { tab = 'main'; render(); } });
+    on('back', () => { if (from === 'hist') histView(); else if (from === 'valid') validView(); else { tab = 'main'; render(); } });
+    on('fixbot', () => openFix(r));
     wireTabs();
     app.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => replayView(r, +b.dataset.st, from)));
     wireNotes(r.notes || [], bids);
   }
 
-  return { open, stop: () => { stopAll(); stopBeat(); } , _test: { auction, score, pctNS, weekStart } };
+  async function pendingCount() { if (!isBoss()) return 0; try { return (await db.collection('propositions').where('statut', '==', 'a_valider').get()).size; } catch (e) { return 0; } }
+  return { open, openValidation: () => open('valid'), pendingCount, stop: () => { stopAll(); stopBeat(); } , _test: { auction, score, pctNS, weekStart } };
 }
