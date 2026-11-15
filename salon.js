@@ -58,8 +58,24 @@ function createSalon(env) {
     clearInterval(beat); beat = null; where = null; since = null;
     const uid = me(); if (uid) db.collection('presence').doc(uid).delete().catch(() => {});
   }
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && where) heartbeat(); });
-  window.addEventListener('pagehide', () => { if (where) { const uid = me(); if (uid) db.collection('presence').doc(uid).delete().catch(() => {}); } });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !where) return;
+    heartbeat();
+    if (curId && current) { afterUpdate(); if (tab === 'main') renderTable(); }   // les robots repartent depuis ce téléphone
+  });
+  // Table en cours gardée sur le téléphone : si l'appli a été fermée ou rechargée, on y revient tout seul
+  const tableKey = () => 'raimon-table:' + me();
+  const rememberTable = id => { try { if (id) localStorage.setItem(tableKey(), id); else localStorage.removeItem(tableKey()); } catch (e) { /* stockage indisponible */ } };
+  async function resumeTable() {
+    let id = null; try { id = localStorage.getItem(tableKey()); } catch (e) { id = null; }
+    if (!id) return false;
+    try {
+      const d = await db.collection('tables').doc(id).get();
+      const t = d.exists && d.data();
+      if (!t || t.etat === 'fermee' || !SEATS.some(k => t.sieges[k] && t.sieges[k].uid === me())) { rememberTable(null); return false; }
+      enterTable(id); return true;
+    } catch (e) { return false; }
+  }
   const fresh = () => presence.filter(p => p.t > now() - FRESH);
   const isFresh = uid => fresh().some(p => p.id === uid);
   // Présences reçues : si la famille a eu besoin de ma place, je sors du salon
@@ -70,6 +86,7 @@ function createSalon(env) {
     return false;
   }
   function kicked() {
+    rememberTable(null);
     stopAll(); clearTimeout(robotTimer); clearInterval(beat); beat = null; where = null; since = null; curId = null; current = null;
     db.collection('presence').doc(me()).delete().catch(() => {});
     document.body.classList.remove('tablemode', 'salonmode');
@@ -113,6 +130,7 @@ function createSalon(env) {
     unsubs.push(db.collection('tables').where('maj', '>', now() - 12 * 3600000).onSnapshot(s => { tables = s.docs.map(d => ({ id: d.id, ...d.data() })); renderSalon(); checkInvites(); }));
     listenChat(); listenPending();
     if (startTab) tab = startTab;
+    if (!startTab && await resumeTable()) return;
     render();
   }
   function listenChat() {
@@ -179,11 +197,12 @@ function createSalon(env) {
     enterTable(ref.id);
   }
   function enterTable(id) {
+    rememberTable(id);
     stopAll(); curId = id; tab = 'main'; ui = { sel: null, choice: null, msg: '', noAuto: false, lastAt: null }; clearTimeout(autoTimer); autoKey = null;
     startBeat('table:' + id);
     unsubs.push(db.collection('presence').onSnapshot(s => { onPresence(s); }));
     unsubs.push(db.collection('tables').doc(id).onSnapshot(d => {
-      if (!d.exists) { curId = null; open(); return; }
+      if (!d.exists || d.data().etat === 'fermee') { rememberTable(null); curId = null; open(); return; }
       current = { id: d.id, ...d.data() };
       afterUpdate();
       if (tab === 'main') renderTable(); else markTableTab();
@@ -230,7 +249,7 @@ function createSalon(env) {
       if (t.maitre === me()) upd.maitre = humans.length ? s[humans[0]].uid : null;
       if (!humans.length) upd.etat = 'fermee';
       return upd;
-    }).then(() => { if (curId === id) { curId = null; open(); } });
+    }).then(() => { rememberTable(null); if (curId === id) { curId = null; open(); } });
   }
   // Donne suivante : jamais une donne déjà jouée par l'un des humains assis
   async function nextDeal() {
@@ -918,5 +937,12 @@ function createSalon(env) {
   }
 
   async function pendingCount() { if (!isBoss()) return 0; try { return (await db.collection('propositions').where('statut', '==', 'a_valider').get()).size; } catch (e) { return 0; } }
-  return { open, openValidation: () => open('valid'), pendingCount, stop: () => { stopAll(); stopBeat(); } , _test: { auction, score, pctNS, weekStart } };
+  // Au lancement de l'appli : s'il y a une table en cours pour moi, on y retourne directement
+  async function resumeIfAny() {
+    let id = null; try { id = localStorage.getItem(tableKey()); } catch (e) { id = null; }
+    if (!id) return false;
+    try { const d = await db.collection('tables').doc(id).get(); const t = d.exists && d.data(); if (!t || t.etat === 'fermee' || !SEATS.some(k => t.sieges[k] && t.sieges[k].uid === me())) { rememberTable(null); return false; } } catch (e) { return false; }
+    open(); return true;
+  }
+  return { open, resumeIfAny, openValidation: () => open('valid'), pendingCount, stop: () => { stopAll(); stopBeat(); } , _test: { auction, score, pctNS, weekStart } };
 }

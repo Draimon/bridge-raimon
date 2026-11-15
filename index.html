@@ -414,24 +414,24 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152031"></script>
-<script src="fiche.js?v=202611152031"></script>
-<script src="deals.js?v=202611152031"></script>
-<script src="deals-duo.js?v=202611152031"></script>
-<script src="dds.js?v=202611152031"></script>
-<script src="jeu.js?v=202611152031"></script>
-<script src="adeux.js?v=202611152031"></script>
+<script src="questions.js?v=202611152040"></script>
+<script src="fiche.js?v=202611152040"></script>
+<script src="deals.js?v=202611152040"></script>
+<script src="deals-duo.js?v=202611152040"></script>
+<script src="dds.js?v=202611152040"></script>
+<script src="jeu.js?v=202611152040"></script>
+<script src="adeux.js?v=202611152040"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="auth.js?v=202611152031"></script>
-<script src="ffb-01.js?v=202611152031"></script>
-<script src="ffb-02.js?v=202611152031"></script>
-<script src="robot.js?v=202611152031"></script>
-<script src="bidder.js?v=202611152031"></script>
-<script src="player.js?v=202611152031"></script>
-<script src="news.js?v=202611152031"></script>
-<script src="salon.js?v=202611152031"></script>
+<script src="auth.js?v=202611152040"></script>
+<script src="ffb-01.js?v=202611152040"></script>
+<script src="ffb-02.js?v=202611152040"></script>
+<script src="robot.js?v=202611152040"></script>
+<script src="bidder.js?v=202611152040"></script>
+<script src="player.js?v=202611152040"></script>
+<script src="news.js?v=202611152040"></script>
+<script src="salon.js?v=202611152040"></script>
 <script>
 (() => {
   'use strict';
@@ -572,6 +572,7 @@
     loadProgress(); go(home);
     if (pendingDeal) { const n = pendingDeal; pendingDeal = null; DUO.openDeal(n); }
     showNews(who, false);                                        // « Quoi de neuf ? » : nouveautés pas encore vues
+    SALON.resumeIfAny();                                         // table du salon en cours : on y retourne
   }
   function record(n, ok) {
     const p = progress[n] || { ok: 0, ko: 0, streak: 0 };

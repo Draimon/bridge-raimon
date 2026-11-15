@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-retour-table', date: '15/11/2026', pour: 'tous',
+    titre: '↩️ On ne perd plus sa table',
+    texte: `<p>Au salon, si vous passez sur une autre appli (un message, un appel…) ou si le téléphone recharge l'appli, <b>vous revenez directement à votre table</b>, sur la donne en cours.</p>
+      <p>Si c'est vous qui avez créé la table, les robots attendent pendant votre absence et <b>reprennent dès votre retour</b>.</p>`,
+  },
+  {
     id: '2026-11-15-ecran-allume', date: '15/11/2026', pour: 'tous',
     titre: '🔆 L’écran reste allumé pendant le jeu',
     texte: `<p>Pendant une donne (jeu solo, salon), le téléphone ne se verrouille plus et l'ordinateur ne se met plus en veille. Dès que vous quittez le jeu, tout redevient normal.</p>
