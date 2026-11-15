@@ -551,7 +551,7 @@
     if (h >= 24) return R('2♣', `Albaran : forcing de manche (${h}H)`, true);
     if (h >= 22 && e.bal) return R('2♦', 'Multi : 22-23H régulier (2SA ensuite)', true);
     if (h >= 20 && e.bal) return R('2SA', '20-21H régulier');
-    if (h >= 20) { const m = L[0] >= L[1] ? 0 : 1; return R(sb(2, m), `Fort indéterminé (${h}H)`, true); }
+    if (h >= 20) { const m = [0, 1].find(i => L[i] >= 6); if (m !== undefined) return R(sb(2, m), `Fort, 6 cartes à ${SYM[m]} (${h}H)`, true); }   // sinon : ouverture au palier de 1 (bicolore cher ou saut ensuite)
     if (h >= 15 && h <= 17 && e.bal && L[0] < 5 && L[1] < 5) return R('1SA', '15-17H régulier');
     if (h >= 11) {
       if (L[0] >= 5 || L[1] >= 5) { const m = L[0] >= L[1] ? 0 : 1; return R(sb(1, m), `Ouverture, ${L[m]} cartes à ${SYM[m]}, ${h}H`); }
@@ -560,7 +560,8 @@
       return R('1♣', `Ouverture en mineure, ${h}H`);
     }
     if (h >= 5) {
-      for (const i of [1, 0]) if (L[i] >= 5) { const o = [0, 1, 2, 3].find(j => j !== i && L[j] >= 5); if (o !== undefined) return R(sb(2, i), `Bicolore faible 5-5 : ${SYM[i]} et ${SYM[o]}`, true); }
+      const honor = i => /[AKQ]/.test(e.parts[i]);
+      for (const i of [1, 0]) if (L[i] >= 5 && honor(i)) { const o = [0, 1, 2, 3].find(j => j !== i && L[j] >= 5 && honor(j)); if (o !== undefined) return R(sb(2, i), `Bicolore faible 5-5 : ${SYM[i]} et ${SYM[o]}`, true); }
       for (const i of [0, 1]) if (L[i] === 6 && twoTop(e, i)) return R('2♦', `Multi : deux faible à ${SYM[i]}`, true);
       for (const i of [0, 1, 2, 3]) if (L[i] >= 7 && good(e, i)) return R(sb(3, i), `Barrage : 7 cartes à ${SYM[i]}`);
     }
@@ -712,7 +713,7 @@
       if (pb === '2SA') { const m = L[2] > L[3] ? 2 : 3; return R(cheapest(C, m), `Préférence ${SYM[m]}`); }
     }
     // ── Défense : Copenhague directement derrière l'ouvreur (bicolore 5-5)
-    if (!mine.length && !his.length && C.them.length === 1 && C.hist.length === C.them[0].i + 1 && rank(C.them[0].b) >= 0 && lvl(C.them[0].b) === 1 && str(C.them[0].b) !== 'SA' && h >= 8) {
+    if (!mine.length && !his.length && C.them.length === 1 && C.hist.length === C.them[0].i + 1 && rank(C.them[0].b) >= 0 && lvl(C.them[0].b) === 1 && str(C.them[0].b) !== 'SA' && h >= 8 && h <= 16) {
       const o = SI[str(C.them[0].b)], two = [0, 1, 2, 3].filter(i => i !== o && L[i] >= 5);
       if (two.length >= 2) {
         const order = [3, 2, 1, 0].filter(i => i !== o);                 // de la moins chère à la plus chère
