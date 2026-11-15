@@ -90,6 +90,92 @@
     return { s: Math.floor(best / 13), r: best % 13 };
   }
 
+  // ───── Simulation (« Monte-Carlo ») avec le solveur DDS en WebAssembly (vendor/bridge-dds) : on imagine
+  // plusieurs répartitions des cartes cachées compatibles avec ce qu'on sait, chacune est résolue en double mort,
+  // et on joue la carte qui fait le plus de levées en moyenne. Utilisé dès que le solveur est chargé.
+  const RCH2 = 'AKQJT98765432';
+  const ddsw = () => (typeof root !== 'undefined' && root && root.RaimonDDSW) || (typeof globalThis !== 'undefined' && globalThis.RaimonDDSW) || null;
+  function sampleHidden(st) {
+    const hidden = SEATS.filter(s => s !== st.me && !(st.visible || []).includes(s));
+    const need = {}; hidden.forEach(s => { need[s] = st.counts[s]; });
+    const pool = outstanding(st);
+    if (pool.length !== hidden.reduce((a, s) => a + need[s], 0)) return null;
+    let last = null;
+    for (let tries = 0; tries < 60; tries++) {
+      const deck = pool.slice(); for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+      const H = {}; hidden.forEach(s => { H[s] = [[], [], [], []]; });
+      let ok = true;
+      for (const c of deck) {
+        const cand = hidden.filter(s => H[s].reduce((a, x) => a + x.length, 0) < need[s] && !(st.voids[s] || []).includes(c.s));
+        if (!cand.length) { ok = false; break; }
+        H[cand[Math.floor(Math.random() * cand.length)]][c.s].push(c.r);
+      }
+      if (ok && (!st.accept || st.accept(H))) return H;
+      if (ok) last = H;
+    }
+    return last;
+  }
+  const hcpOf = h => h.reduce((a, rs) => a + rs.reduce((b, r) => b + (r >= 9 ? r - 8 : 0), 0), 0);
+  function auctionLimits(st) {
+    if (!st.bids || !st.dealer) return null;
+    const lim = { N: [0, 37], E: [0, 37], S: [0, 37], O: [0, 37] };
+    const cut = (s, lo, hi) => { lim[s][0] = Math.max(lim[s][0], lo); lim[s][1] = Math.min(lim[s][1], hi); };
+    let opened = false; const acted = {};
+    st.bids.forEach((b, i) => {
+      const seat = SEATS[(SEATS.indexOf(st.dealer) + i) % 4];
+      if (!opened) {
+        if (b === 'P') { if (!acted[seat]) cut(seat, 0, 11); }
+        else {
+          opened = true;
+          if (b === '1SA') cut(seat, 15, 17); else if (b === '2SA') cut(seat, 20, 21);
+          else if (/^2[♥♠♦]$/.test(b)) cut(seat, 5, 11); else if (/^[34]/.test(b)) cut(seat, 4, 11);
+          else if (b === '2♣') cut(seat, 20, 37); else if (b[0] === '1') cut(seat, 11, 21);
+        }
+      }
+      acted[seat] = true;
+    });
+    // la ligne du déclarant : assez de points pour son contrat
+    const last = [...st.bids].reverse().find(b => /^[1-7]/.test(b)); const lvl = last ? +last[0] : 0, nt = last && last.slice(1) === 'SA';
+    const minLine = lvl >= 7 ? 32 : lvl === 6 ? 29 : (lvl === 5 || lvl === 4 || (lvl === 3 && nt)) ? 22 : 0;
+    const maxLine = lvl <= 2 ? 27 : 40;
+    return { lim, minLine, maxLine };
+  }
+  function makeAccept(st) {
+    const A = auctionLimits(st); if (!A) return null;
+    const dummy = partner(st.decl);
+    return H => {
+      const hc = s => hcpOf(H[s] || st.hands[s]);
+      for (const s of Object.keys(H)) { const v = hc(s); if (v < A.lim[s][0] || v > A.lim[s][1]) return false; }
+      if (H[st.decl] || H[dummy]) { const line = hc(st.decl) + hc(dummy) + 0; if (line < A.minLine || line > A.maxLine) return false; }
+      return true;
+    };
+  }
+  function mcChoice(st, L, nSamples) {
+    if (st.accept === undefined) st.accept = st.useAuction && st.played.length < 8 ? makeAccept(st) : null;   // contraintes d'enchères : testées sans gain (0,78 contre 0,71), désactivées par défaut
+    const D = ddsw(); if (!D) return null;
+    const leader = st.trick.length ? st.trick[0].seat : st.me;
+    const sum = new Map(); let n = 0;
+    for (let k = 0; k < nSamples; k++) {
+      const H = sampleHidden(st); if (!H) break;
+      const full = s => (H[s] || st.hands[s]);
+      const pbn = 'N:' + SEATS.map(s => full(s).map(rs => rs.slice().sort((a, b) => b - a).map(r => RCH2[12 - r]).join('')).join('.')).join(' ');
+      const deal = { trump: st.trump === null ? 4 : st.trump, first: SEATS.indexOf(leader),
+        currentTrickSuit: [0, 1, 2].map(i => (st.trick[i] ? st.trick[i].s : 0)), currentTrickRank: [0, 1, 2].map(i => (st.trick[i] ? st.trick[i].r + 2 : 0)), remainCards: pbn };
+      let ft; try { ft = D.SolveBoardPBN(deal, -1, 3, 1); } catch (e) { return null; }
+      for (let i = 0; i < ft.cards; i++) {
+        const sc = ft.score[i], su = ft.suit[i];
+        const add = r => { const key = su * 13 + r; sum.set(key, (sum.get(key) || 0) + sc); };
+        add(ft.rank[i] - 2);
+        for (let r = 2; r <= 14; r++) if (ft.equals[i] & (1 << r)) add(r - 2);
+      }
+      n++;
+    }
+    if (!n) return null;
+    let best = null, bestV = -1;
+    for (const c of L) { const v = (sum.get(c.s * 13 + c.r) || 0) / n; if (v > bestV + 1e-9 || (Math.abs(v - bestV) < 1e-9 && best && c.r < best.r)) { bestV = v; best = c; } }
+    return best;
+  }
+
   // ───── Règles de jeu
   // Couleurs nommées aux enchères par chaque siège (enchères naturelles à la couleur, hors SA)
   function namedBy(st) {
@@ -263,6 +349,8 @@
     if (L.length === 1) return L[0];
     st.declSide = sideOf(st.me) === sideOf(st.decl);
     const left = st.counts[st.me];
+    // défense : simulation DDS (WebAssembly) à chaque carte si le solveur est là (sauf l'entame, sauf réglage contraire)
+    if (!st.declSide && ddsw() && (st.played.length || st.trick.length || st.mcLead)) { const c = mcChoice(st, L, st.mcSamples || 24); if (c) return c; }
     const ddFrom = st.declSide ? 7 : (st.ddFrom || 7);
     if (left <= ddFrom) { const c = ddChoice(st, L, budgetMs === undefined ? 900 : budgetMs); if (c) return c; }
     if (!st.trick.length) return st.played.length === 0 && !st.declSide ? openingLead(st, L) : lead(st, L);

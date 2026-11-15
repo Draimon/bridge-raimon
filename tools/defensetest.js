@@ -32,6 +32,7 @@ srv.stderr.on('data', d => process.stderr.write(d));
 const ask = q => new Promise(res => { waiting.push(res); srv.stdin.write(JSON.stringify(q) + '\n'); });
 
 (async () => {
+  if (process.env.MC) { const { pathToFileURL } = require('url'); const { loadDds, Dds } = await import(pathToFileURL(path.join(__dirname, '..', 'vendor', 'bridge-dds', 'dds-api.js')).href); globalThis.RaimonDDSW = new Dds(await loadDds()); }
   const N = +process.argv[2] || 100, START = +process.argv[3] || 0, SYS = process.env.SYS || 'sef';
   let nDeals = 0, lost = 0, defDD = 0, defGot = 0; const exercises = [], byKind = {}, positions = [];
   const t0 = Date.now();
@@ -59,7 +60,7 @@ const ask = q => new Promise(res => { waiting.push(res); srv.stdin.write(JSON.st
         const visible = played.length || trick.length ? [dummy] : [];
         const known = {}; SEATS.forEach(s => { known[s] = s === turn || visible.includes(s) ? hands[s] : [[], [], [], []]; });
         const counts = {}; SEATS.forEach(s => { counts[s] = hands[s].reduce((a, x) => a + x.length, 0); });
-        const st = { me: turn, hands: known, visible, trick: trick.slice(), played: played.slice(), trump, decl: c.decl, counts, voids, partnerSuit: named[partner(turn)], partnerLed: pLed[partner(turn)], myLed: pLed[turn], bids, dealer: d.d };
+        const st = { me: turn, hands: known, visible, trick: trick.slice(), played: played.slice(), trump, decl: c.decl, counts, voids, partnerSuit: named[partner(turn)], partnerLed: pLed[partner(turn)], myLed: pLed[turn], bids, dealer: d.d, mcSamples: +process.env.MC || 24, mcLead: !!process.env.MCLEAD, ...(process.env.NOCONS ? { accept: null } : {}) };
         card = PL.choose(st, 900);
         if (process.env.CACHE_POS && hands[turn].reduce((x, y) => x + y.length, 0) > 7) positions.push({ st: JSON.parse(JSON.stringify(st)), dd, n: d.n, k });
         const v = dd[cstr(card)];

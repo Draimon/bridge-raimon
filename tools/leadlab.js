@@ -48,7 +48,7 @@ function evaluate(items, leadFn) {
     const named = {}; it.bids.forEach((b, i) => { const s = SEATS[(SEATS.indexOf(it.dealer) + i) % 4]; if (rank(b) >= 0 && b.slice(1) !== 'SA' && named[s] === undefined) named[s] = SI[b.slice(1)]; });
     const hands = {}; SEATS.forEach(s => { hands[s] = s === it.leader ? parse(it.hand) : [[], [], [], []]; });
     const counts = {}; SEATS.forEach(s => { counts[s] = 13; });
-    const st = { me: it.leader, hands, visible: [], trick: [], played: [], trump, decl: c.decl, counts, voids: { N: [], E: [], S: [], O: [] }, partnerSuit: named[partner(it.leader)], bids: it.bids, dealer: it.dealer };
+    const st = { me: it.leader, hands, visible: [], trick: [], played: [], trump, decl: c.decl, counts, voids: { N: [], E: [], S: [], O: [] }, partnerSuit: named[partner(it.leader)], bids: it.bids, dealer: it.dealer, mcLead: !!process.env.MC, mcSamples: +process.env.MC || 24, ...(process.env.NOCONS ? { accept: null } : {}) };
     const card = leadFn(st);
     const v = it.dd[SL[card.s] + RCH[12 - card.r]], best = Math.max(...Object.values(it.dd));
     lost += best - v; if (best === v) perfect++;
@@ -58,6 +58,7 @@ function evaluate(items, leadFn) {
 }
 
 (async () => {
+  if (process.env.MC) { const { pathToFileURL } = require('url'); const { loadDds, Dds } = await import(pathToFileURL(path.join(__dirname, '..', 'vendor', 'bridge-dds', 'dds-api.js')).href); globalThis.RaimonDDSW = new Dds(await loadDds()); }
   const items = fs.existsSync(CACHE) ? JSON.parse(fs.readFileSync(CACHE, 'utf8')) : await build();
   const r = evaluate(items, st => PL.choose(st, 0));
   console.log(`${r.n} entames · levées perdues ${r.lost} (${(r.lost / r.n).toFixed(3)} par donne) · entame parfaite ${(100 * r.perfect / r.n).toFixed(1)} %`);

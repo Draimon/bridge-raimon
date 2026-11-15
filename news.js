@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-16-flanc-simulation', date: '16/11/2026', pour: 'tous',
+    titre: '🧠 Les robots imaginent les mains cachées',
+    texte: `<p>En défense, à chaque carte, les robots imaginent maintenant une vingtaine de répartitions possibles des cartes cachées et calculent chacune avec le solveur de référence des champions (DDS), puis jouent la carte qui marche le plus souvent, comme les meilleurs robots.</p>
+      <p>Résultat sur les donnes FFB : <b>encore 25 % de levées perdues en moins</b> en flanc. Le robot peut réfléchir une demi-seconde de plus par carte.</p>`,
+  },
+  {
     id: '2026-11-15-paysage', date: '15/11/2026', pour: 'tous',
     titre: '📱 Mode paysage, comme sur BBO',
     texte: `<p>Tournez le téléphone pendant une donne : <b>à gauche</b> le chat du salon (ou l’historique des enchères), <b>au centre</b> le tapis et votre main, <b>à droite</b> la boîte d’enchères, puis le mort et les boutons Revendiquer / Annuler pendant le jeu.</p>`,
