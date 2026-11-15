@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-tableau-scores', date: '15/11/2026', pour: 'tous',
+    titre: '📊 Le tableau des scores, comme sur BBO',
+    texte: `<p>Touchez le <b>score en haut à droite</b> (ou « Scores » sous les enchères pendant le jeu) : une ligne par donne jouée à la table, avec le contrat, les points et votre %.</p>
+      <p>Touchez une donne pour voir <b>tous les résultats des autres tables</b> : « +420 · 18 tables · 72 % »… (votre résultat en vert), et ceux des joueurs du salon qui l'ont jouée.</p>`,
+  },
+  {
     id: '2026-11-15-plein-ecran', date: '15/11/2026', pour: 'tous',
     titre: '📱 La table en plein écran',
     texte: `<ul><li>Pendant une donne, la table <b>tient dans l'écran</b> et s'adapte à sa hauteur : plus besoin de faire défiler.</li>

@@ -543,7 +543,8 @@ function createSalon(env) {
     const hist = (t.historique || []), pv = hist.filter(h => h.pct !== null && h.pct !== undefined);
     const mean = pv.length ? Math.round(pv.reduce((a2, h) => a2 + h.pct, 0) / pv.length) : null, pts = hist.reduce((a2, h) => a2 + h.ns, 0);
     const mySd = my ? sideOf(my) : 'NS';
-    const chip = hist.length ? `<span class="tchip" title="Score de la table"><span><b class="${mySd === 'NS' ? 'me' : ''}">NS ${mean ?? '—'}%</b><b class="${mySd === 'EO' ? 'me' : ''}">EO ${mean === null ? '—' : 100 - mean}%</b></span><small>${hist.length} donne${hist.length > 1 ? 's' : ''} · NS ${pts > 0 ? '+' : ''}${pts}</small></span>` : '';
+    const chip = hist.length ? `<span class="tchip" title="Score de la table" data-act="showscores"><span><b class="${mySd === 'NS' ? 'me' : ''}">NS ${mean ?? '—'}%</b><b class="${mySd === 'EO' ? 'me' : ''}">EO ${mean === null ? '—' : 100 - mean}%</b></span><small>${hist.length} donne${hist.length > 1 ? 's' : ''} · NS ${pts > 0 ? '+' : ''}${pts}</small></span>` : '';
+    const spop = ui.showScores ? scoresPop(t, my) : '';
     let head = chip;
     if (t.etat === 'jeu' && deal) {
       const c0 = auction(t, deal).contract;
@@ -552,9 +553,9 @@ function createSalon(env) {
     const pop = ui.showAuction && deal ? `<div class="popveil" data-act="hideauction"><div class="pop auctionpop"><h3>Enchères · ${t.n}</h3>
       <div class="felt" style="padding:8px">${auctionTable(t, deal)}</div>
       <p class="muted" style="font-size:13px;margin:4px 0">Donneur : ${NAMES[deal.d]} · ${{ none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none']}</p>
-      <div id="notebox"></div>${chip ? `<p style="margin:6px 0 0">Score de la table : ${chip.replace(/class="tchip"/, 'class="tchip dark"')}</p>` : ''}
+      <div id="notebox"></div>${hist.length ? '<button class="btn center" data-act="showscores">📊 Scores de la table et des autres tables</button>' : ''}
       <button class="btn primary center" data-act="hideauction">Fermer</button></div></div>` : '';
-    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head) + body + pop
+    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head) + body + pop + spop
       + (isMaster(t) && stuckSeat(t) ? `<div class="notice">${esc(t.sieges[stuckSeat(t)].nom)} (${NAMES[stuckSeat(t)]}) ne répond plus. <button class="btn primary center sm" data-act="replacebot" data-seat="${stuckSeat(t)}">🤖 Le remplacer par un robot</button></div>` : '')
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
     ui.msg = '';
@@ -592,6 +593,9 @@ function createSalon(env) {
     on('lasttrick', () => { ui.lastAt = ui.lastAt === t.moves ? null : t.moves; renderTable(); });
     on('cleartrick', () => { ui.clearedAt = t.moves; renderTable(); });
     on('showauction', () => { ui.showAuction = true; renderTable(); });
+    on('showscores', () => { ui.showAuction = false; ui.showScores = true; ui.openRow = null; renderTable(); loadSalonResults(t); });
+    app.querySelectorAll('[data-act="hidescores"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showScores = false; renderTable(); } }));
+    app.querySelectorAll('[data-row]').forEach(x => x.addEventListener('click', () => { ui.openRow = ui.openRow === x.dataset.row ? null : x.dataset.row; renderTable(); }));
     app.querySelectorAll('[data-act="hideauction"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showAuction = false; renderTable(); } }));
     on('claimopen', () => openClaim(t));
     on('claimcancel', () => tx(x => (x.claim && x.claim.by === me() ? { claim: null } : null)));
@@ -899,6 +903,38 @@ function createSalon(env) {
       }
       tx(x => (x.claim && x.claim.by === cl.by ? settleClaim(x, { ...x.claim, robotOk: true }) : null));
     }, 300);
+  }
+
+  // ═════ Scores de la table : une ligne par donne ; détail = toutes les autres tables (salle FFB + joueurs du salon)
+  let salonRes = {};
+  async function loadSalonResults(t) {
+    const ns = [...new Set((t.historique || []).map(h => h.n))];
+    for (const n of ns) {
+      if (salonRes[n]) continue;
+      try { const q = await db.collection('resultats').where('n', '==', n).get(); salonRes[n] = q.docs.map(d => d.data()); } catch (e) { salonRes[n] = []; }
+    }
+    if (ui.showScores) renderTable();
+  }
+  function scoresPop(t, my) {
+    const mySd = my ? sideOf(my) : 'NS';
+    const pctFor = (deal, ns) => pctNS(deal, ns);
+    const rows = (t.historique || []).map((h, i) => {
+      const deal = dealOf(h.n); const open = ui.openRow === String(i);
+      const me = mySd === 'NS' ? h.pct : (h.pct === null ? null : Math.round((100 - h.pct) * 10) / 10);
+      let detail = '';
+      if (open && deal) {
+        const tot = deal.freq.reduce((a, x) => a + x[1], 0);
+        const lines = [...deal.freq].sort((a, b) => b[0] - a[0]).map(([sc, k]) => `<div class="trow ${sc === h.ns ? 'mine' : ''}"><span>NS ${sc > 0 ? '+' : ''}${sc}</span><span>${k} table${k > 1 ? 's' : ''}</span><span>${pctFor(deal, sc)} %</span></div>`).join('');
+        const ours = (salonRes[h.n] || []).filter(r => r.table !== curId || r.t === undefined).map(r => `<div class="trow"><span>${fmt(r.contrat)}</span><span>NS ${r.ns > 0 ? '+' : ''}${r.ns}</span><span>${esc(Object.values(r.joueurs || {}).filter(x => x && x !== 'Robot' && x !== '—').join(', ') || 'robots')}</span></div>`).join('');
+        detail = `<div class="tdetail"><b>Salle FFB (${tot} tables)</b> <small class="muted">${deal.src.simu} du ${deal.src.date.split('-').reverse().join('/')}</small><div class="travel">${lines}</div>
+          ${ours ? `<b>Au salon</b><div class="travel">${ours}</div>` : ''}</div>`;
+      }
+      return `<div class="srow ${open ? 'open' : ''}" data-row="${i}"><span>${i + 1}</span><span>${h.n}</span><span>${fmt(h.contrat)}</span><span>${h.ns > 0 ? '+' : ''}${h.ns}</span><span class="${me === null ? '' : me >= 50 ? 'good' : 'bad'}">${me === null ? '—' : me + ' %'}</span></div>${detail}`;
+    }).join('');
+    return `<div class="popveil" data-act="hidescores"><div class="pop scorespop"><h3>📊 Scores de la table</h3>
+      <div class="srow head"><span>#</span><span>Donne</span><span>Contrat</span><span>NS</span><span>Ton %</span></div>${rows}
+      <p class="muted" style="font-size:12px;margin:6px 0">Touche une donne pour voir les résultats des autres tables (salle FFB et joueurs du salon).</p>
+      <button class="btn primary center" data-act="hidescores">Fermer</button></div></div>`;
   }
 
   // Toucher une enchère de robot : son explication (et l'alerte si elle est conventionnelle)
