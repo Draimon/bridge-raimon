@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-flanc-robots', date: '15/11/2026', pour: 'tous',
+    titre: '🛡️ Les robots défendent mieux',
+    texte: `<p>Les robots ont été entraînés sur la défense : 1000 donnes FFB jouées face à un déclarant parfait, chaque carte de flanc comparée à la meilleure possible.</p>
+      <p>Ils perdent maintenant <b>15 % de levées en moins</b> en défense : entame dans leur couleur annoncée et jamais sous un As à l’atout, <b>3e main forte</b> sans surprendre l’honneur du partenaire, et ils évitent de rejouer dans la couleur longue du mort.</p>`,
+  },
+  {
     id: '2026-11-15-annuler', date: '15/11/2026', pour: 'tous',
     titre: '↩️ Annuler sa dernière enchère ou sa dernière carte',
     texte: `<p>À la table, le bouton <b>↩️ Annuler</b> (en bas à gauche) reprend ta dernière enchère ou ta dernière carte, et ce qui a été joué après.</p>

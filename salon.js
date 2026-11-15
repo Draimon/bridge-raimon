@@ -492,7 +492,7 @@ function createSalon(env) {
     const named = {}; t.bids.forEach((b, i) => { const x = SEATS[(SEATS.indexOf(deal.d) + i) % 4]; if (bidRank(b) >= 0 && b.slice(1) !== 'SA' && named[x] === undefined) named[x] = SUIT_OF[b.slice(1)]; });
     try {
       return RaimonPlay.choose({ me: turn, hands: known, visible, trick: ps.trick, played: ps.played, trump: ps.trump, decl: c.decl, counts, voids: ps.voids,
-        partnerSuit: named[partner(turn)], partnerLed: ps.firstLed[partner(turn)], myLed: ps.firstLed[turn] }, 500);
+        partnerSuit: named[partner(turn)], partnerLed: ps.firstLed[partner(turn)], myLed: ps.firstLed[turn], bids: t.bids, dealer: deal.d }, 500);
     } catch (e) { return robotCard(ps, turn, c); }
   }
   // ───── Robot de secours : passe aux enchères ; au jeu, règles simples (entame 4e meilleure / tête de séquence,

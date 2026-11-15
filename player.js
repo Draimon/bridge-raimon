@@ -42,6 +42,14 @@
     return hand[led].length ? all.filter(c => c.s === led) : all;
   };
   const low = arr => arr.reduce((a, b) => (b.r < a.r ? b : a));
+  // la plus basse carte équivalente à c dans ma main (les cartes déjà jouées entre deux comptent comme touchantes)
+  function seqLow(st, s, c, extraGone) {
+    const mine = new Set(st.hands[st.me][s]);
+    const gone = new Set(st.played.filter(x => x.s === s).map(x => x.r).concat(st.trick.filter(x => x.s === s).map(x => x.r), extraGone || []));
+    let r = c.r;
+    for (let k = c.r - 1; k >= 0; k--) { if (mine.has(k)) r = k; else if (!gone.has(k)) break; }
+    return { s, r };
+  }
   const high = arr => arr.reduce((a, b) => (b.r > a.r ? b : a));
 
   // ───── Fin de donne : échantillons + double mort
@@ -83,31 +91,58 @@
   }
 
   // ───── Règles de jeu
+  // Couleurs nommées aux enchères par chaque siège (enchères naturelles à la couleur, hors SA)
+  function namedBy(st) {
+    const out = { N: [], E: [], S: [], O: [] };
+    if (!st.bids || !st.dealer) { if (st.partnerSuit !== null && st.partnerSuit !== undefined) out[partner(st.me)].push(st.partnerSuit); return out; }
+    const SU = { '♠': 0, '♥': 1, '♦': 2, '♣': 3 };
+    st.bids.forEach((bd, i) => { const m = /^[1-7](♠|♥|♦|♣)$/.exec(bd); if (!m) return; const seat = SEATS[(SEATS.indexOf(st.dealer) + i) % 4]; if (!out[seat].includes(SU[m[1]])) out[seat].push(SU[m[1]]); });
+    return out;
+  }
+  // Entame : chaque couleur reçoit des points (couleur du partenaire, sa propre couleur annoncée, séquence d'honneurs,
+  // longueur à SA, pas sous un As à l'atout, pas dans une couleur des adversaires…), puis la bonne carte dans la couleur choisie.
+  // Réglée sur le banc tools/leadlab.js (valeur double mort de chaque entame sur 1000 donnes FFB).
+  const LW = Object.assign({ partner: 6, own: 3, opp: -4, seq: 3, seq3: 1, underAce: -3, bareHon: -2, single: 2, doubleton: 0.5, nothing: 1, ntLen: 1.5, ntHon: 0.5 }, {});
+  function seqInfo(rs) {                                             // rs trié décroissant
+    if (rs.length >= 2 && rs[0] >= 9 && rs[0] - rs[1] === 1) return { top: rs[0], three: rs.length >= 3 && rs[1] - rs[2] === 1 };
+    if (rs.length >= 3 && rs[0] >= 9 && rs[0] - rs[1] === 2 && rs[1] - rs[2] === 1) return { top: rs[1], three: false, interior: true }; // R V 10 : le V
+    return null;
+  }
   function openingLead(st, L) {
-    const h = st.hands[st.me], trump = st.trump;
-    // couleur nommée par le partenaire
-    const ps = st.partnerSuit;
-    if (ps !== null && ps !== undefined && h[ps].length) { const rs = h[ps].slice().sort((a, b) => b - a); return { s: ps, r: rs.length === 2 || rs[0] - rs[1] === 1 ? rs[0] : rs.length >= 3 && rs[0] >= 9 ? rs[rs.length - 1] : rs[0] }; }
-    const suits = [0, 1, 2, 3].filter(s => h[s].length && s !== trump);
-    const seqTop = s => { const rs = h[s].slice().sort((a, b) => b - a); return rs.length >= 2 && rs[0] >= 9 && rs[0] - rs[1] === 1 && (rs.length < 3 || rs[1] - rs[2] <= 2 || rs[0] === 12) ? rs[0] : null; };
-    // séquence d'honneurs (AR, RD, DV, V10…)
-    const seq = suits.filter(s => seqTop(s) !== null).sort((a, b) => h[b].length - h[a].length)[0];
-    if (seq !== undefined) return { s: seq, r: seqTop(seq) };
-    if (trump === null) {                                              // SA : 4e meilleure de la plus longue
-      const s = suits.sort((a, b) => h[b].length - h[a].length || b - a)[0];
-      const rs = h[s].slice().sort((a, b) => b - a);
-      return { s, r: rs.length >= 4 ? rs[3] : rs[0] };
+    const h = st.hands[st.me], trump = st.trump, me = st.me;
+    const nb = namedBy(st), mate = partner(me), decl = st.decl, dummy = partner(decl);
+    const opp = new Set([...(nb[decl] || []), ...(nb[dummy] || [])]);
+    const myT = trump === null ? 0 : h[trump].length;
+    let best = null, bestScore = -Infinity;
+    for (let s = 0; s < 4; s++) {
+      const rs = h[s].slice().sort((x, y) => y - x); if (!rs.length) continue;
+      if (s === trump && [0, 1, 2, 3].some(x => x !== trump && h[x].length)) continue;
+      let sc = 0; const len = rs.length, sq = seqInfo(rs), hasA = rs[0] === 12, hon = rs.filter(r => r >= 9).length;
+      if (nb[mate].includes(s)) sc += LW.partner;
+      if (nb[me].includes(s) && len >= 5) sc += LW.own;
+      if (opp.has(s) && !nb[mate].includes(s)) sc += LW.opp;
+      if (sq) sc += LW.seq + (sq.three ? LW.seq3 : 0);
+      if (trump !== null) {
+        if (hasA && rs[1] !== 11) sc += LW.underAce;
+        if (!sq && !hasA && rs[0] >= 10 && len <= 3) sc += LW.bareHon;
+        if (len === 1 && rs[0] < 12 && myT >= 1 && myT <= 3) sc += LW.single;
+        if (len === 2 && !sq && rs[0] < 10) sc += LW.doubleton;
+        if (len >= 3 && rs[0] < 9) sc += LW.nothing;
+      } else {
+        if (len >= 4) sc += LW.ntLen * (len - 3);
+        sc += LW.ntHon * hon;
+      }
+      sc += len * 0.01;                                                // à égalité : la plus longue
+      if (sc > bestScore) { bestScore = sc; best = s; }
     }
-    // à l'atout : singleton si on a des atouts, sinon couleur sans As, en haut d'une courte / 4e meilleure d'une longue
-    const single = suits.find(s => h[s].length === 1 && h[s][0] < 12 && h[trump].length >= 2 && h[trump].length <= 3);
-    if (single !== undefined) return { s: single, r: h[single][0] };
-    const noAce = suits.filter(s => !h[s].includes(12));
-    const pick = (noAce.length ? noAce : suits).sort((a, b) => {
-      const hon = s => h[s].filter(r => r >= 10).length; return hon(a) - hon(b) || h[b].length - h[a].length;
-    })[0];
-    if (pick === undefined) return low(L);
-    const rs = h[pick].slice().sort((a, b) => b - a);
-    return { s: pick, r: rs.length <= 3 && rs[0] < 10 ? rs[0] : rs.length >= 4 ? rs[3] : rs[rs.length - 1] };
+    if (best === null) return low(L);
+    const rs = h[best].slice().sort((x, y) => y - x), sq = seqInfo(rs);
+    if (sq) return { s: best, r: sq.top };
+    if (trump !== null && rs[0] === 12) return { s: best, r: 12 };     // l'As (on n'entame pas sous un As à l'atout)
+    if (rs.length === 1) return { s: best, r: rs[0] };
+    if (rs.length === 2) return { s: best, r: rs[0] };                   // doubleton : le haut
+    if (rs[0] < 9) return { s: best, r: rs.length >= 4 && trump === null ? rs[3] : rs[0] }; // sans honneur : le haut (4e à SA)
+    return { s: best, r: rs.length >= 4 ? rs[3] : rs[rs.length - 1] };   // avec un honneur : 4e meilleure, ou la petite de 3
   }
   function follow(st, L) {
     const trick = st.trick, trump = st.trump, me = st.me, pos = trick.length;
@@ -124,7 +159,21 @@
         return low(L);
       }
       if (mateWins && (pos === 3 || w.r >= topLeft(st, led))) return low(L);
-      if (winners.length) return low(winners);                          // 3e/4e : gagner au plus juste
+      if (pos === 2 && !st.declSide && winners.length) {               // 3e main en défense : « 3e main forte »
+        const fourth = next(me), dummy = partner(st.decl);
+        // le partenaire tient la levée avec un honneur (10 ou mieux) et le mort a déjà fourni : on ne le surprend pas
+        if (mateWins && w.r >= 8 && fourth !== dummy) return low(L);
+        if ((st.visible || []).includes(fourth)) {                     // le mort joue après moi : battre juste ses cartes
+          const dm = st.hands[fourth][led] || [];
+          const need = Math.max(w.r, ...(dm.length ? dm : [-1]));
+          const over = winners.filter(c => c.r > need);
+          return over.length ? low(over) : low(L);
+        }
+        // déclarant après moi (caché) : la plus basse de ma séquence de tête ; les honneurs restés au mort (qui a déjà fourni) ne le gênent pas
+        const atDummy = (st.visible || []).includes(dummy) && trick.some(x => x.seat === dummy) ? st.hands[dummy][led] : [];
+        return seqLow(st, led, high(winners), atDummy);
+      }
+      if (winners.length) return low(winners);                          // 4e : gagner au plus juste
       return low(L);
     }
     // défausse ou coupe
@@ -167,15 +216,45 @@
       const s = [0, 1, 2, 3].filter(x => h[x].length && x !== trump).sort((a, b) => (h[b].length + mh[b].length) - (h[a].length + mh[a].length))[0];
       return s === undefined ? low(L) : { s, r: Math.min(...h[s]) };
     }
-    // défense : rejouer la couleur d'entame du partenaire, sinon continuer sa couleur, sinon sortir sans danger
-    const ps = st.partnerLed;
-    if (ps !== null && ps !== undefined && h[ps].length && ps !== trump) { const rs = h[ps].slice().sort((a, b) => b - a); return { s: ps, r: rs[0] === topLeft(st, ps) ? rs[0] : rs.length === 2 ? rs[0] : rs[rs.length - 1] }; }
-    for (const s of [0, 1, 2, 3].filter(x => x !== trump && h[x].length)) if (h[s].includes(topLeft(st, s)) && st.myLed === s) return { s, r: topLeft(st, s) };
-    const safe = [0, 1, 2, 3].filter(x => h[x].length && x !== trump && !h[x].some(r => r >= 10));
-    if (safe.length) { const s = safe.sort((a, b) => h[b].length - h[a].length)[0]; return { s, r: Math.max(...h[s]) }; }
-    return low(L);
+    return defLead(st, L);
   }
-
+  // Contre-jeu en main (défense) : chaque couleur reçoit des points, puis la bonne carte.
+  // Réglé sur le banc tools/poslab.js (positions de défense de 1000 donnes FFB, valeur double mort de chaque carte).
+  const DW = Object.assign({ mate: 4, mateNT: 1, mine: 2, cash: 3, dummyLong: -5, upTenace: -3, through: -1, ruffSluff: -10, trumpVsRuff: 1, trumpElse: -2, awayHon: -2, safe: 1 }, {});
+  function defLead(st, L) {
+    const me = st.me, trump = st.trump, h = st.hands[me];
+    const dummy = partner(st.decl), dh = (st.visible || []).includes(dummy) ? st.hands[dummy] : null;
+    const dummyLHO = next(me) === dummy;                                 // le mort joue juste après moi
+    const voidD = st.voids[st.decl] || [], voidM = st.voids[dummy] || [];
+    const trumpsOut = trump !== null && outstanding(st).some(c => c.s === trump) || (trump !== null && dh && dh[trump].length);
+    let best = null, bestSc = -Infinity;
+    for (let s2 = 0; s2 < 4; s2++) {
+      const rs = h[s2].slice().sort((x, y) => y - x); if (!rs.length) continue;
+      let sc = 0; const len = rs.length, tl = topLeft(st, s2);
+      if (st.partnerLed === s2 && s2 !== trump) sc += DW.mate + (trump === null ? DW.mateNT : 0);
+      if (st.myLed === s2 && s2 !== trump) sc += DW.mine;
+      if (rs[0] === tl && s2 !== trump) sc += DW.cash;
+      if (dh) {
+        const d = dh[s2].slice().sort((x, y) => y - x);
+        if (d.length >= 4 && d[0] >= 10 && s2 !== trump) sc += DW.dummyLong;
+        const tenace = d.length >= 2 && d[0] >= 10 && d[0] - d[1] === 2;   // AD, RV… au mort
+        if (tenace) sc += dummyLHO ? DW.through : DW.upTenace;
+        if (s2 === trump && trump !== null) sc += ([0, 1, 2, 3].some(x => x !== trump && dh[x].length <= 1 && h[x].length) ? DW.trumpVsRuff : DW.trumpElse);
+      } else if (s2 === trump) sc += DW.trumpElse;
+      if (trump !== null && s2 !== trump && trumpsOut && voidD.includes(s2) && (!dh ? voidM.includes(s2) : !dh[s2].length)) sc += DW.ruffSluff;
+      if (rs[0] >= 9 && rs[0] !== tl && !(len >= 2 && rs[0] - rs[1] === 1) && len <= 3) sc += DW.awayHon;
+      if (rs[0] < 9 && len >= 2) sc += DW.safe;
+      sc += len * 0.01;
+      if (sc > bestSc) { bestSc = sc; best = s2; }
+    }
+    if (best === null) return low(L);
+    const rs = h[best].slice().sort((x, y) => y - x), tl = topLeft(st, best);
+    if (rs[0] === tl) return { s: best, r: rs[0] };                          // carte maîtresse : on l'encaisse
+    if (rs.length >= 2 && rs[0] >= 8 && rs[0] - rs[1] === 1) return { s: best, r: rs[0] };   // tête de séquence
+    if (rs.length === 2) return { s: best, r: rs[0] };
+    if (rs[0] < 9) return { s: best, r: rs[0] };                               // sans honneur : le haut
+    return { s: best, r: rs[rs.length - 1] };                                  // petite d'un honneur
+  }
   // Point d'entrée. st = { me, hands (connues : la mienne, et le mort si étalé), visible: [mort], trick: [{seat,s,r}],
   // played: [{seat,s,r}] (levées terminées), trump (0-3 ou null), decl, counts {seat: nb de cartes}, voids {seat: [couleurs]},
   // partnerSuit (couleur nommée par le partenaire aux enchères), partnerLed, myLed }
@@ -184,7 +263,8 @@
     if (L.length === 1) return L[0];
     st.declSide = sideOf(st.me) === sideOf(st.decl);
     const left = st.counts[st.me];
-    if (left <= 7) { const c = ddChoice(st, L, budgetMs === undefined ? 900 : budgetMs); if (c) return c; }
+    const ddFrom = st.declSide ? 7 : (st.ddFrom || 7);
+    if (left <= ddFrom) { const c = ddChoice(st, L, budgetMs === undefined ? 900 : budgetMs); if (c) return c; }
     if (!st.trick.length) return st.played.length === 0 && !st.declSide ? openingLead(st, L) : lead(st, L);
     return follow(st, L);
   }

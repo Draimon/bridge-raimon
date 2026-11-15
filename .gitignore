@@ -1,0 +1,4 @@
+
+# caches des bancs de défense (recalculables)
+tools/defense-positions.json
+tools/lead-cache-*.json
