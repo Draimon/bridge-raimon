@@ -454,7 +454,7 @@
   .travel { margin: 4px 0 8px; } .trow { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 2px 0; } .trow.mine { font-weight: 800; color: var(--accent); }
   .pickveil { position: fixed; inset: 0; z-index: 6; }
   .seatsbtn { position: fixed; left: 10px; bottom: calc(58px + env(safe-area-inset-bottom) * .5); z-index: 35; border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(0,0,0,.45); color: #fff; font-size: 13px; cursor: pointer; }
-  #wakediag { position: fixed; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top) + 2px); z-index: 101; font-size: 10px; color: #fff; background: rgba(0,0,0,.35); border-radius: 8px; padding: 1px 6px; pointer-events: none; white-space: nowrap; }
+  #wakediag { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(60px + env(safe-area-inset-bottom) * .5); z-index: 101; font-size: 10px; color: #fff; background: rgba(0,0,0,.35); border-radius: 8px; padding: 1px 6px; pointer-events: none; white-space: nowrap; }
   .seatsbtn.sysfab { left: auto; right: 10px; }
   .seatspop { max-width: 420px; } .seatspop .tseat { background: #1f5f3c; }
   /* barre d'état de l'iPhone : bande verte nette (l'appli passe dessous en mode black-translucent) */
@@ -469,25 +469,25 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152139"></script>
-<script src="fiche.js?v=202611152139"></script>
-<script src="deals.js?v=202611152139"></script>
-<script src="deals-duo.js?v=202611152139"></script>
-<script src="dds.js?v=202611152139"></script>
-<script src="jeu.js?v=202611152139"></script>
-<script src="adeux.js?v=202611152139"></script>
+<script src="questions.js?v=202611152141"></script>
+<script src="fiche.js?v=202611152141"></script>
+<script src="deals.js?v=202611152141"></script>
+<script src="deals-duo.js?v=202611152141"></script>
+<script src="dds.js?v=202611152141"></script>
+<script src="jeu.js?v=202611152141"></script>
+<script src="adeux.js?v=202611152141"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="nosleep-media.js?v=202611152139"></script>
-<script src="auth.js?v=202611152139"></script>
-<script src="ffb-01.js?v=202611152139"></script>
-<script src="ffb-02.js?v=202611152139"></script>
-<script src="robot.js?v=202611152139"></script>
-<script src="bidder.js?v=202611152139"></script>
-<script src="player.js?v=202611152139"></script>
-<script src="news.js?v=202611152139"></script>
-<script src="salon.js?v=202611152139"></script>
+<script src="nosleep-media.js?v=202611152141"></script>
+<script src="auth.js?v=202611152141"></script>
+<script src="ffb-01.js?v=202611152141"></script>
+<script src="ffb-02.js?v=202611152141"></script>
+<script src="robot.js?v=202611152141"></script>
+<script src="bidder.js?v=202611152141"></script>
+<script src="player.js?v=202611152141"></script>
+<script src="news.js?v=202611152141"></script>
+<script src="salon.js?v=202611152141"></script>
 <script>
 (() => {
   'use strict';
@@ -525,12 +525,12 @@
       const on = wanted();
       if ('wakeLock' in navigator) {
         try {
-          if (on && !lock) { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); }
+          if (on && !lock) { lock = await navigator.wakeLock.request('screen'); why = ''; lock.addEventListener('release', () => { lock = null; }); }
           else if (!on && lock) { const l = lock; lock = null; await l.release(); }
         } catch (e) { lock = null; why = e.name || 'refus'; }
       }
       const v = (on && gesture === true) || (!on && video) ? vid() : null;
-      if (v) { if (on) { if (v.paused) v.play().then(() => diag()).catch(e => { why = 'vidéo: ' + (e.name || 'refus'); diag(); }); } else if (!v.paused) v.pause(); }
+      if (v) { if (on) { if (v.paused) v.play().then(() => { why = ''; diag(); }).catch(e => { why = 'vidéo: ' + (e.name || 'refus'); diag(); }); } else if (!v.paused) v.pause(); }
       diag();
     }
     new MutationObserver(() => sync()).observe(document.body, { attributes: true, attributeFilter: ['class'] });
