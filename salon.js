@@ -846,21 +846,22 @@ function createSalon(env) {
   function ctrlSeat(t, c, s) { const sw = swapOf(t, c), dummy = partner(c.decl); return sw && (s === c.decl || s === dummy) ? sw.human : s === dummy ? c.decl : s; }
   function lastMine(t, my) {
     const deal = t.n && dealOf(t.n); if (!deal || !my) return null;
-    if (t.etat === 'encheres') {
+    const lastBid = () => {
       let idx = -1; t.bids.forEach((b, i) => { if (SEATS[(SEATS.indexOf(deal.d) + i) % 4] === my) idx = i; });
       return idx < 0 ? null : { kind: 'b', idx, what: t.bids[idx] };
-    }
+    };
+    if (t.etat === 'encheres') return lastBid();
     if (t.etat === 'jeu' && t.plays.length < 52) {
       const c = auction(t, deal).contract; let idx = -1;
       for (let i = 0; i < t.plays.length; i++) { const seat = playState({ ...t, plays: t.plays.slice(0, i) }, deal, c).turn; if (ctrlSeat(t, c, seat) === my) idx = i; }
-      if (idx < 0) return null;
+      if (idx < 0) return lastBid();                                  // enchères tout juste finies (pas encore joué de carte) : on revient aux enchères
       return { kind: 'c', idx, what: t.plays[idx] };
     }
     return null;
   }
   const humanOpps = (t, my) => SEATS.filter(s => sideOf(s) !== sideOf(my) && t.sieges[s] && !t.sieges[s].robot);
   function applyUndo(x, u) {
-    if (u.kind === 'b') return { bids: x.bids.slice(0, u.idx), notes: (x.notes || []).slice(0, u.idx), moves: x.moves + 1, undo: null };
+    if (u.kind === 'b') return { bids: x.bids.slice(0, u.idx), notes: (x.notes || []).slice(0, u.idx), moves: x.moves + 1, undo: null, ...(x.etat === 'jeu' ? { etat: 'encheres', plays: [], claim: null } : {}) };
     return { plays: x.plays.slice(0, u.idx), moves: x.moves + 1, undo: null };
   }
   function requestUndo() {
