@@ -643,7 +643,7 @@ function createSalon(env) {
     const master = isMaster(t);
     const seatsHtml = seatsGrid(t, my);
     const full = SEATS.every(s => t.sieges[s]);
-    const fin = t.etat === 'fin' && t.fin ? resultHtml(t) : '';
+    const fin = t.etat === 'fin' && t.fin ? resultHtml(t, my) : '';
     const hist = (t.historique || []);
     const avg = hist.filter(h => h.pct !== null);
     const mean = avg.length ? Math.round(avg.reduce((s, h) => s + h.pct, 0) / avg.length * 10) / 10 : null;
@@ -657,12 +657,19 @@ function createSalon(env) {
         <div class="hist">${hist.map(h => `<div><span>${h.n}</span><span>${fmt(h.contrat)}</span><span>${h.ns > 0 ? '+' : ''}${h.ns}</span><span>${h.pct === null ? '—' : h.pct + ' %'}</span></div>`).join('')}</div>
         ${master && t.etat !== 'encheres' && t.etat !== 'jeu' ? '<button class="link" data-act="resetscore" style="margin-top:8px">Remettre les scores à zéro</button>' : ''}</div>` : ''}`;
   }
-  function resultHtml(t) {
+  function resultHtml(t, my) {
     const f = t.fin, deal = dealOf(f.n); if (!deal) return '';
     const line = s => DISPLAY.map(x => `<span class="${red(x) ? 'red' : ''}">${SYM[x]}</span>${deal[s].split('.')[x].replace(/T/g, '10').replace(/-/g, '—').replace(/J/g, 'V').replace(/Q/g, 'D').replace(/K/g, 'R') || '—'}`).join(' ');
     const total = deal.freq.reduce((s, x) => s + x[1], 0);
     const near = [...deal.freq].sort((a, b) => b[1] - a[1]).slice(0, 6);
-    return `<div class="card">
+    // Bandeau du résultat : ton % en gros (vert si au-dessus de la moyenne, rouge sinon), puis le contrat et les points
+    const side = my ? sideOf(my) : 'NS';
+    const mine = f.pct === null || f.pct === undefined ? null : side === 'NS' ? f.pct : Math.round((100 - f.pct) * 10) / 10;
+    const pts = side === 'NS' ? f.ns : -f.ns;
+    const banner = `<div class="resbanner ${mine === null ? '' : mine >= 50 ? 'good' : 'bad'}">
+      <div class="respct">${mine === null ? '—' : mine + ' %'}</div>
+      <div class="resline">${my ? 'Ton score' : 'Score ' + side} · ${fmt(f.contrat)}${f.contrat !== 'Passe générale' ? ` · ${f.levees} levées` : ''} · <b>${pts > 0 ? '+' : ''}${pts}</b></div></div>`;
+    return `${banner}<div class="card">
       <b>Donne ${f.n}</b> <small class="muted">(${deal.src.simu} du ${deal.src.date.split('-').reverse().join('/')}, donne ${deal.src.num})</small>
       <p style="margin:6px 0">${fmt(f.contrat)}${f.contrat !== 'Passe générale' ? ` · ${f.levees} levées` : ''} · <b>NS ${f.ns > 0 ? '+' : ''}${f.ns}</b></p>
       <p style="margin:6px 0;font-size:18px"><b>NS ${f.pct ?? '—'} %</b> · EO ${f.pct === null ? '—' : Math.round((100 - f.pct) * 10) / 10} % <small class="muted">face à ${total} tables</small></p>
