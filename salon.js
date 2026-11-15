@@ -680,7 +680,7 @@ function createSalon(env) {
     const vul = 'Donneur : ' + NAMES[deal.d] + ' · ' + { none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none'];
     const waitTxt = !myTurn && A.turn ? `<p class="gridhint" style="margin:30px 0">Au tour de ${NAMES[A.turn]}${t.sieges[A.turn] && t.sieges[A.turn].robot ? ' (robot)' : ''}…</p>` : '';
     const hand = my ? parseHand(deal[my]) : null;
-    return `<div class="frame bidframe">
+    return `<div class="frame bidframe sframe">
         ${plateB(t, deal, P.top, 'top', A.turn)}${plateB(t, deal, P.left, 'left', A.turn)}${plateB(t, deal, P.right, 'right', A.turn)}${plateB(t, deal, P.bottom, 'bottom', A.turn)}
         ${stacksHtml(t, deal, P)}
         <div class="bidcenter" id="fb">${myTurn ? gridHtml(A) : waitTxt}</div>
@@ -737,7 +737,7 @@ function createSalon(env) {
     const ctr = side => `${ps.tricks[side]}${side === declSide ? '/' + need : ''}`;
     const turnTxt = ps.done ? '' : iControl ? (ps.turn === handSeat ? (swapped ? 'À toi de jouer (déclarant)' : 'À toi de jouer') : 'À toi de jouer le mort') : 'Au tour de ' + NAMES[ps.turn] + (t.sieges[ctrlOf(ps.turn)] && t.sieges[ctrlOf(ps.turn)].robot ? ' (robot)' : '');
     return `${topBlock}
-      <div class="frame">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (s === c.decl ? '<span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
+      <div class="frame sframe">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (s === c.decl ? '<span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
         <div class="corner cl">NS<br><b>${ctr('NS')}</b></div><div class="corner cr">EO<br><b>${ctr('EO')}</b></div>
         <div class="trick" ${ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
         ${showLast ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
