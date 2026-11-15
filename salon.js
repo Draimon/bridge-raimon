@@ -58,6 +58,7 @@ function createSalon(env) {
     clearInterval(beat); beat = null; where = null; since = null;
     const uid = me(); if (uid) db.collection('presence').doc(uid).delete().catch(() => {});
   }
+  window.addEventListener('raimon-update', () => { if (curId && current) { afterUpdate(); if (tab === 'main') renderTable(); } });
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible' || !where) return;
     heartbeat();
@@ -387,6 +388,11 @@ function createSalon(env) {
     if (t.maitre !== me() && !isFresh(t.maitre) && presence.length) {
       const firstHuman = SEATS.map(s => t.sieges[s]).find(x => x && x.uid && isFresh(x.uid));
       if (firstHuman && firstHuman.uid === me()) tx(x => (x.maitre === t.maitre ? { maitre: me() } : null));
+    }
+    // Nouvelle version publiée : on recharge pendant le résultat (jamais en pleine donne) ; on revient tout seul à la table
+    if ((t.etat === 'fin' || t.etat === 'attente') && window.__raimonUpdate && !ui.reloading) {
+      ui.reloading = true; ui.msg = '🔄 Mise à jour de l’appli…';
+      setTimeout(() => location.reload(), 2500);
     }
     if (t.etat === 'fin' && t.fin && isMaster(t) && SEATS.every(k => t.sieges[k]) && !ui.noAuto) {
       const key = curId + ':' + (t.historique || []).length;
