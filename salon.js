@@ -552,7 +552,7 @@ function createSalon(env) {
     const hist = (t.historique || []), pv = hist.filter(h => h.pct !== null && h.pct !== undefined);
     const mean = pv.length ? Math.round(pv.reduce((a2, h) => a2 + h.pct, 0) / pv.length) : null, pts = hist.reduce((a2, h) => a2 + h.ns, 0);
     const mySd = my ? sideOf(my) : 'NS';
-    const chip = hist.length ? `<span class="tchip" title="Score de la table" data-act="showscores"><span><b class="${mySd === 'NS' ? 'me' : ''}">NS ${mean ?? '—'}%</b><b class="${mySd === 'EO' ? 'me' : ''}">EO ${mean === null ? '—' : 100 - mean}%</b></span><small>${hist.length} donne${hist.length > 1 ? 's' : ''} · NS ${pts > 0 ? '+' : ''}${pts}</small></span>` : '';
+    const chip = hist.length ? `<span class="tchip" title="Score de la table" data-act="showscores"><span><b class="${mySd === 'NS' ? 'me' : ''}">NS ${mean ?? '—'}%</b><b class="${mySd === 'EO' ? 'me' : ''}">EO ${mean === null ? '—' : 100 - mean}%</b></span><small>${hist.length} donne${hist.length > 1 ? 's' : ''}</small></span>` : '';
     const spop = ui.showScores ? scoresPop(t, my) : '';
     let head = chip;
     if (t.etat === 'jeu' && deal) {
@@ -666,7 +666,7 @@ function createSalon(env) {
       ${master ? (full ? `<button class="btn primary center" data-act="deal">${t.etat === 'fin' ? 'Donne suivante' : 'Distribuer la première donne'}</button>${t.etat === 'fin' ? `<p class="center feltnote" style="font-size:13px">${ui.noAuto ? 'Donne suivante automatique en pause · <button class="link" data-act="autoon">reprendre</button>' : 'Donne suivante automatique dans quelques secondes · <button class="link" data-act="autooff">⏸ pause</button>'}</p>` : ''}` : '<p class="center feltnote">Il faut 4 joueurs (ou robots) pour distribuer.</p>')
         : `<p class="center feltnote">${full ? 'Le maître de table 👑 va distribuer.' : 'En attente de joueurs…'}</p>`}
       ${hist.length ? `<div class="card"><b>Score de la table : ${hist.length} donne(s)</b>
-        <div class="tscore"><div><small>NS</small><b>${mean ?? '—'} %</b><small>${pts > 0 ? '+' : ''}${pts} pts</small></div><div><small>EO</small><b>${mean === null ? '—' : Math.round((100 - mean) * 10) / 10} %</b><small>${-pts > 0 ? '+' : ''}${-pts} pts</small></div></div>
+        <div class="tscore"><div><small>NS</small><b>${mean ?? '—'} %</b></div><div><small>EO</small><b>${mean === null ? '—' : Math.round((100 - mean) * 10) / 10} %</b></div></div>
         <div class="hist">${hist.map(h => `<div><span>${h.n}</span><span>${fmt(h.contrat)}</span><span>${h.ns > 0 ? '+' : ''}${h.ns}</span><span>${h.pct === null ? '—' : h.pct + ' %'}</span></div>`).join('')}</div>
         ${master && t.etat !== 'encheres' && t.etat !== 'jeu' ? '<button class="link" data-act="resetscore" style="margin-top:8px">Remettre les scores à zéro</button>' : ''}</div>` : ''}`;
   }
