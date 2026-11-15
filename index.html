@@ -469,25 +469,25 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152141"></script>
-<script src="fiche.js?v=202611152141"></script>
-<script src="deals.js?v=202611152141"></script>
-<script src="deals-duo.js?v=202611152141"></script>
-<script src="dds.js?v=202611152141"></script>
-<script src="jeu.js?v=202611152141"></script>
-<script src="adeux.js?v=202611152141"></script>
+<script src="questions.js?v=202611152144"></script>
+<script src="fiche.js?v=202611152144"></script>
+<script src="deals.js?v=202611152144"></script>
+<script src="deals-duo.js?v=202611152144"></script>
+<script src="dds.js?v=202611152144"></script>
+<script src="jeu.js?v=202611152144"></script>
+<script src="adeux.js?v=202611152144"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="nosleep-media.js?v=202611152141"></script>
-<script src="auth.js?v=202611152141"></script>
-<script src="ffb-01.js?v=202611152141"></script>
-<script src="ffb-02.js?v=202611152141"></script>
-<script src="robot.js?v=202611152141"></script>
-<script src="bidder.js?v=202611152141"></script>
-<script src="player.js?v=202611152141"></script>
-<script src="news.js?v=202611152141"></script>
-<script src="salon.js?v=202611152141"></script>
+<script src="nosleep-media.js?v=202611152144"></script>
+<script src="auth.js?v=202611152144"></script>
+<script src="ffb-01.js?v=202611152144"></script>
+<script src="ffb-02.js?v=202611152144"></script>
+<script src="robot.js?v=202611152144"></script>
+<script src="bidder.js?v=202611152144"></script>
+<script src="player.js?v=202611152144"></script>
+<script src="news.js?v=202611152144"></script>
+<script src="salon.js?v=202611152144"></script>
 <script>
 (() => {
   'use strict';
@@ -500,13 +500,25 @@
     let lock = null, video = null;
     const wanted = () => document.visibilityState === 'visible' && (document.body.classList.contains('tablemode') || document.body.classList.contains('salonmode'));
     // Secours iPhone : le verrou d'iOS saute souvent dans l'appli écran d'accueil → petite vidéo muette en boucle (lancée au toucher)
+    // Safari ne compte pas une vidéo muette comme « en lecture » pour la veille, sauf si elle affiche un flux en direct
+    // (comme un appel vidéo) : on filme un petit canevas qui change d'image chaque seconde. Repli : la vidéo NoSleep.
+    let canvas = null, tick = null, mode = '';
     function vid() {
-      if (!video && window.NOSLEEP_MP4) {
+      if (!video) {
         video = document.createElement('video');
-        video.setAttribute('playsinline', ''); video.setAttribute('muted', ''); video.muted = true; video.setAttribute('title', 'Écran allumé');
-        video.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:0;top:0';
-        const s = document.createElement('source'); s.src = window.NOSLEEP_MP4; s.type = 'video/mp4'; video.appendChild(s);
-        video.addEventListener('timeupdate', () => { if (video.currentTime > 0.5) video.currentTime = Math.random(); });
+        video.setAttribute('playsinline', ''); video.setAttribute('muted', ''); video.setAttribute('autoplay', ''); video.muted = true; video.setAttribute('title', 'Écran allumé');
+        video.style.cssText = 'position:fixed;width:4px;height:4px;opacity:.02;pointer-events:none;left:0;bottom:0;z-index:-1';
+        canvas = document.createElement('canvas'); canvas.width = canvas.height = 8;
+        if (canvas.captureStream) {
+          const ctx = canvas.getContext('2d'); let k = 0;
+          const draw = () => { ctx.fillStyle = (k++ % 2) ? '#1f5f3c' : '#1f5f3d'; ctx.fillRect(0, 0, 8, 8); };
+          draw(); tick = setInterval(draw, 1000);
+          video.srcObject = canvas.captureStream(2); mode = 'flux';
+        } else if (window.NOSLEEP_MP4) {
+          const s = document.createElement('source'); s.src = window.NOSLEEP_MP4; s.type = 'video/mp4'; video.appendChild(s);
+          video.addEventListener('timeupdate', () => { if (video.currentTime > 0.5) video.currentTime = Math.random(); });
+          mode = 'mp4';
+        }
         document.body.appendChild(video);
       }
       return video;
@@ -518,7 +530,7 @@
       let p = null; try { p = player; } catch (e) { /* pas encore prêt */ }
       if (p !== 'Damien' || !document.body.classList.contains('tablemode')) { if (d) d.remove(); return; }
       if (!d) { d = document.createElement('div'); d.id = 'wakediag'; document.body.appendChild(d); }
-      d.textContent = '🔆 ' + (!('wakeLock' in navigator) ? 'pas d’API' : lock ? 'verrou ✓' : 'verrou ✗') + ' · ' + (video ? (video.paused ? 'vidéo ⏸' : 'vidéo ▶') : 'vidéo –') + (why ? ' · ' + why : '');
+      d.textContent = '🔆 ' + (!('wakeLock' in navigator) ? 'pas d’API' : lock ? 'verrou ✓' : 'verrou ✗') + ' · ' + (video ? (video.paused ? 'vidéo ⏸' : 'vidéo ▶') + ' ' + mode : 'vidéo –') + (why ? ' · ' + why : '');
     }
     async function sync(gesture) {
       if (meta) meta.content = document.body.classList.contains('tablemode') ? '#1f5f3c' : '#1f6b45';
