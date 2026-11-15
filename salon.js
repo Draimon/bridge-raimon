@@ -426,6 +426,7 @@ function createSalon(env) {
     app.querySelectorAll('[data-robot]').forEach(b => b.addEventListener('click', () => setRobot(b.dataset.robot, true)));
     app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => freeSeat(b.dataset.free)));
     on('deal', nextDeal);
+    on('resetscore', () => { if (confirm('Remettre à zéro les scores de cette table ?')) tx(x => (isMaster(x) ? { historique: [], fin: null, etat: x.etat === 'fin' ? 'attente' : x.etat } : null)); });
     app.querySelectorAll('[data-bid]').forEach(b => b.addEventListener('click', () => {
       const v = b.dataset.bid;
       if (ui.choice !== v) { ui.choice = v; renderTable(); return; }
@@ -451,12 +452,15 @@ function createSalon(env) {
     const hist = (t.historique || []);
     const avg = hist.filter(h => h.pct !== null);
     const mean = avg.length ? Math.round(avg.reduce((s, h) => s + h.pct, 0) / avg.length * 10) / 10 : null;
+    const pts = hist.reduce((s, h) => s + h.ns, 0);
     return `${fin}
       <div class="tseats">${seatsHtml}</div>
       ${master ? (full ? `<button class="btn primary center" data-act="deal">${t.etat === 'fin' ? 'Donne suivante' : 'Distribuer la première donne'}</button>` : '<p class="center feltnote">Il faut 4 joueurs (ou robots) pour distribuer.</p>')
         : `<p class="center feltnote">${full ? 'Le maître de table 👑 va distribuer.' : 'En attente de joueurs…'}</p>`}
-      ${hist.length ? `<div class="card"><b>Séance : ${hist.length} donne(s)${mean !== null ? ` · moyenne NS ${mean} % · EO ${Math.round((100 - mean) * 10) / 10} %` : ''}</b>
-        <div class="hist">${hist.map(h => `<div><span>${h.n}</span><span>${h.contrat}</span><span>${h.ns > 0 ? '+' : ''}${h.ns}</span><span>${h.pct === null ? '—' : h.pct + ' %'}</span></div>`).join('')}</div></div>` : ''}`;
+      ${hist.length ? `<div class="card"><b>Score de la table : ${hist.length} donne(s)</b>
+        <div class="tscore"><div><small>NS</small><b>${mean ?? '—'} %</b><small>${pts > 0 ? '+' : ''}${pts} pts</small></div><div><small>EO</small><b>${mean === null ? '—' : Math.round((100 - mean) * 10) / 10} %</b><small>${-pts > 0 ? '+' : ''}${-pts} pts</small></div></div>
+        <div class="hist">${hist.map(h => `<div><span>${h.n}</span><span>${fmt(h.contrat)}</span><span>${h.ns > 0 ? '+' : ''}${h.ns}</span><span>${h.pct === null ? '—' : h.pct + ' %'}</span></div>`).join('')}</div>
+        ${master && t.etat !== 'encheres' && t.etat !== 'jeu' ? '<button class="link" data-act="resetscore" style="margin-top:8px">Remettre les scores à zéro</button>' : ''}</div>` : ''}`;
   }
   function resultHtml(t) {
     const f = t.fin, deal = dealOf(f.n); if (!deal) return '';
