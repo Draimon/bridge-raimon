@@ -479,25 +479,25 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152207"></script>
-<script src="fiche.js?v=202611152207"></script>
-<script src="deals.js?v=202611152207"></script>
-<script src="deals-duo.js?v=202611152207"></script>
-<script src="dds.js?v=202611152207"></script>
-<script src="jeu.js?v=202611152207"></script>
-<script src="adeux.js?v=202611152207"></script>
+<script src="questions.js?v=202611152209"></script>
+<script src="fiche.js?v=202611152209"></script>
+<script src="deals.js?v=202611152209"></script>
+<script src="deals-duo.js?v=202611152209"></script>
+<script src="dds.js?v=202611152209"></script>
+<script src="jeu.js?v=202611152209"></script>
+<script src="adeux.js?v=202611152209"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="nosleep-media.js?v=202611152207"></script>
-<script src="auth.js?v=202611152207"></script>
-<script src="ffb-01.js?v=202611152207"></script>
-<script src="ffb-02.js?v=202611152207"></script>
-<script src="robot.js?v=202611152207"></script>
-<script src="bidder.js?v=202611152207"></script>
-<script src="player.js?v=202611152207"></script>
-<script src="news.js?v=202611152207"></script>
-<script src="salon.js?v=202611152207"></script>
+<script src="nosleep-media.js?v=202611152209"></script>
+<script src="auth.js?v=202611152209"></script>
+<script src="ffb-01.js?v=202611152209"></script>
+<script src="ffb-02.js?v=202611152209"></script>
+<script src="robot.js?v=202611152209"></script>
+<script src="bidder.js?v=202611152209"></script>
+<script src="player.js?v=202611152209"></script>
+<script src="news.js?v=202611152209"></script>
+<script src="salon.js?v=202611152209"></script>
 <script>
 (() => {
   'use strict';
@@ -538,7 +538,7 @@
     function diag() {
       let d = document.getElementById('wakediag');
       let p = null; try { p = player; } catch (e) { /* pas encore prêt */ }
-      if (true || p !== 'Damien' || !document.body.classList.contains('tablemode'))   // témoin coupé (problème résolu : mode Économie d'énergie) { if (d) d.remove(); return; }
+      if (true || p !== 'Damien' || !document.body.classList.contains('tablemode')) { if (d) d.remove(); return; }   // témoin coupé (réactivable : enlever « true || »)
       if (!d) { d = document.createElement('div'); d.id = 'wakediag'; document.body.appendChild(d); }
       d.textContent = '🔆 ' + (!('wakeLock' in navigator) ? 'pas d’API' : lock ? 'verrou ✓' : 'verrou ✗') + ' · ' + (video ? (video.paused ? 'vidéo ⏸' : 'vidéo ▶') + ' ' + mode : 'vidéo –') + (why ? ' · ' + why : '');
     }
