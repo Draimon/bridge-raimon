@@ -24,13 +24,13 @@ function score(c, tricks, vul) {
   let p = 0; for (let k = 1; k <= u; k++) p += vul ? (k === 1 ? 200 : 300) : (k === 1 ? 100 : k <= 3 ? 200 : 300); return -p * c.dbl;
 }
 const pct = (d, ns) => { let b = 0, e = 0, t = 0; for (const [s, k] of d.freq) { t += k; if (s < ns) b += k; else if (s === ns) e += k; } return t ? (b + e / 2) / t * 100 : 50; };
-const N = +process.argv[2] || deals.length, detail = process.argv[3];
+const N = +process.argv[2] || deals.length, detail = process.argv[3], SYS = process.env.SYS || 'sef';
 let illegal = 0, endless = 0, sum = 0, passedGame = 0, rows = [];
 for (const d of deals.slice(0, N)) {
   const bids = [];
   for (let k = 0; k < 60; k++) {
     const seat = SEATS[(SEATS.indexOf(d.d) + bids.length) % 4];
-    const r = R.bid(d[seat], bids, d.d, d.v, seat);
+    const r = R.bid(d[seat], bids, d.d, d.v, seat, SYS);
     bids.push(r.bid);
     if (auction(bids, d.d).ended) break;
   }

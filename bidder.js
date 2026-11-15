@@ -98,6 +98,8 @@
       if (!anyBefore) {                                               // ouverture
         if (b === '1SA') Object.assign(info, { min: 15, max: 17, bal: true });
         else if (b === '2SA') Object.assign(info, { min: 20, max: 21, bal: true });
+        else if (C.sys === 'raimon' && b === '2♣') { info.min = 24; info.forcing = true; }
+        else if (C.sys === 'raimon' && (b === '2♦' || b === '2♥' || b === '2♠')) { info.min = 0; info.max = 23; }
         else if (b === '2♣') { info.min = 20; info.forcing = true; }
         else if (b === '2♦') { info.min = 24; info.forcing = true; }
         else if (L === 2) { Object.assign(info, { min: 6, max: 10 }); info.len[SI[s]] = 6; }
@@ -115,7 +117,7 @@
         } else if (k === 1 && ourBefore[0] && ourBefore[0].seat === C.partner && L === 1) { info.max = Math.min(info.max, 14); info.bal = true; }
         else if (k === 1 && ourBefore[0] && ourBefore[0].seat === C.partner && L === 2) {
           const myResp = C.mine.find(y => y.i < x.i);
-          if (myResp && lvl(myResp.b) === 1) info.min = Math.max(info.min, 18); else { info.min = Math.max(info.min, 12); info.max = Math.min(info.max, 14); }
+          if (myResp && lvl(myResp.b) === 1) info.min = Math.max(info.min, 18); else if (C.sys === 'raimon') { info.min = Math.max(info.min, 15); info.max = Math.min(info.max, 17); } else { info.min = Math.max(info.min, 12); info.max = Math.min(info.max, 14); }
           info.bal = true;
         }
         return;
@@ -482,6 +484,7 @@
     // 2 sur 1
     if (sup) return R(cheapest(C, s), `Fit ${SYM[s]}`);
     if (L[o] >= 6) return R(cheapest(C, o), `${L[o]} cartes à ${SYM[o]}`);
+    if (e.bal && C.sys === 'raimon') return h >= 18 ? R('3SA', '18H et plus régulier') : h >= 15 ? R('2SA', '15-17H régulier') : R(cheapest(C, o), 'Minimum');
     if (e.bal) return R(h >= 15 ? '3SA' : '2SA', h >= 15 ? '15H et plus régulier' : '12-14H régulier');
     const x = [3, 2, 1, 0].filter(i => i !== o && i !== s && L[i] >= 4).sort((a, b) => L[b] - L[a])[0];
     if (x !== undefined) { const b = cheapest(C, x); if (b && lvl(b) <= 3) return R(b, `${L[x]} cartes à ${SYM[x]}`); }
@@ -501,7 +504,7 @@
     // objectif
     let target = null;
     if (fit !== null && tp >= 33) {
-      if (!C.hist.some(x => x.b === '4SA') && rank('4SA') > C.last && isMajor(fit) && tp < 37) return R('4SA', `Blackwood 41-30 : fit ${SYM[fit]}, zone de chelem`, true);
+      if (!C.hist.some(x => x.b === '4SA') && rank('4SA') > C.last) return R('4SA', `Blackwood 41-30 : fit ${SYM[fit]}, zone de chelem`, true);
       target = sb(tp >= 37 ? 7 : 6, fit);
     } else if (fit === null && tp >= 33 && ntOk) target = tp >= 37 ? '7SA' : '6SA';
     else if (tp >= 25) {
@@ -540,14 +543,164 @@
     return P();
   }
 
+  // ═════ Variante « Système Raimon » (fiche de Damien et Michèle) : ouvertures dès 11H, 2♣ Albaran, 2♦ Multi,
+  // 2♥/2♠ fort ou bicolore faible, Shadow fit, Oklahoma, Blackwood Lefèvre, Copenhague. Le reste = SEF ci-dessus.
+  const twoTop = (e, i) => { const p = e.parts[i]; return ['A', 'K', 'Q'].filter(c => p.includes(c)).length >= 2 || (p.includes('J') && p.includes('T')); };
+  function raimonOpening(e) {
+    const h = e.hcp, L = e.len;
+    if (h >= 24) return R('2♣', `Albaran : forcing de manche (${h}H)`, true);
+    if (h >= 22 && e.bal) return R('2♦', 'Multi : 22-23H régulier (2SA ensuite)', true);
+    if (h >= 20 && e.bal) return R('2SA', '20-21H régulier');
+    if (h >= 20) { const m = L[0] >= L[1] ? 0 : 1; return R(sb(2, m), `Fort indéterminé (${h}H)`, true); }
+    if (h >= 15 && h <= 17 && e.bal && L[0] < 5 && L[1] < 5) return R('1SA', '15-17H régulier');
+    if (h >= 11) {
+      if (L[0] >= 5 || L[1] >= 5) { const m = L[0] >= L[1] ? 0 : 1; return R(sb(1, m), `Ouverture, ${L[m]} cartes à ${SYM[m]}, ${h}H`); }
+      if (L[2] >= 4 && L[2] >= L[3]) return R('1♦', `Ouverture, ${L[2]} cartes à ♦, ${h}H`);
+      if (L[0] === 4 && L[1] === 4 && L[2] === 3) return R('1♦', `Ouverture 4-4-3-2 : 1♦, ${h}H`);
+      return R('1♣', `Ouverture en mineure, ${h}H`);
+    }
+    if (h >= 5) {
+      for (const i of [1, 0]) if (L[i] >= 5) { const o = [0, 1, 2, 3].find(j => j !== i && L[j] >= 5); if (o !== undefined) return R(sb(2, i), `Bicolore faible 5-5 : ${SYM[i]} et ${SYM[o]}`, true); }
+      for (const i of [0, 1]) if (L[i] === 6 && twoTop(e, i)) return R('2♦', `Multi : deux faible à ${SYM[i]}`, true);
+      for (const i of [0, 1, 2, 3]) if (L[i] >= 7 && good(e, i)) return R(sb(3, i), `Barrage : 7 cartes à ${SYM[i]}`);
+    }
+    return P(`Pas d'ouverture (${h}H)`);
+  }
+  // Réponses et suites propres au système Raimon ; null = on laisse faire le moteur SEF
+  function raimon(e, C, pi) {
+    const h = e.hcp, L = e.len, his = C.his, mine = C.mine, quiet = !C.them.length;
+    if (!C.acts.length) return raimonOpening(e);
+    const first = C.opener;
+    // ── Je réponds à l'ouverture du partenaire
+    if (quiet && first.seat === C.partner && !mine.length && his.length === 1) {
+      const ob = his[0].b;
+      if (ob === '2♣') {                                              // Albaran : réponses par les As
+        const a = [0, 1, 2, 3].filter(i => e.parts[i].includes('A'));
+        if (a.length === 0) return h >= 8 || e.parts.join('').split('K').length - 1 >= 2 ? R('2SA', '8H et plus (ou 2 Rois), sans As', true) : R('2♦', 'Pas d’As, moins de 8 points', true);
+        if (a.length === 1) return R(['2♠', '2♥', '3♦', '3♣'][a[0]], `L'As de ${SYM[a[0]]}`, true);
+        if (a.length === 2) { const black = x => x === 0 || x === 3; const [i, j] = a; return black(i) === black(j) ? R('3♥', '2 As de même couleur', true) : (i < 2) === (j < 2) ? R('3♠', '2 As de même rang', true) : R('3SA', '2 As mélangés', true); }
+        return R('2SA', '3 As ou plus', true);
+      }
+      if (ob === '2♦') {                                              // Multi
+        if (h >= 15) return R('2SA', 'Relais : 15H et plus', true);
+        if (L[1] >= 3 && L[0] < 3) return R('2♠', 'Je supporte 3♥ (passe ou corrige)', true);
+        return R('2♥', 'Négatif : je passe ou je corrige', true);
+      }
+      if (ob === '2♥') return R('2♠', 'Relais : fort ou bicolore ?', true);
+      if (ob === '2♠') return R('2SA', 'Relais : fort ou bicolore ?', true);
+      if (ob === '1♥' || ob === '1♠') {
+        const M = SI[str(ob)], fit = L[M] >= 3, sp = supPts(e, M);
+        if (M === 1 && L[0] >= 5 && h >= 12) return R('1♠', '5 cartes à ♠ et 12H ou plus : les ♠ d’abord, le fit ensuite');
+        if (fit && sp >= 6 && sp <= 10 && h <= 10) return R(sb(2, M), `Soutien simple : 6-10 HLD (${sp})`);
+        if (fit && sp >= 11 && sp <= 12) {
+          if (h >= 8) return L[M] >= 4 ? R('3♦', 'Shadow fit : 4 cartes, 8H et plus (11-12 HLD)', true) : R('3♣', 'Shadow fit : 3 cartes, 8H et plus (11-12 HLD)', true);
+          return R(sb(3, M), 'Shadow fit : moins de 8H (11-12 HLD)', true);
+        }
+        if (fit && sp >= 13 && sp <= 15 && h <= 11) {
+          const k = keyCards(e, M), chic = L.some((l, i) => i !== M && l === 0);
+          if (chic) return k <= 1 ? R(sb(3, M === 0 ? 1 : 0), 'Oklahoma : 0 ou 1 carte clé + une chicane', true) : R('4♣', 'Oklahoma : 2 cartes clés + une chicane', true);
+          return k <= 1 ? R(sb(4, M), 'Oklahoma : 0 ou 1 carte clé', true) : R('4♦', 'Oklahoma : 2 cartes clés', true);
+        }
+        if (h >= 12 && !e.bal && fit) { const x = [3, 2, 1].filter(i => i !== M && rank(sb(2, i)) > C.last).sort((a, b) => L[b] - L[a])[0]; if (x !== undefined) return R(sb(2, x), `Changement de couleur : fit ${SYM[M]} et 12H ou plus, le fit viendra ensuite`); }
+        if (h === 12 && e.bal && !fit) return R('2SA', '12H régulier');
+      }
+      if ((ob === '1♣' || ob === '1♦') && h === 12 && e.bal && L[0] < 4 && L[1] < 4) return R('2SA', '12H régulier');
+      return null;
+    }
+    // ── J'ai ouvert : réponses aux relais
+    if (quiet && first.seat === C.seat && mine.length === 1 && his.length === 1) {
+      const ob = mine[0].b, pb = his[0].b;
+      if (ob === '2♦') {                                              // Multi
+        const weak = [0, 1].find(i => L[i] === 6 && h < 11);
+        if (pb === '2♥') return weak === 1 ? P('Deux faible à ♥ : je passe') : weak === 0 ? R('2♠', 'Deux faible à ♠') : R('2SA', '22-23H régulier');
+        if (pb === '2♠') return weak === 0 ? P('Deux faible à ♠ : je passe') : weak === 1 ? R('3♥', 'Deux faible à ♥') : R('2SA', '22-23H régulier');
+        if (pb === '2SA') return weak !== undefined ? R(sb(3, weak), `Deux faible à ${SYM[weak]}`) : R('3SA', '22-23H régulier');
+      }
+      if ((ob === '2♥' && pb === '2♠') || (ob === '2♠' && pb === '2SA')) {
+        const M = SI[str(ob)], o = M === 0 ? 1 : 0;
+        if (h < 11) {                                                 // bicolore faible
+          const x = [0, 1, 2, 3].find(i => i !== M && L[i] >= 5);
+          if (M === 1 && x === 0) return R('2SA', 'Bicolore ♥/♠ faible', true);
+          return R(x === 3 ? '3♣' : '3♦', `Bicolore ${SYM[M]}/${SYM[x]} faible`, true);
+        }
+        const chic = [0, 1, 2, 3].find(i => i !== M && L[i] === 0);
+        if (chic !== undefined && chic !== o) return R(sb(4, chic), `Fort + chicane à ${SYM[chic]}`, true);
+        if (L[o] === 3) return R(sb(3, o), `Fort et 3 cartes à ${SYM[o]}`, true);
+        if (L.some((l, i) => i !== M && l === 1)) return R(sb(3, M), 'Fort + singleton', true);
+        return R('3SA', 'Fort sans particularité', true);
+      }
+      // Ouvreur face au Shadow fit / à l'Oklahoma
+      if (ob === '1♥' || ob === '1♠') {
+        const M = SI[str(ob)], tp = supPts(e, M);
+        if (pb === '3♣' || pb === '3♦') return tp >= 14 ? R(sb(4, M), 'Accepte la manche face au Shadow fit') : R(sb(3, M), 'Minimum : on s’arrête');
+        if (pb === sb(3, M) && C.hist.length) return tp >= 16 ? R(sb(4, M), 'Accepte la manche') : P('Minimum');
+        if (['4♣', '4♦', sb(3, M === 0 ? 1 : 0)].includes(pb)) return R(sb(4, M), 'Pas de chelem en vue : la manche');
+      }
+    }
+    // ── J'ai fait le relais sur 2♥/2♠ et l'ouvreur a montré son bicolore faible : je choisis le contrat
+    if (quiet && first.seat === C.partner && mine.length === 1 && his.length === 2 && /^2[♥♠]$/.test(his[0].b) && (mine[0].b === '2♠' || mine[0].b === '2SA')) {
+      const M = SI[str(his[0].b)], ans = his[1].b;
+      const other = ans === '2SA' ? 0 : ans === '3♣' ? 3 : ans === '3♦' ? 2 : null;
+      if (other !== null) {
+        if (L[M] >= 3 && h >= 16) return R(sb(4, M), `Fit ${SYM[M]} et la manche`);
+        if (other <= 1 && L[other] >= 3 && h >= 16) return R(sb(4, other), `Fit ${SYM[other]} et la manche`);
+        if (L[M] >= L[other] && L[M] >= 2) { const b = cheapest(C, M); return b && lvl(b) <= 3 ? R(b, `Préférence ${SYM[M]}`) : P(); }
+        return lvl(ans) === 3 || ans === '2SA' ? (other === 0 ? R('3♠', 'Préférence ♠') : P(`On joue ${ans}`)) : P();
+      }
+      // main forte : on va au moins à la manche
+      const o = M === 0 ? 1 : 0;
+      const three = (M === 1 && ans === '3♠') || (M === 0 && ans === '3♥');
+      if (three && L[o] >= 4) { const b = sb(4, o); if (rank(b) > C.last) return R(b, `4 cartes à ${SYM[o]} face aux 3 de l'ouvreur : la manche`); }
+      if (L[M] >= 3) { const b = sb(4, M); if (rank(b) > C.last) return R(b, `Fit ${SYM[M]} face à la main forte : la manche`); }
+      if (ans !== '3SA' && rank('3SA') > C.last) return R('3SA', 'Pas de fit : la manche à SA');
+      return P('On joue la manche');
+    }
+    // ── Blackwood Lefèvre (réponses)
+    const lastP = his[his.length - 1];
+    if (lastP && lastP.b === '4SA' && mine.length) {
+      const t = agreedSuit(C, e, pi);
+      if (t !== null) {
+        const a = e.aces, k = e.parts.join('').split('K').length - 1, inv = t === 3;
+        if (a === 0 || a === 3) return R(inv ? '5♦' : '5♣', `0 ou 3 As${inv ? ' (inversé, atout ♣)' : ''}`, true);
+        if (a === 1 || a === 4) return R(inv ? '5♣' : '5♦', `1 ou 4 As${inv ? ' (inversé, atout ♣)' : ''}`, true);
+        if (k === 2) return R('5SA', '2 As et 2 Rois', true);
+        return (k === 0 || k === 3) ? R('5♥', '2 As, 0 ou 3 Rois', true) : R('5♠', '2 As, 1 ou 4 Rois', true);
+      }
+    }
+    const myLast = mine[mine.length - 1];
+    if (myLast && myLast.b === '4SA' && lastP && lastP.i > myLast.i && /^5(♣|♦|♥|♠|SA)$/.test(lastP.b)) {
+      const t = agreedSuit(C, e, pi); if (t === null) return P();
+      const inv = t === 3, b = lastP.b;
+      const opts = b === '5♣' ? (inv ? [1, 4] : [0, 3]) : b === '5♦' ? (inv ? [0, 3] : [1, 4]) : [2];
+      const his_a = opts.length === 1 ? 2 : (e.aces + opts[1] <= 4 && pi.min + e.hcp >= 30 ? opts[1] : opts[0]);
+      const tot = e.aces + his_a;
+      if (tot <= 2) { const c5 = cheapest(C, t); return c5 && lvl(c5) === 5 ? R(c5, 'Il manque 2 As : on s’arrête') : P('Il manque 2 As'); }
+      if (tot === 4 && pi.min + e.hcp >= 36) return R(sb(7, t), 'Tous les As : grand chelem');
+      return R(sb(6, t), 'Il ne manque qu’un As : petit chelem');
+    }
+    // ── Défense : Copenhague directement derrière l'ouvreur (bicolore 5-5)
+    if (!mine.length && !his.length && C.them.length === 1 && C.hist.length === C.them[0].i + 1 && rank(C.them[0].b) >= 0 && lvl(C.them[0].b) === 1 && str(C.them[0].b) !== 'SA' && h >= 8) {
+      const o = SI[str(C.them[0].b)], two = [0, 1, 2, 3].filter(i => i !== o && L[i] >= 5);
+      if (two.length >= 2) {
+        const order = [3, 2, 1, 0].filter(i => i !== o);                 // de la moins chère à la plus chère
+        const pair = two.slice(0, 2).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+        const kind = pair[0] === order[0] && pair[1] === order[1] ? '2SA' : pair[0] === order[0] && pair[1] === order[2] ? '3♣' : pair[0] === order[1] && pair[1] === order[2] ? '3♦' : null;
+        if (kind && rank(kind) > C.last) return R(kind, `Copenhague : bicolore ${pair.map(i => SYM[i]).join(' et ')}`, true);
+      }
+    }
+    return null;
+  }
+
   // ───── Point d'entrée
-  function bid(handStr, bids, dealer, vulCode, seat) {
+  function bid(handStr, bids, dealer, vulCode, seat, sys) {
     const e = evalHand(handStr), C = context(bids, dealer, seat);
+    C.sys = sys === 'raimon' ? 'raimon' : 'sef';
     const vul = vulCode === 'all' || vulCode === sideOf(seat);
     let r = null;
     try {
       const pi = partnerInfo(C);
-      r = conventions(e, C, pi);
+      if (C.sys === 'raimon') r = raimon(e, C, pi);
+      if (!r) r = conventions(e, C, pi);
       if (!r) {
         if (!C.acts.length) r = opening(e, C, vul);
         else if (sideOf(C.opener.seat) === sideOf(seat)) {

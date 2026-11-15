@@ -121,7 +121,7 @@ function createSalon(env) {
     document.body.classList.remove('tablemode', 'salonmode');
     if (isGuest()) { firebase.auth().signOut().catch(() => {}); location.reload(); } else home();
   }
-  const seatLabel = st => (!st ? '<i class="muted">libre</i>' : st.robot ? '🤖 Robot' : esc(st.nom) + (isFresh(st.uid) ? '' : ' <span class="muted">(absent)</span>'));
+  const seatLabel = st => (!st ? '<i class="muted">libre</i>' : st.robot ? '🤖 Robot ' + (st.sys === 'raimon' ? 'Raimon' : 'SEF') : esc(st.nom) + (isFresh(st.uid) ? '' : ' <span class="muted">(absent)</span>'));
   function renderSalon() {
     if (curId || tab !== 'main') return;
     const ps = fresh().sort((a, b) => a.nom.localeCompare(b.nom));
@@ -201,7 +201,16 @@ function createSalon(env) {
       return { sieges: s };
     });
   }
-  function setRobot(seat, on) { tx(t => (!isMaster(t) || (on && t.sieges[seat]) ? null : { sieges: { ...t.sieges, [seat]: on ? { robot: true, sys: 'sef' } : null } })); }
+  // Robot SEF ou Raimon ; deux robots partenaires jouent forcément le même système
+  function setRobot(seat, sys) {
+    tx(t => {
+      if (!isMaster(t) || t.sieges[seat]) return null;
+      const mate = t.sieges[partner(seat)];
+      const final = mate && mate.robot && mate.sys && mate.sys !== sys ? mate.sys : sys;
+      if (final !== sys) ui.msg = 'Son partenaire est un robot ' + (final === 'raimon' ? 'Raimon' : 'SEF') + ' : il joue le même système.';
+      return { sieges: { ...t.sieges, [seat]: { robot: true, sys: final } } };
+    });
+  }
   function freeSeat(seat) { tx(t => (!isMaster(t) ? null : { sieges: { ...t.sieges, [seat]: null } })); }
   function leaveTable() {
     const id = curId;
@@ -332,7 +341,7 @@ function createSalon(env) {
     const A = auction(t, deal);
     if (t.etat === 'encheres') {
       if (A.ended) { if (isMaster(t)) tx(x => endAuction(x, deal)); return; }
-      if (isMaster(t) && t.sieges[A.turn] && t.sieges[A.turn].robot) robotTimer = setTimeout(() => { const r = RaimonBid.bid(deal[A.turn], t.bids, deal.d, deal.v, A.turn); move('bid', r.bid, t.moves, { e: r.expl, a: r.alert }); }, 900);
+      if (isMaster(t) && t.sieges[A.turn] && t.sieges[A.turn].robot) robotTimer = setTimeout(() => { const r = RaimonBid.bid(deal[A.turn], t.bids, deal.d, deal.v, A.turn, t.sieges[A.turn].sys); move('bid', r.bid, t.moves, { e: r.expl, a: r.alert }); }, 900);
       return;
     }
     const ps = playState(t, deal, A.contract);
@@ -456,7 +465,7 @@ function createSalon(env) {
     wireTabs();
     on('replay', () => replayView({ ...t.fin, t: now() }, 0, 'main'));
     app.querySelectorAll('[data-sit]').forEach(b => b.addEventListener('click', () => sit(b.dataset.sit)));
-    app.querySelectorAll('[data-robot]').forEach(b => b.addEventListener('click', () => setRobot(b.dataset.robot, true)));
+    app.querySelectorAll('[data-robot]').forEach(b => b.addEventListener('click', () => { const [seat, sys] = b.dataset.robot.split(':'); setRobot(seat, sys || 'sef'); }));
     app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => freeSeat(b.dataset.free)));
     on('deal', nextDeal);
     on('resetscore', () => { if (confirm('Remettre à zéro les scores de cette table ?')) tx(x => (isMaster(x) ? { historique: [], fin: null, etat: x.etat === 'fin' ? 'attente' : x.etat } : null)); });
@@ -477,7 +486,7 @@ function createSalon(env) {
     const seatsHtml = SEATS.map(s => {
       const st = t.sieges[s];
       let act = '';
-      if (!st) act = `${!my || my !== s ? `<button class="btn center sm" data-sit="${s}">M’asseoir</button>` : ''}${master ? `<button class="btn center sm" data-robot="${s}">＋ Robot</button>` : ''}`;
+      if (!st) act = `${!my || my !== s ? `<button class="btn center sm" data-sit="${s}">M’asseoir</button>` : ''}${master ? `<button class="btn center sm" data-robot="${s}:sef">＋ Robot SEF</button><button class="btn center sm" data-robot="${s}:raimon">＋ Robot Raimon</button>` : ''}`;
       else if (master && (st.robot || (st.uid !== me() && !isFresh(st.uid)))) act = `<button class="btn center sm" data-free="${s}">Libérer</button>`;
       return `<div class="tseat"><b>${NAMES[s]}</b><div>${seatLabel(st)}${st && st.uid === t.maitre ? ' 👑' : ''}</div>${act}</div>`;
     }).join('');
