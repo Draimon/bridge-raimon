@@ -752,6 +752,11 @@ function createSalon(env) {
     const row = open !== null && hand[open].length ? `<div class="dpick ${hand[open].length > 5 ? 'tight' : ''}">${[...hand[open]].sort((a, b) => b - a).map(r => cardHtml(open, RLAB[r], 'md can sel', attrs(open, r))).join('')}</div>` : '';
     return `<p class="feltnote center" style="margin:2px 0">${label}</p><div class="dummywrap"><div class="dummy">${cols}</div>${row}</div>`;
   }
+  // Le mort sur le côté : une ligne par couleur, petites cartes (lecture seule : en défense, on ne le joue pas)
+  function sideDummy(hand, side) {
+    const rows = DISPLAY.map(k => `<div class="sdrow">${[...hand[k]].sort((a, b) => b - a).map(r => cardHtml(k, RLAB[r], 'xs')).join('') || '<span class="sdvoid">—</span>'}</div>`).join('');
+    return `<div class="sdummy ${side}">${rows}</div>`;
+  }
   const backsHtml = n => (n ? `<span class="mbacks">${'<i></i>'.repeat(n)}</span>` : '');
   function playHtml(t, deal, A, my, P) {
     const c = A.contract, ps = playState(t, deal, c);
@@ -773,6 +778,7 @@ function createSalon(env) {
     let topBlock = '';
     if (swapped) topBlock = ps.shown ? columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Ton jeu, le mort (${NAMES[ps.dummy]}) · ${hcpOf(deal[ps.dummy])}H${iControl && ps.turn === ps.dummy ? ' — à toi' : ''}`) : '<p class="feltnote">Ton partenaire robot a gagné le contrat : c’est toi qui le joues. Ton jeu sera le mort.</p>';
     else if (my === ps.dummy) topBlock = columnsHtml(ps.hands[c.decl], false, [], `Jeu de ton partenaire (${NAMES[c.decl]}, déclarant) · ${hcpOf(deal[c.decl])}H`);
+    else if (ps.shown && (pos[ps.dummy] === 'left' || pos[ps.dummy] === 'right')) topBlock = `<p class="feltnote center" style="margin:2px 0">Mort : ${NAMES[ps.dummy]} · ${hcpOf(deal[ps.dummy])}H (à ${pos[ps.dummy] === 'left' ? 'gauche' : 'droite'})</p>`;
     else if (ps.shown) topBlock = columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Mort : ${NAMES[ps.dummy]} · ${hcpOf(deal[ps.dummy])}H${iControl && ps.turn === ps.dummy ? ' — à toi de jouer pour lui' : ''}`);
     else topBlock = '<p class="feltnote">Le mort sera étalé après l’entame</p>';
     const visible = s => s === my || (ps.shown && s === ps.dummy) || (my === ps.dummy && s === c.decl) || (swapped && s === c.decl);
@@ -781,8 +787,9 @@ function createSalon(env) {
     const turnTxt = ps.done ? '' : iControl ? (ps.turn === handSeat ? (swapped ? 'À toi de jouer (déclarant)' : 'À toi de jouer') : 'À toi de jouer le mort') : 'Au tour de ' + NAMES[ps.turn] + (t.sieges[ctrlOf(ps.turn)] && t.sieges[ctrlOf(ps.turn)].robot ? ' (robot)' : '');
     return `${topBlock}
       <div class="frame sframe">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (ps.shown && s === ps.dummy && t.sieges[s] && t.sieges[s].uid !== me() ? ' <span class="hcp">' + hcpOf(deal[s]) + 'H</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
+        ${ps.shown && ps.dummy !== my && (pos[ps.dummy] === 'left' || pos[ps.dummy] === 'right') ? sideDummy(ps.hands[ps.dummy], pos[ps.dummy]) : ''}
         <div class="corner cl">NS<br><b>${ctr('NS')}</b></div><div class="corner cr">EO<br><b>${ctr('EO')}</b></div>
-        <div class="trick" ${doneTrick ? 'data-act="cleartrick"' : ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
+        <div class="trick ${ps.shown && ps.dummy !== my && pos[ps.dummy] === 'left' ? 'sdl' : ps.shown && ps.dummy !== my && pos[ps.dummy] === 'right' ? 'sdr' : ''}" ${doneTrick ? 'data-act="cleartrick"' : ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
         ${showLast && !doneTrick ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
       <p class="center feltnote" style="margin:4px 0">${turnTxt}${ps.last && !showLast ? ' · <button class="link lastbtn" data-act="lasttrick">👁 Pli précédent</button>' : ''}${doneTrick ? ' · <small>touche le tapis pour le ranger</small>' : ''}</p>
       ${claimBar(t, deal, c, ps, my)}
