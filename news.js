@@ -3,6 +3,11 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-tu-joues-le-contrat', date: '15/11/2026', pour: 'tous',
+    titre: '🔄 C’est toujours vous qui jouez le contrat',
+    texte: `<p>Au salon, si votre partenaire est un robot et que c'est lui qui gagne le contrat, la table s'inverse : <b>vous jouez le coup</b>, sa main en bas, la vôtre devenant le mort en haut. Comme dans le jeu solo.</p>`,
+  },
+  {
     id: '2026-11-15-robot-raimon-complet', date: '15/11/2026', pour: 'famille',
     titre: '🤖 Le robot Raimon connaît toute la fiche',
     texte: `<p>Au salon, le robot Raimon joue maintenant aussi le <b>petit Stayman</b>, le <b>Puppet</b> (avec l'inversé sur 3♦), le <b>Lebelson</b>, le <b>Roudy</b>, le <b>Check-Back Stayman</b> et le <b>Truscott</b>, exactement comme sur la fiche.</p>

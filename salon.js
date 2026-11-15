@@ -268,6 +268,12 @@ function createSalon(env) {
     const contract = lastBid ? { l: +lastBid[0], s: lastBid.slice(1), dbl, decl: firstNamed[sideOf(lastBy) + lastBid.slice(1)] } : null;
     return { last, turn, ended, canX, canXX, contract };
   }
+  // Le partenaire robot est déclarant et je suis son mort : c'est moi qui joue le contrat (les deux mains)
+  function swapOf(t, c) {
+    if (!c) return null;
+    const d = t.sieges[c.decl], m = t.sieges[partner(c.decl)];
+    return d && d.robot && m && m.uid ? { human: partner(c.decl), uid: m.uid } : null;
+  }
   function playState(t, deal, c) {
     const hands = {}; SEATS.forEach(s => { hands[s] = parseHand(deal[s]); });
     const trump = c.s === 'SA' ? null : SUIT_OF[c.s];
@@ -359,7 +365,8 @@ function createSalon(env) {
     }
     const ps = playState(t, deal, A.contract);
     if (ps.done) { if (isMaster(t)) tx(x => endDeal(x, deal)); return; }
-    const ctrl = ps.turn === ps.dummy ? A.contract.decl : ps.turn;
+    const sw = swapOf(t, A.contract);
+    const ctrl = sw && (ps.turn === A.contract.decl || ps.turn === ps.dummy) ? sw.human : ps.turn === ps.dummy ? A.contract.decl : ps.turn;
     if (isMaster(t) && t.sieges[ctrl] && t.sieges[ctrl].robot) robotTimer = setTimeout(() => move('card', robotPlay(t, deal, A, ps, ctrl), t.moves), ps.trick.length === 0 && t.plays.length ? 1500 : 350);
   }
   function endAuction(x, deal) {
@@ -464,7 +471,9 @@ function createSalon(env) {
     const t = current; if (!t || !curId || tab !== 'main') return;
     document.body.classList.add('tablemode');
     const my = mySeat(t), deal = t.n ? dealOf(t.n) : null;
-    const bottom = my || 'S', top = partner(bottom), left = next(bottom), right = next(top);
+    let bottom = my || 'S';
+    if (t.etat === 'jeu' && deal && my) { const A0 = auction(t, deal), sw0 = swapOf(t, A0.contract); if (sw0 && sw0.human === my) bottom = A0.contract.decl; }   // table inversée : le déclarant en bas
+    const top = partner(bottom), left = next(bottom), right = next(top);
     let body = '';
     if (t.etat === 'attente' || t.etat === 'fin' || !deal) body = lobbyHtml(t, my);
     else {
@@ -644,8 +653,10 @@ function createSalon(env) {
   const backsHtml = n => (n ? `<span class="mbacks">${'<i></i>'.repeat(n)}</span>` : '');
   function playHtml(t, deal, A, my, P) {
     const c = A.contract, ps = playState(t, deal, c);
-    const ctrlOf = s => (s === ps.dummy ? c.decl : s);
+    const sw = swapOf(t, c), swapped = sw && sw.human === my;
+    const ctrlOf = s => (sw && (s === c.decl || s === ps.dummy) ? sw.human : s === ps.dummy ? c.decl : s);
     const iControl = my && !ps.done && ctrlOf(ps.turn) === my;
+    const handSeat = swapped ? c.decl : my;                              // la main en bas (éventail)
     const L = iControl ? legal(ps, ps.turn) : [];
     const pos = { [P.top]: 'top', [P.left]: 'left', [P.right]: 'right', [P.bottom]: 'bottom' };
     const count = s => ps.hands[s].reduce((n, x) => n + x.length, 0);
@@ -656,20 +667,21 @@ function createSalon(env) {
     const slots = SEATS.map(s => { const x = shown.find(k => k.seat === s); return `<div class="slot ${pos[s]}">${x ? cardHtml(x.s, RLAB[x.r], 'md ' + (w && w.seat === s ? 'win' : '')) : ''}</div>`; }).join('');
     // en haut : le mort (ou, si je suis le mort, le jeu de mon partenaire déclarant)
     let topBlock = '';
-    if (my === ps.dummy) topBlock = columnsHtml(ps.hands[c.decl], false, [], `Jeu de ton partenaire (${NAMES[c.decl]}, déclarant)`);
+    if (swapped) topBlock = ps.shown ? columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Ton jeu, le mort (${NAMES[ps.dummy]})${iControl && ps.turn === ps.dummy ? ' — à toi' : ''}`) : '<p class="feltnote">Ton partenaire robot a gagné le contrat : c’est toi qui le joues. Ton jeu sera le mort.</p>';
+    else if (my === ps.dummy) topBlock = columnsHtml(ps.hands[c.decl], false, [], `Jeu de ton partenaire (${NAMES[c.decl]}, déclarant)`);
     else if (ps.shown) topBlock = columnsHtml(ps.hands[ps.dummy], iControl && ps.turn === ps.dummy, L, `Mort : ${NAMES[ps.dummy]}${iControl && ps.turn === ps.dummy ? ' — à toi de jouer pour lui' : ''}`);
     else topBlock = '<p class="feltnote">Le mort sera étalé après l’entame</p>';
-    const visible = s => s === my || (ps.shown && s === ps.dummy) || (my === ps.dummy && s === c.decl);
+    const visible = s => s === my || (ps.shown && s === ps.dummy) || (my === ps.dummy && s === c.decl) || (swapped && s === c.decl);
     const declSide = sideOf(c.decl), need = 6 + c.l;
     const ctr = side => `${ps.tricks[side]}${side === declSide ? '/' + need : ''}`;
-    const turnTxt = ps.done ? '' : iControl ? (ps.turn === my ? 'À toi de jouer' : 'À toi de jouer le mort') : 'Au tour de ' + NAMES[ps.turn] + (t.sieges[ctrlOf(ps.turn)] && t.sieges[ctrlOf(ps.turn)].robot ? ' (robot)' : '');
+    const turnTxt = ps.done ? '' : iControl ? (ps.turn === handSeat ? (swapped ? 'À toi de jouer (déclarant)' : 'À toi de jouer') : 'À toi de jouer le mort') : 'Au tour de ' + NAMES[ps.turn] + (t.sieges[ctrlOf(ps.turn)] && t.sieges[ctrlOf(ps.turn)].robot ? ' (robot)' : '');
     return `${topBlock}
       <div class="frame">${[P.top, P.left, P.right, P.bottom].map(s => plateB(t, deal, s, pos[s], ps.turn, (s === c.decl ? '<span class="contract">' + c.l + fmt(c.s) + (c.dbl === 2 ? 'XX' : c.dbl ? 'X' : '') + '</span>' : '') + (visible(s) ? '' : backsHtml(count(s))))).join('')}
         <div class="corner cl">NS<br><b>${ctr('NS')}</b></div><div class="corner cr">EO<br><b>${ctr('EO')}</b></div>
         <div class="trick" ${ps.last ? 'data-act="lasttrick"' : ''}>${slots}</div>
         ${showLast ? '<div class="lastlabel">Pli précédent</div>' : ''}</div>
       <p class="center feltnote" style="margin:4px 0">${turnTxt}${ps.last && !showLast ? ' · <button class="link lastbtn" data-act="lasttrick">👁 Pli précédent</button>' : ''}</p>
-      ${my ? fanHtml(ps.hands[my], iControl && ps.turn === my, iControl && ps.turn === my ? L : []) : ''}`;
+      ${my ? fanHtml(ps.hands[handSeat], iControl && ps.turn === handSeat, iControl && ps.turn === handSeat ? L : []) : ''}`;
   }
 
   // Toucher une enchère de robot : son explication (et l'alerte si elle est conventionnelle)
@@ -841,7 +853,7 @@ function createSalon(env) {
     const my = mySeat(t), deal = t.n && dealOf(t.n);
     let mine = false;
     if (deal && my && t.etat === 'encheres') mine = auction(t, deal).turn === my;
-    if (deal && my && t.etat === 'jeu') { const A = auction(t, deal), ps = playState(t, deal, A.contract); mine = !ps.done && (ps.turn === ps.dummy ? A.contract.decl : ps.turn) === my; }
+    if (deal && my && t.etat === 'jeu') { const A = auction(t, deal), ps = playState(t, deal, A.contract), sw = swapOf(t, A.contract); const ctl = sw && (ps.turn === A.contract.decl || ps.turn === ps.dummy) ? sw.human : ps.turn === ps.dummy ? A.contract.decl : ps.turn; mine = !ps.done && ctl === my; }
     el.classList.toggle('dotted', mine);
   }
   function chatView() {
