@@ -898,7 +898,7 @@
     const E = e.E, s = e.S, n = e.N;
     const x = openSuit(E);
     if (x === null || E.hcp > 15 || !quietHand(e.O, 6)) return null;
-    if (s.hcp < 6 || s.hcp > 12) return null;
+    if (s.hcp < 8 || s.hcp > 16) return null;                                   // Copenhague : 8 à 16H (17H+ = contre) — Damien 15/11/2026
     const unbid = [3, 2, 1, 0].filter(i => i !== x);                            // du moins cher au plus cher
     const two = unbid.filter(i => s.len[i] >= 5);
     if (two.length !== 2) return null;

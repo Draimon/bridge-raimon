@@ -476,7 +476,6 @@ const QUESTIONS = [
   { n: 366, t: 'shadow', k: 'm', d: 'N', s: '1♥ P', h: 'A876.J763.QJ5.76', hcp: 8, a: '3♦', e: 'Shadow fit : fit ♥ par 4 cartes, 8H et plus, zone 11-12 HLD', f: 'Règle du robot (donne n° 253)' },
   { n: 367, t: 'baba', k: 'm', d: 'E', s: '1♣', h: 'QT753.Q9863.3.A4', hcp: 8, a: '3♦', e: 'Copenhague : bicolore 5/5 ♥ + ♠ (les 2 plus chères)', f: 'Règle du robot (donne n° 271)' },
   { n: 368, t: 'baba', k: 'm', d: 'E', s: '1♦', h: 'Q9843.63.4.AQT53', hcp: 8, a: '3♣', e: 'Copenhague : bicolore 5/5 ♣ + ♠ (les extrêmes)', f: 'Règle du robot (donne n° 272)' },
-  { n: 369, t: 'baba', k: 'm', d: 'E', s: '1♦ 2SA P 4SA P', h: '54.98542.T.AQJ95', hcp: 7, a: '5♣', e: 'Ta mineure la plus longue (♣)', f: 'Règle du robot (donne n° 273)' },
   { n: 370, t: 'truscott', k: 'm', d: 'N', s: '1♥ X', h: '-.T853.A952.QT953', hcp: 6, a: '3♥', e: 'Fit direct = barrage (4 cartes, moins de 11H)', f: 'Règle du robot (donne n° 274)' },
   { n: 371, t: 'baba', k: 'm', d: 'E', s: '1♣', h: '-.AQT53.QJT63.Q76', hcp: 11, a: '2SA', e: 'Copenhague : bicolore 5/5 ♦ + ♥ (les 2 moins chères)', f: 'Règle du robot (donne n° 275)' },
   { n: 372, t: 'baba', k: 'm', d: 'E', s: '1♠', h: '952.-.AKJ74.JT765', hcp: 9, a: '2SA', e: 'Copenhague : bicolore 5/5 ♣ + ♦ (les 2 moins chères)', f: 'Règle du robot (donne n° 276)' },

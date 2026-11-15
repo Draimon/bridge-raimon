@@ -7614,50 +7614,6 @@
   ]
  },
  {
-  "n": 273,
-  "t": "Robot · Copenhague",
-  "d": "E",
-  "v": "all",
-  "comp": true,
-  "N": "A93.A6.K64.K8763",
-  "E": "KJ87.KQ3.AJ32.T4",
-  "S": "54.98542.T.AQJ95",
-  "O": "QT62.JT7.Q9875.2",
-  "a": [
-   [
-    "1♦",
-    "Ouverture (adversaire)"
-   ],
-   [
-    "2SA",
-    "Copenhague : bicolore 5/5 ♣ + ♥ (les 2 moins chères)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "4SA",
-    "« Choisis » : il jouera ta meilleure mineure au palier de 5"
-   ],
-   [
-    "P"
-   ],
-   [
-    "5♣",
-    "Ta mineure la plus longue (♣)"
-   ],
-   [
-    "P"
-   ],
-   [
-    "P"
-   ],
-   [
-    "P"
-   ]
-  ]
- },
- {
   "n": 274,
   "t": "Robot · Truscott",
   "d": "N",
