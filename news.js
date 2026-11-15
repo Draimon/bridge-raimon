@@ -3,6 +3,11 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-grandes-cartes', date: '15/11/2026', pour: 'tous',
+    titre: '🂡 Plus lisible à la table',
+    texte: `<p>Au salon, votre main s'affiche en <b>grandes cartes en éventail</b>, et vos <b>points d'honneur</b> (par ex. « 12H ») apparaissent à côté de votre nom. En fin de donne et dans « Mes donnes », chaque main affiche aussi ses points.</p>`,
+  },
+  {
     id: '2026-11-15-corriger-inviter', date: '15/11/2026', pour: 'tous',
     titre: '🛠️ Corriger les robots · ✉️ Inviter à sa table',
     texte: `<ul><li>En fin de donne (et dans « Mes donnes »), le bouton <b>🛠️ Corriger le bot</b> : vous dites ce que le robot aurait dû faire, aux enchères ou au jeu de la carte. Damien relit chaque remarque, et les robots s'améliorent.</li>
