@@ -556,10 +556,14 @@ function createSalon(env) {
       <div id="notebox"></div>${hist.length ? '<button class="btn center" data-act="showscores">📊 Scores de la table et des autres tables</button>' : ''}
       <button class="btn primary center" data-act="hideauction">Fermer</button></div></div>` : '';
     app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head) + body + pop + spop
+      + ((t.etat === 'jeu' || t.etat === 'encheres') ? SEATS.filter(k => !t.sieges[k]).map(k => `<div class="notice">Place ${NAMES[k]} libre. ${!my ? `<button class="btn primary center sm" data-sit="${k}">M’asseoir en ${NAMES[k]}</button>` : ''}${isMaster(t) ? `<button class="btn center sm" data-robot="${k}:${(t.sieges[partner(k)] && t.sieges[partner(k)].sys) || 'sef'}">🤖 Mettre un robot</button>` : ''}</div>`).join('') : '')
       + (isMaster(t) && stuckSeat(t) ? `<div class="notice">${esc(t.sieges[stuckSeat(t)].nom)} (${NAMES[stuckSeat(t)]}) ne répond plus. <button class="btn primary center sm" data-act="replacebot" data-seat="${stuckSeat(t)}">🤖 Le remplacer par un robot</button></div>` : '')
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
     ui.msg = '';
-    on('back', () => { if (t.etat === 'jeu' || t.etat === 'encheres') { if (!confirm('Quitter la table en pleine donne ?')) return; } leaveTable(); });
+    on('back', () => {
+      if (t.etat === 'jeu' || t.etat === 'encheres') { stopAll(); curId = null; current = null; open('main'); return; }   // la place reste à toi : « Revenir à la table » depuis le salon
+      leaveTable();
+    });
     wireTabs();
     on('replay', () => replayView({ ...t.fin, t: now() }, 0, 'main'));
     app.querySelectorAll('[data-sit]').forEach(b => b.addEventListener('click', () => sit(b.dataset.sit)));
