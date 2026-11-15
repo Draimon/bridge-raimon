@@ -558,6 +558,7 @@ function createSalon(env) {
       <button class="btn primary center" data-act="hideauction">Fermer</button></div></div>` : '';
     app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head) + body + pop + spop + seatsPop
       + (isMaster(t) && (t.etat === 'jeu' || t.etat === 'encheres') ? '<button class="seatsbtn" data-act="showseats">👥 Places</button>' : '')
+      + (!isGuest() ? '<button class="seatsbtn sysfab" data-sys>📖 Système</button>' : '')
       + ((t.etat === 'jeu' || t.etat === 'encheres') ? SEATS.filter(k => !t.sieges[k]).map(k => `<div class="notice">Place ${NAMES[k]} libre. ${!my ? `<button class="btn primary center sm" data-sit="${k}">M’asseoir en ${NAMES[k]}</button>` : ''}${isMaster(t) ? `<button class="btn center sm" data-robot="${k}:${(t.sieges[partner(k)] && t.sieges[partner(k)].sys) || 'sef'}">🤖 Mettre un robot</button>` : ''}</div>`).join('') : '')
       + (isMaster(t) && stuckSeat(t) ? `<div class="notice">${esc(t.sieges[stuckSeat(t)].nom)} (${NAMES[stuckSeat(t)]}) ne répond plus. <button class="btn primary center sm" data-act="replacebot" data-seat="${stuckSeat(t)}">🤖 Le remplacer par un robot</button></div>` : '')
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();

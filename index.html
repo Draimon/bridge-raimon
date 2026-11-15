@@ -454,6 +454,7 @@
   .travel { margin: 4px 0 8px; } .trow { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 2px 0; } .trow.mine { font-weight: 800; color: var(--accent); }
   .pickveil { position: fixed; inset: 0; z-index: 6; }
   .seatsbtn { position: fixed; left: 10px; bottom: calc(58px + env(safe-area-inset-bottom) * .5); z-index: 35; border: 0; border-radius: 999px; padding: 6px 12px; background: rgba(0,0,0,.45); color: #fff; font-size: 13px; cursor: pointer; }
+  .seatsbtn.sysfab { left: auto; right: 10px; }
   .seatspop { max-width: 420px; } .seatspop .tseat { background: #1f5f3c; }
   /* barre d'état de l'iPhone : bande verte nette (l'appli passe dessous en mode black-translucent) */
   body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: #1f5f3c; z-index: 100; pointer-events: none; }
@@ -466,25 +467,25 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611152137"></script>
-<script src="fiche.js?v=202611152137"></script>
-<script src="deals.js?v=202611152137"></script>
-<script src="deals-duo.js?v=202611152137"></script>
-<script src="dds.js?v=202611152137"></script>
-<script src="jeu.js?v=202611152137"></script>
-<script src="adeux.js?v=202611152137"></script>
+<script src="questions.js?v=202611152138"></script>
+<script src="fiche.js?v=202611152138"></script>
+<script src="deals.js?v=202611152138"></script>
+<script src="deals-duo.js?v=202611152138"></script>
+<script src="dds.js?v=202611152138"></script>
+<script src="jeu.js?v=202611152138"></script>
+<script src="adeux.js?v=202611152138"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="nosleep-media.js?v=202611152137"></script>
-<script src="auth.js?v=202611152137"></script>
-<script src="ffb-01.js?v=202611152137"></script>
-<script src="ffb-02.js?v=202611152137"></script>
-<script src="robot.js?v=202611152137"></script>
-<script src="bidder.js?v=202611152137"></script>
-<script src="player.js?v=202611152137"></script>
-<script src="news.js?v=202611152137"></script>
-<script src="salon.js?v=202611152137"></script>
+<script src="nosleep-media.js?v=202611152138"></script>
+<script src="auth.js?v=202611152138"></script>
+<script src="ffb-01.js?v=202611152138"></script>
+<script src="ffb-02.js?v=202611152138"></script>
+<script src="robot.js?v=202611152138"></script>
+<script src="bidder.js?v=202611152138"></script>
+<script src="player.js?v=202611152138"></script>
+<script src="news.js?v=202611152138"></script>
+<script src="salon.js?v=202611152138"></script>
 <script>
 (() => {
   'use strict';

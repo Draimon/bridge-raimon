@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-systeme-salon', date: '15/11/2026', pour: 'famille',
+    titre: '📖 Le Système Raimon à portée de main au salon',
+    texte: `<p>À la table du salon, le bouton <b>📖 Système</b> (en bas à droite) ouvre la fiche du Système Raimon par-dessus la partie, comme en mode solo : chapitres, recherche et fiche originale en PDF.</p>
+      <p>« ✕ Fermer » et vous retrouvez la table telle quelle. Réservé à la famille : les invités ne le voient pas.</p>`,
+  },
+  {
     id: '2026-11-15-ecran-allume', date: '15/11/2026', pour: 'tous',
     titre: '🔆 L’écran ne s’éteint plus pendant la partie',
     texte: `<p>À la table et au salon, l'écran reste allumé même si vous réfléchissez longtemps sans toucher. Il se remet en veille normalement dès que vous quittez le salon.</p>
