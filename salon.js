@@ -146,7 +146,7 @@ function createSalon(env) {
   }
   function leave() {
     stopAll(); stopBeat(); clearTimeout(robotTimer);
-    document.body.classList.remove('tablemode', 'salonmode', 'inplay');
+    document.body.classList.remove('tablemode', 'salonmode', 'inplay', 'land');
     if (isGuest()) { firebase.auth().signOut().catch(() => {}); location.reload(); } else home();
   }
   const seatLabel = st => (!st ? '<i class="muted">libre</i>' : st.robot ? '🤖 Robot ' + (st.sys === 'raimon' ? 'Raimon' : 'SEF') : esc(st.nom) + (isFresh(st.uid) ? '' : ' <span class="muted">(absent)</span>'));
@@ -533,6 +533,41 @@ function createSalon(env) {
     db.collection('tables').doc(curId).update({ ['wake.' + me()]: getPlayer() + ' · ' + s }).catch(() => {});
   }
   setInterval(sendWake, 20000);
+  // ═════ Mode paysage (téléphone couché), comme sur BBO : à gauche le chat ou les enchères, au centre le tapis
+  // et ma main, à droite la boîte d'enchères (pendant les enchères) ou le mort et les boutons (pendant le jeu).
+  const LANDQ = typeof matchMedia !== 'undefined' ? matchMedia('(orientation: landscape) and (max-height: 600px) and (min-width: 560px)') : null;
+  if (LANDQ) { const onTurn = () => { if (curId && tab === 'main') renderTable(); }; if (LANDQ.addEventListener) LANDQ.addEventListener('change', onTurn); else if (LANDQ.addListener) LANDQ.addListener(onTurn); }
+  function landLayout(t, deal, my) {
+    const kids = [...app.children], head = app.querySelector('header.top');
+    const grid = document.createElement('div'); grid.className = 'landgrid';
+    const left = document.createElement('aside'), mid = document.createElement('main'), right = document.createElement('aside');
+    left.className = 'landleft'; mid.className = 'landmain'; right.className = 'landright';
+    // à gauche : chat du salon ou historique des enchères
+    const showChat = ui.landLeft !== 'auction';
+    left.innerHTML = `<div class="landtabs"><button class="${showChat ? 'on' : ''}" data-land="chat">💬 Chat</button><button class="${showChat ? '' : 'on'}" data-land="auction">📜 Enchères</button></div>`
+      + (showChat ? chatHtml(ui.chatDraft || '') : `<div class="felt landauction">${auctionTable(t, deal)}</div><div id="notebox"></div>`);
+    // au centre : tout le reste (tapis, main…), sauf ce qui part à droite
+    kids.forEach(k => { if (k !== head && !k.classList.contains('tabbar') && !k.classList.contains('popveil')) mid.appendChild(k); });
+    // à droite : la boîte d'enchères, ou le mort + Revendiquer / Annuler ; puis Places et Système
+    const gw = mid.querySelector('.gridwrap'); if (gw) { const hint = gw.nextElementSibling; right.appendChild(gw); if (hint && hint.classList.contains('gridhint')) right.appendChild(hint); }
+    const frame = mid.querySelector('.frame');
+    if (t.etat === 'jeu' && frame) {
+      let n = mid.firstElementChild; const before = [];
+      while (n && n !== frame) { before.push(n); n = n.nextElementSibling; }
+      before.forEach(x => right.appendChild(x));
+      mid.querySelectorAll('.claimbtn, .undoinline, .claimbox').forEach(x => { const p = x.closest('p') || x; if (mid.contains(p)) right.prepend(p); });   // en haut, au-dessus du mort
+    } else mid.querySelectorAll('.undoinline').forEach(x => { const p = x.closest('p') || x; right.appendChild(p); });
+    mid.querySelectorAll('.seatsbtn').forEach(b => { b.classList.add('inland'); right.appendChild(b); });
+    grid.append(left, mid, right);
+    if (head) head.after(grid); else app.prepend(grid);
+    left.querySelectorAll('[data-land]').forEach(b => b.addEventListener('click', () => { ui.landLeft = b.dataset.land; renderTable(); }));
+    if (showChat) {
+      wireChat();
+      const inp = document.getElementById('chatin');
+      if (inp) { inp.addEventListener('input', () => { ui.chatDraft = inp.value; }); if (ui.chatFocus) { inp.focus(); try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) { /* rien */ } } inp.addEventListener('focus', () => { ui.chatFocus = true; }); inp.addEventListener('blur', () => { setTimeout(() => { if (document.activeElement !== inp) ui.chatFocus = false; }, 0); }); }
+      const f = document.getElementById('chatform'); if (f) f.addEventListener('submit', () => { ui.chatDraft = ''; });
+    }
+  }
   function renderTable() {
     const t = current; if (!t || !curId || tab !== 'main') return;
     document.body.classList.add('tablemode');
@@ -573,6 +608,9 @@ function createSalon(env) {
       + undoHtml(t, my)
       + (ui.msg ? `<div class="notice">${ui.msg}</div>` : '') + tabBar();
     ui.msg = '';
+    const land = !!(LANDQ && LANDQ.matches) && (t.etat === 'encheres' || t.etat === 'jeu') && !!deal;
+    document.body.classList.toggle('land', land);
+    if (land) landLayout(t, deal, my);
     on('back', () => {
       if (t.etat === 'jeu' || t.etat === 'encheres') { stopAll(); curId = null; current = null; open('main'); return; }   // la place reste à toi : « Revenir à la table » depuis le salon
       leaveTable();
@@ -1207,14 +1245,14 @@ function createSalon(env) {
     el.classList.toggle('dotted', mine);
   }
   function chatView() {
-    document.body.classList.remove('tablemode', 'inplay');
+    document.body.classList.remove('tablemode', 'inplay', 'land');
     setSeen();
     app.innerHTML = topbar('Chat du salon', curId ? 'Table' : 'Salon') + '<p class="muted" style="font-size:13px;margin:0 0 6px">Tout le salon lit ce chat. Il est remis à zéro chaque lundi à 3h.</p>' + chatHtml('').replace('class="chatlog"', 'class="chatlog full"') + tabBar();
     on('back', () => { tab = 'main'; render(); });
     wireChat(); wireTabs(); markTableTab();
   }
   async function histView() {
-    document.body.classList.remove('tablemode', 'inplay');
+    document.body.classList.remove('tablemode', 'inplay', 'land');
     app.innerHTML = topbar('Mes donnes', curId ? 'Table' : 'Salon') + '<p class="center muted">Chargement…</p>' + tabBar();
     on('back', () => { tab = 'main'; render(); }); wireTabs();
     try {

@@ -3,6 +3,11 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-paysage', date: '15/11/2026', pour: 'tous',
+    titre: '📱 Mode paysage, comme sur BBO',
+    texte: `<p>Tournez le téléphone pendant une donne : <b>à gauche</b> le chat du salon (ou l’historique des enchères), <b>au centre</b> le tapis et votre main, <b>à droite</b> la boîte d’enchères, puis le mort et les boutons Revendiquer / Annuler pendant le jeu.</p>`,
+  },
+  {
     id: '2026-11-15-flanc-robots', date: '15/11/2026', pour: 'tous',
     titre: '🛡️ Les robots défendent mieux',
     texte: `<p>Les robots ont été entraînés sur la défense : 1000 donnes FFB jouées face à un déclarant parfait, chaque carte de flanc comparée à la meilleure possible.</p>
