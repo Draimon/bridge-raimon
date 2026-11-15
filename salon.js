@@ -144,9 +144,11 @@ function createSalon(env) {
           <div class="sl-seats">${SEATS.map(s => `<span><b>${s}</b> ${seatLabel(t.sieges[s])}</span>`).join('')}</div>
           <button class="btn ${mine || free ? 'primary' : ''} center" data-join="${t.id}" ${mine || free ? '' : 'disabled'}>${mine ? 'Revenir à la table' : free ? 'Rejoindre' : 'Complète'}</button></div>`;
       }).join('') || '<p class="muted center">Aucune table pour l’instant.</p>'}
-      <button class="btn primary center" data-act="create">＋ Créer une table</button>${tabBar()}`;
+      <button class="btn primary center" data-act="create">＋ Créer une table</button>
+      <p class="center"><button class="link" data-act="news">✨ Quoi de neuf ?</button></p>${tabBar()}`;
     on('back', leave);
     on('create', createTable);
+    on('news', () => showNews(getPlayer(), isGuest(), true));
     app.querySelectorAll('[data-join]').forEach(b => b.addEventListener('click', () => enterTable(b.dataset.join)));
     wireTabs();
   }
