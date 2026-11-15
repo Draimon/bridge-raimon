@@ -3,6 +3,13 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-15-robot-raimon-complet', date: '15/11/2026', pour: 'famille',
+    titre: '🤖 Le robot Raimon connaît toute la fiche',
+    texte: `<p>Au salon, le robot Raimon joue maintenant aussi le <b>petit Stayman</b>, le <b>Puppet</b> (avec l'inversé sur 3♦), le <b>Lebelson</b>, le <b>Roudy</b>, le <b>Check-Back Stayman</b> et le <b>Truscott</b>, exactement comme sur la fiche.</p>
+      <p>Et il applique vos dernières précisions : 2♥/2♠ fort = 6 cartes dans la majeure, bicolore faible avec un gros honneur dans chaque couleur, Copenhague de 8 à 16H.</p>
+      <p>Le petit Stayman apparaît aussi dans les donnes du mode solo et du tour par tour.</p>`,
+  },
+  {
     id: '2026-11-15-table-comme-solo', date: '15/11/2026', pour: 'tous',
     titre: '🎴 La table du salon, comme le jeu solo',
     texte: `<ul><li><b>Enchères</b> : la boîte d'enchères est dans le tapis, vos enchères en cartons près de chaque joueur (STOP devant un saut), et on touche l'enchère au centre pour l'annoncer. Votre main reste visible.</li>

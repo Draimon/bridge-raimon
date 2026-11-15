@@ -146,6 +146,17 @@
       add('2♠', 'Texas mineur'); add('3♣', 'L’ouvreur dit 3♣'); add('P', 'Main faible avec des ♣ : on joue 3♣'); return A;
     }
     if (s.d >= 6 && s.hcp <= 7) return null;                          // misère à ♦ : non décrite
+    // Petit Stayman (fiche) : moins de 8H avec 4♥ et 4♠ ; sur 2♦, 2♥ « passe ou corrige »
+    if (s.s === 4 && s.h === 4 && s.hcp < 8) {
+      A.theme = 'Petit Stayman';
+      add('2♣', 'Petit Stayman : moins de 8H, 4 cartes à ♥ et 4 cartes à ♠');
+      if (n.h >= 4) { add('2♥', '4 cartes à ♥'); add('P', 'Fit 4-4 à ♥ : on joue 2♥'); return A; }
+      if (n.s >= 4) { add('2♠', '4 cartes à ♠'); add('P', 'Fit 4-4 à ♠ : on joue 2♠'); return A; }
+      add('2♦', 'Pas de majeure 4e');
+      add('2♥', 'Petit Stayman : passe ou corrige');
+      if (n.s > n.h) { add('2♠', 'Plus de ♠ que de ♥ : il corrige'); add('P'); return A; }
+      add('P', 'On joue 2♥'); return A;
+    }
     // Stayman
     if ((s.s === 4 || s.h === 4) && s.hcp >= 8) {
       if (s.hcp >= 19) return null;
