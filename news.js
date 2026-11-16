@@ -3,6 +3,15 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-16-prof', date: '16/11/2026', pour: 'tous',
+    titre: '🎓 Le prof : « Mieux faire »',
+    texte: `<p>En fin de donne, vous voyez maintenant le <b>contrat au par</b> (le meilleur contrat pour les deux camps, en double mort).</p>
+      <p>Le bouton <b>🎓 Mieux faire</b> (en fin de donne, et dans « Mes donnes » sur chaque donne) lance l’analyse du prof :</p>
+      <ul><li><b>Mieux enchérir</b> : la première enchère qui vous a coûté, ce qu’il fallait dire dans votre système (Raimon pour la famille, SEF pour les autres) et la bonne séquence expliquée.</li>
+      <li><b>Mieux jouer avec le mort</b> / <b>Mieux défendre</b> : la carte qui a coûté une levée, ce qu’il fallait jouer, si c’était trouvable sans voir les mains, et la bonne suite levée par levée.</li></ul>
+      <p>Les entames des robots ont aussi été réglées sur 15 000 entames de champions (Bermuda Bowl, Spingold, championnats d’Europe…).</p>`,
+  },
+  {
     id: '2026-11-16-declarant-simulation', date: '16/11/2026', pour: 'tous',
     titre: '🎯 Le robot déclarant joue (beaucoup) mieux',
     texte: `<p>Quand un robot joue le contrat, il imagine maintenant à chaque carte les mains possibles des deux défenseurs et calcule chacune avec le solveur DDS, comme en défense.</p>

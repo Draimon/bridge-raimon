@@ -30,6 +30,9 @@ function createSalon(env) {
   let presence = [], tables = [], chat = [], where = null, beat = null, current = null, curId = null, robotTimer = null;
   let ui = { sel: null, choice: null, msg: '' };
   let tab = 'main', since = null, histCache = null, autoKey = null, autoTimer = null;
+  let coachInst = null;
+  const coach = () => (coachInst = coachInst || createCoach({ dealOf, auction, score, isVul: (d, sd) => isVul(d, sd), fmt, esc, me, isGuest, app, topbar, on, tabBar: () => tabBar(), wireTabs: () => wireTabs() }));
+  function openCoach(r, back) { tab = 'coach'; coach().view(r, back); }
   const seenKey = () => 'raimon-chat-vu:' + me();
   const getSeen = () => { try { return +localStorage.getItem(seenKey()) || 0; } catch (e) { return 0; } };
   const setSeen = () => { try { localStorage.setItem(seenKey(), String(now())); } catch (e) { /* stockage indisponible */ } };
@@ -648,6 +651,7 @@ function createSalon(env) {
     on('lasttrick', () => { ui.lastAt = ui.lastAt === t.moves ? null : t.moves; renderTable(); });
     on('cleartrick', () => { ui.clearedAt = t.moves; renderTable(); });
     on('showauction', () => { ui.showAuction = true; renderTable(); });
+    on('coachfin', () => { if (t.fin) openCoach({ ...t.fin }, { label: 'Table', go: () => { tab = 'main'; render(); } }); });
     on('showseats', () => { ui.showSeats = true; renderTable(); });
     app.querySelectorAll('[data-act="hideseats"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showSeats = false; renderTable(); } }));
     on('showscores', () => { ui.showAuction = false; ui.showScores = true; ui.openRow = null; renderTable(); loadSalonResults(t); });
@@ -720,7 +724,7 @@ function createSalon(env) {
     const banner = `<div class="resbanner ${mine === null ? '' : mine >= 50 ? 'good' : 'bad'}">
       <div class="respct">${mine === null ? '—' : mine + ' %'}</div>
       <div class="resline">${my ? 'Ton score' : 'Score ' + side} · ${fmt(f.contrat)}${f.contrat !== 'Passe générale' ? ` · ${f.levees} levées` : ''} · <b>${pts > 0 ? '+' : ''}${pts}</b></div></div>`;
-    return `${banner}<div class="card">
+    return `${banner}${coach().parLine(deal, f.ns)}<button class="btn primary center" data-act="coachfin">🎓 Mieux faire : l’analyse du prof</button><div class="card">
       <b>Donne ${f.n}</b> <small class="muted">(${deal.src.simu} du ${deal.src.date.split('-').reverse().join('/')}, donne ${deal.src.num})</small>
       <p style="margin:6px 0">${fmt(f.contrat)}${f.contrat !== 'Passe générale' ? ` · ${f.levees} levées` : ''} · <b>NS ${f.ns > 0 ? '+' : ''}${f.ns}</b></p>
       <p style="margin:6px 0;font-size:18px"><b>NS ${f.pct ?? '—'} %</b> · EO ${f.pct === null ? '—' : Math.round((100 - f.pct) * 10) / 10} % <small class="muted">face à ${total} tables</small></p>
@@ -1229,6 +1233,7 @@ function createSalon(env) {
   }
   function wireTabs() { app.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { tab = x.dataset.tab; render(); })); markChatTab(); const v = document.getElementById('tabvalid'); if (v) v.classList.toggle('dotted', pendingN > 0); }
   function render() {
+    if (tab === 'coach') return;                                   // la page du prof reste affichée
     window.scrollTo(0, 0);
     if (tab === 'hist') return histView();
     if (tab === 'chat') return chatView();
@@ -1269,7 +1274,7 @@ function createSalon(env) {
     const vals = histCache.map(myPct).filter(x => x !== null);
     const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10 : null;
     app.innerHTML = topbar('Mes donnes', curId ? 'Table' : 'Salon') + (histCache.length
-      ? `<p class="muted" style="font-size:14px;margin:0 0 8px">${histCache.length} donne(s) jouée(s)${avg !== null ? ` · moyenne ${avg} %` : ''}. Touche une donne pour la revoir.</p><div class="hlist">${rows}</div>`
+      ? `<p class="muted" style="font-size:14px;margin:0 0 8px">${histCache.length} donne(s) jouée(s)${avg !== null ? ` · moyenne ${avg} %` : ''}. Touche une donne pour la revoir et la faire analyser par le prof 🎓.</p><div class="hlist">${rows}</div>`
       : '<p class="center muted">Tu n’as pas encore joué de donne au salon.</p>') + tabBar();
     on('back', () => { tab = 'main'; render(); }); wireTabs(); markTableTab();
     app.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => replayView(histCache[+b.dataset.h], 0, 'hist')));
@@ -1296,10 +1301,12 @@ function createSalon(env) {
         <div class="re">${handTxt('E')}</div><div class="rs">${handTxt('S')}</div></div>
       ${plays.length ? `<div class="solnav"><button class="btn center" data-st="0">⏮</button><button class="btn center" data-st="${step - 1}">◀</button><button class="btn center" data-st="${step + 1}">▶</button><button class="btn center" data-st="${Math.min(plays.length, (Math.floor(step / 4) + 1) * 4)}">Levée ⏭</button></div>
         <p class="center muted" style="font-size:13px">Carte ${step}/${plays.length} · NS ${ps.tricks.NS} levée(s) · EO ${ps.tricks.EO}</p>` : '<p class="center muted">Pas de jeu de la carte (passe générale ou donne ancienne).</p>'}
+      ${from !== 'valid' ? '<button class="btn primary center" data-act="coachr">🎓 Mieux faire : l’analyse du prof</button>' : ''}
       ${from !== 'valid' && (r.robots || Object.values(r.systemes || {}).some(Boolean)) ? '<button class="btn center" data-act="fixbot">🛠️ Corriger le bot</button>' : ''}
       ${tabBar()}`;
     on('back', () => { if (from === 'hist') histView(); else if (from === 'valid') validView(); else { tab = 'main'; render(); } });
     on('fixbot', () => openFix(r));
+    on('coachr', () => openCoach(r, { label: 'Donne', go: () => { tab = from === 'hist' ? 'hist' : tab; replayView(r, 0, from); } }));
     wireTabs();
     app.querySelectorAll('[data-st]').forEach(b => b.addEventListener('click', () => replayView(r, +b.dataset.st, from)));
     wireNotes(r.notes || [], bids);
@@ -1313,5 +1320,5 @@ function createSalon(env) {
     try { const d = await db.collection('tables').doc(id).get(); const t = d.exists && d.data(); if (!t || t.etat === 'fermee' || !SEATS.some(k => t.sieges[k] && t.sieges[k].uid === me())) { rememberTable(null); return false; } } catch (e) { return false; }
     open(); return true;
   }
-  return { open, resumeIfAny, openValidation: () => open('valid'), pendingCount, stop: () => { stopAll(); stopBeat(); } , _test: { auction, score, pctNS, weekStart } };
+  return { open, resumeIfAny, openValidation: () => open('valid'), pendingCount, stop: () => { stopAll(); stopBeat(); } , _test: { auction, score, pctNS, weekStart, openCoach, coach: () => coach() } };
 }

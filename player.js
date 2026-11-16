@@ -188,7 +188,7 @@
   // Entame : chaque couleur reçoit des points (couleur du partenaire, sa propre couleur annoncée, séquence d'honneurs,
   // longueur à SA, pas sous un As à l'atout, pas dans une couleur des adversaires…), puis la bonne carte dans la couleur choisie.
   // Réglée sur le banc tools/leadlab.js (valeur double mort de chaque entame sur 1000 donnes FFB).
-  const LW = Object.assign({ partner: 6, own: 3, opp: -4, seq: 3, seq3: 1, underAce: -3, bareHon: -2, single: 2, doubleton: 0.5, nothing: 1, ntLen: 1.5, ntHon: 0.5 }, {});
+  const LW = Object.assign({ partner: 6, own: 1, opp: -4, seq: 4, seq3: 6, underAce: -5, bareHon: -2, single: 5, doubleton: 1.5, nothing: 0, ntLen: 1.5, ntHon: -0.5 }, {});
   function seqInfo(rs) {                                             // rs trié décroissant
     if (rs.length >= 2 && rs[0] >= 9 && rs[0] - rs[1] === 1) return { top: rs[0], three: rs.length >= 3 && rs[1] - rs[2] === 1 };
     if (rs.length >= 3 && rs[0] >= 9 && rs[0] - rs[1] === 2 && rs[1] - rs[2] === 1) return { top: rs[1], three: false, interior: true }; // R V 10 : le V

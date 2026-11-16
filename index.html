@@ -495,6 +495,14 @@
   .landright .gridhint { font-size: 13px; margin: 4px 0; }
   .landright .dummywrap { transform: scale(.85); transform-origin: top center; }
   .seatsbtn.inland { position: static; display: inline-block; margin: 6px 4px 0; }
+  /* ── Le prof (🎓 Mieux faire) */
+  .parline { text-align: center; margin: 4px 0 8px; font-size: 15px; }
+  .coach h3 { margin: 0 0 6px; } .coach p { margin: 6px 0; }
+  .coachkey { background: #fff4d6; color: #4a3600; border-left: 4px solid #e0b84a; border-radius: 8px; padding: 8px 10px; margin: 8px 0; }
+  .coachitem { border-top: 1px solid var(--line); padding: 6px 0; font-size: 14px; }
+  .coach details { margin: 6px 0; } .coach summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+  .coachseq { margin: 6px 0 4px; padding-left: 22px; font-size: 14px; } .coachseq li { margin: 2px 0; } .coachseq li.new { background: var(--accent-soft); border-radius: 4px; }
+  .coachseq.plain li { list-style: none; margin-left: -18px; }
   .seatsbtn.sysfab { left: auto; right: 10px; }
   .seatspop { max-width: 420px; } .seatspop .tseat { background: #1f5f3c; }
   /* barre d'état de l'iPhone : bande verte nette (l'appli passe dessous en mode black-translucent) */
@@ -509,29 +517,30 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611160128"></script>
-<script src="fiche.js?v=202611160128"></script>
-<script src="deals.js?v=202611160128"></script>
-<script src="deals-duo.js?v=202611160128"></script>
-<script src="dds.js?v=202611160128"></script>
-<script src="jeu.js?v=202611160128"></script>
-<script src="adeux.js?v=202611160128"></script>
+<script src="questions.js?v=202611160137"></script>
+<script src="fiche.js?v=202611160137"></script>
+<script src="deals.js?v=202611160137"></script>
+<script src="deals-duo.js?v=202611160137"></script>
+<script src="dds.js?v=202611160137"></script>
+<script src="jeu.js?v=202611160137"></script>
+<script src="adeux.js?v=202611160137"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="nosleep-media.js?v=202611160128"></script>
-<script src="auth.js?v=202611160128"></script>
-<script src="ffb-01.js?v=202611160128"></script>
-<script src="ffb-02.js?v=202611160128"></script>
-<script src="robot.js?v=202611160128"></script>
-<script src="bidder.js?v=202611160128"></script>
-<script src="player.js?v=202611160128"></script>
+<script src="nosleep-media.js?v=202611160137"></script>
+<script src="auth.js?v=202611160137"></script>
+<script src="ffb-01.js?v=202611160137"></script>
+<script src="ffb-02.js?v=202611160137"></script>
+<script src="robot.js?v=202611160137"></script>
+<script src="bidder.js?v=202611160137"></script>
+<script src="player.js?v=202611160137"></script>
 <script type="module">
   // Solveur double mort DDS (WebAssembly, vendor/bridge-dds, Apache-2.0) : les robots de défense simulent les mains cachées.
   import("./vendor/bridge-dds/dds-api.js?v=1").then(async ({ loadDds, Dds }) => { window.RaimonDDSW = new Dds(await loadDds()); }).catch(() => { /* pas de WebAssembly : règles classiques */ });
 </script>
-<script src="news.js?v=202611160128"></script>
-<script src="salon.js?v=202611160128"></script>
+<script src="news.js?v=202611160137"></script>
+<script src="coach.js?v=202611160137"></script>
+<script src="salon.js?v=202611160137"></script>
 <script>
 (() => {
   'use strict';
@@ -1207,6 +1216,7 @@
   let play = null;
   const DUO = createDuo({ app, topbar, SYS_BTN, isVul, hcpOf, on, go, fmt, bidLabel, bidRank, getPlayer: () => player, players: PLAYERS, home, SEAT_NAMES });
   const SALON = createSalon({ app, topbar, on, fmt, esc, bidCard, home: () => go(home), getPlayer: () => player, isGuest: () => guest });
+  if (/[?&]test=1/.test(location.search)) window.__SALON = SALON;   // tests locaux
   const PLAY = createPlay({ app, fmt, topbar, on, go: v => v(), getProgress: () => progress, save, exit: () => go(dealList) });
   const biddingDone = n => { const p = progress[dealKey(n)]; return !!p && (p.won || p.last === 1); };
   function startDeal(deal, skipIntro) {
