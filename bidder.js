@@ -259,6 +259,8 @@
   function overcall(e, C, vul) {
     const h = e.hcp, L = e.len, them = C.them, opBid = them[0].b, os = str(opBid);
     const lastThem = them[them.length - 1].b;
+    // les adversaires ont dialogué et sont déjà au palier de 3 ou plus (ex. 1♦ – 1♠ – 1SA – 3SA) : on se tait
+    if (them.length >= 2 && lvl(lastThem) >= 3) return P();
     if (lastThem === '1SA' || os === 'SA') {
       if (opBid === '1SA' && L[0] >= 4 && L[1] >= 4 && L[0] + L[1] >= 9 && h >= 8 && rank('2♣') > C.last) return R('2♣', 'Landy : les deux majeures (5-4 au moins)', true);
       if (C.canX && h >= 16) return R('X', 'Contre punitif : 16H et plus');
