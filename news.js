@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-16-fermer-table', date: '16/11/2026', pour: 'tous',
+    titre: '✖ Fermer une table',
+    texte: `<p>Dans le salon, sous votre table, un bouton <b>✖ Fermer la table</b> (ou <b>🚪 Quitter la table</b> s’il reste d’autres joueurs).</p>
+      <p>Et les tables oubliées se ferment toutes seules : plus aucun humain assis, ou plus personne de connecté depuis 20 minutes.</p>`,
+  },
+  {
     id: '2026-11-16-onglet-prof', date: '16/11/2026', pour: 'tous',
     titre: '🎓 Un nouvel onglet : le Prof',
     texte: `<p>En bas de l’écran, l’onglet <b>🎓 Prof</b> vous fait progresser :</p>

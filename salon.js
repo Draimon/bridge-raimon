@@ -89,6 +89,7 @@ function createSalon(env) {
     presence = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const mine = presence.find(p => p.id === me());
     if (mine && mine.kick) { kicked(); return true; }
+    autoClose();
     return false;
   }
   function kicked() {
@@ -133,7 +134,7 @@ function createSalon(env) {
     startBeat('salon');
     cleanup();
     unsubs.push(db.collection('presence').onSnapshot(s => { if (!onPresence(s)) renderSalon(); }));
-    unsubs.push(db.collection('tables').where('maj', '>', now() - 12 * 3600000).onSnapshot(s => { tables = s.docs.map(d => ({ id: d.id, ...d.data() })); renderSalon(); checkInvites(); }));
+    unsubs.push(db.collection('tables').where('maj', '>', now() - 12 * 3600000).onSnapshot(s => { tables = s.docs.map(d => ({ id: d.id, ...d.data() })); autoClose(); renderSalon(); checkInvites(); }));
     listenChat(); listenPending();
     if (startTab) tab = startTab;
     if (!startTab && await resumeTable()) return;
@@ -166,7 +167,7 @@ function createSalon(env) {
         const mine = SEATS.some(s => t.sieges[s] && t.sieges[s].uid === me());
         return `<div class="card sl-table"><b>${esc(t.nom)}</b> <small class="muted">· ${t.etat === 'attente' ? 'en attente' : t.etat === 'fin' ? 'entre deux donnes' : 'en jeu'}${t.historique && t.historique.length ? ' · ' + t.historique.length + ' donne(s)' : ''}</small>
           <div class="sl-seats">${SEATS.map(s => `<span><b>${s}</b> ${seatLabel(t.sieges[s])}</span>`).join('')}</div>
-          <button class="btn ${mine || free ? 'primary' : ''} center" data-join="${t.id}" ${mine || free ? '' : 'disabled'}>${mine ? 'Revenir à la table' : free ? 'Rejoindre' : 'Complète'}</button></div>`;
+          <button class="btn ${mine || free ? 'primary' : ''} center" data-join="${t.id}" ${mine || free ? '' : 'disabled'}>${mine ? 'Revenir à la table' : free ? 'Rejoindre' : 'Complète'}</button>${mine ? `<button class="btn center" data-close="${t.id}">${SEATS.filter(x => t.sieges[x] && t.sieges[x].uid && t.sieges[x].uid !== me()).length ? '🚪 Quitter la table' : '✖ Fermer la table'}</button>` : ''}</div>`;
       }).join('') || '<p class="muted center">Aucune table pour l’instant.</p>'}
       <button class="btn primary center" data-act="create">＋ Créer une table</button>
       <p class="center"><button class="link" data-act="news">✨ Quoi de neuf ?</button></p>${tabBar()}`;
@@ -174,7 +175,36 @@ function createSalon(env) {
     on('create', createTable);
     on('news', () => showNews(getPlayer(), isGuest(), true));
     app.querySelectorAll('[data-join]').forEach(b => b.addEventListener('click', () => enterTable(b.dataset.join)));
+    app.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => { if (confirm(b.textContent.includes('Fermer') ? 'Fermer cette table ? La donne en cours sera abandonnée.' : 'Quitter cette table ? Ta place sera libérée.')) quitFromSalon(b.dataset.close); }));
     wireTabs();
+  }
+  // Depuis le salon : je libère ma place ; s'il ne reste plus d'humain, la table est fermée
+  async function quitFromSalon(id) {
+    const ref = db.collection('tables').doc(id);
+    try {
+      await db.runTransaction(async T => {
+        const d = await T.get(ref); if (!d.exists) return;
+        const t = d.data(), st = { ...t.sieges }; SEATS.forEach(x => { if (st[x] && st[x].uid === me()) st[x] = null; });
+        const humans = SEATS.filter(x => st[x] && st[x].uid), upd = { sieges: st, maj: now() };
+        if (t.maitre === me()) upd.maitre = humans.length ? st[humans[0]].uid : null;
+        if (!humans.length) upd.etat = 'fermee';
+        T.update(ref, upd);
+      });
+    } catch (e) { /* hors ligne : rien */ }
+    rememberTable(null);
+  }
+  // Ménage automatique : une table sans humain, ou dont aucun humain n'est là depuis 20 min, est fermée
+  const closing = new Set();
+  function autoClose() {
+    if (!presence.length) return;                                   // présence pas encore chargée
+    tables.filter(t => t.etat !== 'fermee' && !closing.has(t.id)).forEach(t => {
+      const humans = SEATS.map(x => t.sieges && t.sieges[x]).filter(x => x && x.uid);
+      const idle = now() - (t.maj || t.cree || 0) > 20 * 60000;
+      if (humans.length && (!idle || humans.some(x => isFresh(x.uid)))) return;
+      if (!humans.length && now() - (t.maj || t.cree || 0) < 60000) return;   // table qu'on vient de créer
+      closing.add(t.id);
+      db.collection('tables').doc(t.id).update({ etat: 'fermee', maj: now() }).catch(() => closing.delete(t.id));
+    });
   }
   function chatLog() {
     return chat.map(m => `<div class="chatmsg ${m.uid === me() ? 'mine' : ''}"><b>${esc(m.nom)}</b> ${esc(m.texte)}<small>${new Date(m.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</small></div>`).join('') || '<p class="muted center" style="font-size:13px">Pas encore de message cette semaine.</p>';
