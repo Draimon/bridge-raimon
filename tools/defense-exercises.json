@@ -1,1244 +1,391 @@
 {
  "sys": "sef",
- "deals": 120,
- "lost": 85,
+ "deals": 200,
+ "lost": 53,
  "byKind": {
-  "3e main": 6,
-  "entame": 28,
-  "attaque (en main)": 47,
-  "2e main": 4
+  "attaque (en main)": 19,
+  "3e main": 24,
+  "coupe": 3,
+  "2e main": 4,
+  "défausse": 3
  },
  "exercises": [
   {
-   "n": "F0001",
-   "contrat": "1SA",
-   "decl": "O",
-   "seat": "S",
-   "levee": 7,
+   "n": "F0004",
+   "contrat": "3SA",
+   "decl": "E",
+   "seat": "O",
+   "levee": 4,
+   "kind": "attaque (en main)",
+   "perte": 1,
+   "robot": "♥6",
+   "bonnes": [
+    "♣8",
+    "♣9"
+   ],
+   "main": "K96.Q86.AT.98",
+   "mort": "K96.Q86.AT.98",
+   "pli": [],
+   "encheres": "1♣ P 1♥ P 1♠ P 3SA P P P"
+  },
+  {
+   "n": "F0006",
+   "contrat": "3SA",
+   "decl": "E",
+   "seat": "O",
+   "levee": 2,
    "kind": "3e main",
+   "perte": 1,
+   "robot": "♠R",
+   "bonnes": [
+    "♠8",
+    "♠9",
+    "♠10"
+   ],
+   "main": "AKT98.532.983.Q",
+   "mort": "AKT98.532.983.Q",
+   "pli": [
+    "E:♠2",
+    "S:♠4"
+   ],
+   "encheres": "1♣ P 1♠ P 2SA P 3SA P P P"
+  },
+  {
+   "n": "F0009",
+   "contrat": "2♦",
+   "decl": "S",
+   "seat": "S",
+   "levee": 5,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♦A",
+   "bonnes": [
+    "♦8"
+   ],
+   "main": "AQ.-.A86.J532",
+   "mort": "-.T6.JT.KQ64",
+   "pli": [
+    "N:♦3",
+    "E:♦7"
+   ],
+   "encheres": "P P 1♦ P 2♦ P P P"
+  },
+  {
+   "n": "F0018",
+   "contrat": "4♥",
+   "decl": "S",
+   "seat": "S",
+   "levee": 8,
+   "kind": "coupe",
    "perte": 1,
    "robot": "♥A",
    "bonnes": [
+    "♥2",
+    "♥4",
     "♥5"
    ],
-   "main": "7.A5.-.Q975",
-   "mort": "Q98.Q.T8.-",
+   "main": "-.A542.KQ.-",
+   "mort": "-.QT8.-.A4",
    "pli": [
-    "N:♥8",
-    "E:♥4"
+    "N:♣2",
+    "E:♣7"
    ],
-   "encheres": "P P 1♣ 1SA P P P"
-  },
-  {
-   "n": "F0003",
-   "contrat": "2♠",
-   "decl": "O",
-   "seat": "N",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♥10",
-   "bonnes": [
-    "♦6",
-    "♦R",
-    "♠R",
-    "♠A"
-   ],
-   "main": "AK65.T93.K6.QT62",
-   "mort": null,
-   "pli": [],
-   "encheres": "P 2♠ P P P"
-  },
-  {
-   "n": "F0003",
-   "contrat": "2♠",
-   "decl": "O",
-   "seat": "N",
-   "levee": 5,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♥3",
-   "bonnes": [
-    "♦6",
-    "♦R",
-    "♣6",
-    "♣10"
-   ],
-   "main": "A65.93.K6.T6",
-   "mort": "-.KJ8.T942.87",
-   "pli": [],
-   "encheres": "P 2♠ P P P"
-  },
-  {
-   "n": "F0005",
-   "contrat": "3♠",
-   "decl": "O",
-   "seat": "N",
-   "levee": 8,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♣2",
-   "bonnes": [
-    "♥R"
-   ],
-   "main": "-.K.T.T942",
-   "mort": "863.A53.-.-",
-   "pli": [],
-   "encheres": "P P 1SA 2♠ 3♣ 3♠ P P P"
-  },
-  {
-   "n": "F0010",
-   "contrat": "1SA",
-   "decl": "E",
-   "seat": "S",
-   "levee": 4,
-   "kind": "attaque (en main)",
-   "perte": 3,
-   "robot": "♣9",
-   "bonnes": [
-    "♥5",
-    "♥10",
-    "♥D",
-    "♠3",
-    "♠4",
-    "♠8",
-    "♠A"
-   ],
-   "main": "A843.QT5.8.T9",
-   "mort": "Q762.K.KJ64.6",
-   "pli": [],
-   "encheres": "1♣ P 1♠ P 1SA P P P"
-  },
-  {
-   "n": "F0011",
-   "contrat": "1SA",
-   "decl": "N",
-   "seat": "E",
-   "levee": 2,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♣3",
-   "bonnes": [
-    "♥2",
-    "♥8",
-    "♥D",
-    "♦A",
-    "♦2",
-    "♦7"
-   ],
-   "main": "T92.Q82.A72.A43",
-   "mort": "AQ863.J.K95.K72",
-   "pli": [],
-   "encheres": "1♠ P 1SA P P P"
+   "encheres": "P 1♥ 1♠ 2♠ 3♥ 4♥ P P P"
   },
   {
    "n": "F0021",
    "contrat": "1♠",
    "decl": "E",
-   "seat": "S",
+   "seat": "E",
    "levee": 2,
    "kind": "attaque (en main)",
-   "perte": 2,
-   "robot": "♠4",
+   "perte": 1,
+   "robot": "♣8",
    "bonnes": [
-    "♥6",
-    "♥7",
-    "♣10",
-    "♣V",
-    "♣A"
+    "♦2",
+    "♦8",
+    "♦10"
    ],
-   "main": "874.J76.J75.AJT",
-   "mort": "95.Q85432.943.7",
+   "main": "KQT62.T9.KT82.8",
+   "mort": "95.Q8543.943.72",
    "pli": [],
    "encheres": "1♣ 1♠ P P P"
   },
   {
-   "n": "F0023",
-   "contrat": "5♣",
-   "decl": "O",
-   "seat": "N",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♠D",
-   "bonnes": [
-    "♦3",
-    "♦8",
-    "♦10",
-    "♦D"
-   ],
-   "main": "QJ97654.J4.QT83.-",
-   "mort": null,
-   "pli": [],
-   "encheres": "P 1♣ 2♠ 3♠ P 3SA P 5♣ P P P"
-  },
-  {
-   "n": "F0025",
-   "contrat": "1♣",
+   "n": "F0024",
+   "contrat": "4♠",
    "decl": "E",
-   "seat": "S",
-   "levee": 1,
-   "kind": "entame",
+   "seat": "E",
+   "levee": 4,
+   "kind": "attaque (en main)",
    "perte": 1,
-   "robot": "♠R",
+   "robot": "♠3",
    "bonnes": [
-    "♦5",
-    "♦6",
-    "♦9",
-    "♦D",
-    "♥6",
-    "♥7",
-    "♣8"
+    "♥4",
+    "♥5"
    ],
-   "main": "KQ62.QJ76.Q965.8",
-   "mort": null,
+   "main": "K93.54.7.AKT2",
+   "mort": "A854.T.A98.86",
    "pli": [],
-   "encheres": "P 1♣ P P P"
+   "encheres": "P P 1SA P 2♥ P 2♠ P 2SA P 4♠ P P P"
   },
   {
    "n": "F0026",
    "contrat": "3SA",
    "decl": "O",
-   "seat": "N",
-   "levee": 1,
-   "kind": "entame",
+   "seat": "E",
+   "levee": 8,
+   "kind": "2e main",
    "perte": 1,
-   "robot": "♠3",
+   "robot": "♥D",
    "bonnes": [
-    "♥8",
-    "♥9",
-    "♥10"
+    "♥7"
    ],
-   "main": "K763.T983.Q5.J83",
-   "mort": null,
-   "pli": [],
+   "main": "-.Q7.J86.T",
+   "mort": "-.Q7.J86.T",
+   "pli": [
+    "N:♥3"
+   ],
    "encheres": "P P 1SA P 3SA P P P"
   },
   {
-   "n": "F0029",
-   "contrat": "2♥",
-   "decl": "E",
-   "seat": "N",
-   "levee": 4,
-   "kind": "3e main",
-   "perte": 1,
-   "robot": "♣A",
-   "bonnes": [
-    "♣9",
-    "♣10"
-   ],
-   "main": "Q6.-.KJ5.AT972",
-   "mort": "T8.Q62.Q96.K",
-   "pli": [
-    "S:♣5",
-    "O:♣8"
-   ],
-   "encheres": "1♣ 1♥ P 2♥ P P P"
-  },
-  {
-   "n": "F0031",
-   "contrat": "4♥",
-   "decl": "N",
-   "seat": "O",
-   "levee": 2,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦V",
-   "bonnes": [
-    "♣R",
-    "♣A",
-    "♠5"
-   ],
-   "main": "5.65.QJ432.AK52",
-   "mort": "AQJ87.9873.85.Q",
-   "pli": [],
-   "encheres": "1♥ P 3♥ P 4♥ P P P"
-  },
-  {
-   "n": "F0031",
-   "contrat": "4♥",
-   "decl": "N",
-   "seat": "E",
-   "levee": 4,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦9",
-   "bonnes": [
-    "♣3",
-    "♣4",
-    "♣6"
-   ],
-   "main": "KT32.J.T9.643",
-   "mort": "AQJ87.987.8.Q",
-   "pli": [],
-   "encheres": "1♥ P 3♥ P 4♥ P P P"
-  },
-  {
-   "n": "F0032",
-   "contrat": "2♦",
-   "decl": "N",
-   "seat": "E",
-   "levee": 3,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♣R",
-   "bonnes": [
-    "♠2",
-    "♠8",
-    "♠10",
-    "♠V"
-   ],
-   "main": "JT82.8652.73.K",
-   "mort": "KQ43.KT.84.975",
-   "pli": [],
-   "encheres": "P P P 1♥ P 1♠ P 2♦ P P P"
-  },
-  {
-   "n": "F0033",
-   "contrat": "1♠",
-   "decl": "E",
-   "seat": "S",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 2,
-   "robot": "♥10",
-   "bonnes": [
-    "♣5",
-    "♣V"
-   ],
-   "main": "T532.T98.T876.J5",
-   "mort": null,
-   "pli": [],
-   "encheres": "P P 1♥ 1♠ P P P"
-  },
-  {
-   "n": "F0033",
-   "contrat": "1♠",
-   "decl": "E",
-   "seat": "N",
-   "levee": 3,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♥2",
-   "bonnes": [
-    "♣A"
-   ],
-   "main": "74.Q632.-.AQ973",
-   "mort": "J6.7.KQJ9.K842",
-   "pli": [],
-   "encheres": "P P 1♥ 1♠ P P P"
-  },
-  {
-   "n": "F0037",
-   "contrat": "1SA",
-   "decl": "E",
-   "seat": "N",
-   "levee": 3,
-   "kind": "attaque (en main)",
-   "perte": 2,
-   "robot": "♥4",
-   "bonnes": [
-    "♠2",
-    "♠7",
-    "♠8",
-    "♠9"
-   ],
-   "main": "K9872.74.T954.-",
-   "mort": "A65.J3.AKQ8.T7",
-   "pli": [],
-   "encheres": "P 1♦ P 1SA P P P"
-  },
-  {
-   "n": "F0038",
-   "contrat": "5♦",
-   "decl": "E",
-   "seat": "S",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♠10",
-   "bonnes": [
-    "♥2",
-    "♥3",
-    "♥9"
-   ],
-   "main": "T32.932.J952.854",
-   "mort": null,
-   "pli": [],
-   "encheres": "P 1♠ 2♦ P 2♠ P 5♦ P P P"
-  },
-  {
-   "n": "F0038",
-   "contrat": "5♦",
-   "decl": "E",
-   "seat": "S",
-   "levee": 7,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♠3",
-   "bonnes": [
-    "♥2",
-    "♥3",
-    "♥9",
-    "♦5",
-    "♦9",
-    "♦V"
-   ],
-   "main": "3.932.J95.-",
-   "mort": "-.K87.T6.A7",
-   "pli": [],
-   "encheres": "P 1♠ 2♦ P 2♠ P 5♦ P P P"
-  },
-  {
-   "n": "F0042",
-   "contrat": "3SA",
-   "decl": "N",
+   "n": "F0027",
+   "contrat": "4♠",
+   "decl": "O",
    "seat": "E",
    "levee": 1,
-   "kind": "entame",
-   "perte": 4,
-   "robot": "♣D",
-   "bonnes": [
-    "♠8",
-    "♠9",
-    "♠5",
-    "♠R"
-   ],
-   "main": "K985.J74.962.QJ3",
-   "mort": null,
-   "pli": [],
-   "encheres": "P P P 1♦ P 1SA P 2SA P 3SA P P P"
-  },
-  {
-   "n": "F0045",
-   "contrat": "3♣",
-   "decl": "E",
-   "seat": "S",
-   "levee": 3,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦2",
-   "bonnes": [
-    "♥5",
-    "♥6",
-    "♥V",
-    "♥A",
-    "♣A"
-   ],
-   "main": "K975.AJ65.72.A",
-   "mort": "QJT.974.KJ8.T8",
-   "pli": [],
-   "encheres": "1♦ P P 2♣ P 3♣ P P P"
-  },
-  {
-   "n": "F0046",
-   "contrat": "1♦",
-   "decl": "N",
-   "seat": "O",
-   "levee": 2,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦2",
-   "bonnes": [
-    "♥10",
-    "♥D",
-    "♥A",
-    "♠A"
-   ],
-   "main": "AT8.AQT.652.743",
-   "mort": "Q62.J9865.K3.Q5",
-   "pli": [],
-   "encheres": "P 1♣ 1♦ P P P"
-  },
-  {
-   "n": "F0047",
-   "contrat": "1SA",
-   "decl": "N",
-   "seat": "O",
-   "levee": 6,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♠A",
-   "bonnes": [
-    "♦3",
-    "♦7",
-    "♦8",
-    "♦V"
-   ],
-   "main": "A7.3.J873.5",
-   "mort": "JT9.AJ5.A.Q",
-   "pli": [],
-   "encheres": "1♦ P P 1♠ P 1SA P P P"
-  },
-  {
-   "n": "F0048",
-   "contrat": "1♠",
-   "decl": "N",
-   "seat": "E",
-   "levee": 4,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♠V",
-   "bonnes": [
-    "♥4",
-    "♥8"
-   ],
-   "main": "KQJ4.84.87.72",
-   "mort": "5.AQT32.-.Q953",
-   "pli": [],
-   "encheres": "P P P 1♦ 1♠ P P P"
-  },
-  {
-   "n": "F0051",
-   "contrat": "2SA",
-   "decl": "N",
-   "seat": "E",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♦A",
-   "bonnes": [
-    "♠3",
-    "♠7",
-    "♠8"
-   ],
-   "main": "J873.K32.A6.K972",
-   "mort": null,
-   "pli": [],
-   "encheres": "1♣ P 1♥ P 1♠ P 2SA P P P"
-  },
-  {
-   "n": "F0051",
-   "contrat": "2SA",
-   "decl": "N",
-   "seat": "E",
-   "levee": 2,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♥2",
-   "bonnes": [
-    "♠3",
-    "♠7",
-    "♠8",
-    "♠V"
-   ],
-   "main": "J873.K32.6.K972",
-   "mort": "AT64.4.KQ.QJ643",
-   "pli": [],
-   "encheres": "1♣ P 1♥ P 1♠ P 2SA P P P"
-  },
-  {
-   "n": "F0051",
-   "contrat": "2SA",
-   "decl": "N",
-   "seat": "E",
-   "levee": 5,
-   "kind": "attaque (en main)",
+   "kind": "2e main",
    "perte": 1,
    "robot": "♥R",
    "bonnes": [
-    "♠3",
-    "♠7",
-    "♠8",
-    "♠V",
-    "♣2",
-    "♣7",
-    "♣9"
+    "♥V"
    ],
-   "main": "J873.K3.-.972",
-   "mort": "AT64.-.K.QJ64",
-   "pli": [],
-   "encheres": "1♣ P 1♥ P 1♠ P 2SA P P P"
+   "main": "AJT8.KJ74.J5.AT5",
+   "mort": "AJT8.KJ74.J5.AT5",
+   "pli": [
+    "N:♥3"
+   ],
+   "encheres": "P 1♣ P 1♥ P 1♠ P 4♠ P P P"
+  },
+  {
+   "n": "F0033",
+   "contrat": "1♠",
+   "decl": "E",
+   "seat": "E",
+   "levee": 4,
+   "kind": "coupe",
+   "perte": 1,
+   "robot": "♠8",
+   "bonnes": [
+    "♠D",
+    "♠R",
+    "♠A"
+   ],
+   "main": "AKQ98.KJ5.54.-",
+   "mort": "J6.74.KQJ9.K8",
+   "pli": [
+    "N:♣3"
+   ],
+   "encheres": "P P 1♥ 1♠ P P P"
+  },
+  {
+   "n": "F0043",
+   "contrat": "3SA",
+   "decl": "N",
+   "seat": "N",
+   "levee": 3,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♠9",
+   "bonnes": [
+    "♠R"
+   ],
+   "main": "KT953.AK.AK9.9",
+   "mort": "-.Q.QT7432.A87",
+   "pli": [
+    "S:♠2",
+    "O:♠4"
+   ],
+   "encheres": "1♠ P 2♦ P 3SA P P P"
   },
   {
    "n": "F0052",
    "contrat": "3SA",
    "decl": "O",
-   "seat": "N",
-   "levee": 1,
-   "kind": "entame",
+   "seat": "O",
+   "levee": 10,
+   "kind": "défausse",
    "perte": 1,
-   "robot": "♠3",
+   "robot": "♦5",
    "bonnes": [
-    "♥V",
-    "♥D",
-    "♥3",
-    "♥7"
+    "♣7"
    ],
-   "main": "J863.QJ73.KT84.8",
-   "mort": null,
-   "pli": [],
+   "main": "-.-.Q5.K7",
+   "mort": "T.-.-.T9",
+   "pli": [
+    "N:♥7",
+    "E:♦9",
+    "S:♣3"
+   ],
    "encheres": "P 2♦ P 2♥ P 2SA P 3SA P P P"
   },
   {
-   "n": "F0054",
-   "contrat": "4♥",
-   "decl": "S",
-   "seat": "O",
-   "levee": 2,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦6",
-   "bonnes": [
-    "♣5",
-    "♣7",
-    "♣8",
-    "♣9",
-    "♣D"
-   ],
-   "main": "743.T4.T6.Q9875",
-   "mort": "QJ8.QJ93.QJ83.T",
-   "pli": [],
-   "encheres": "P P 1♥ 3♣ 3♥ P 4♥ P P P"
-  },
-  {
-   "n": "F0056",
-   "contrat": "1SA",
-   "decl": "S",
-   "seat": "O",
-   "levee": 2,
-   "kind": "2e main",
-   "perte": 1,
-   "robot": "♦R",
-   "bonnes": [
-    "♦6"
-   ],
-   "main": "A73.KT62.K6.KJ6",
-   "mort": "JT.QJ4.JT43.542",
-   "pli": [
-    "S:♦2"
-   ],
-   "encheres": "P 1SA P P P"
-  },
-  {
-   "n": "F0056",
-   "contrat": "1SA",
-   "decl": "S",
-   "seat": "O",
-   "levee": 8,
-   "kind": "2e main",
-   "perte": 1,
-   "robot": "♥2",
-   "bonnes": [
-    "♥R"
-   ],
-   "main": "7.KT62.6.-",
-   "mort": "-.QJ4.JT4.-",
-   "pli": [
-    "S:♥5"
-   ],
-   "encheres": "P 1SA P P P"
-  },
-  {
-   "n": "F0059",
-   "contrat": "3SA",
-   "decl": "O",
-   "seat": "S",
-   "levee": 5,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦A",
-   "bonnes": [
-    "♥D",
-    "♥R"
-   ],
-   "main": "97.KQ.A98.73",
-   "mort": "J6.-.JT6.AQ86",
-   "pli": [],
-   "encheres": "P P 1♣ 1SA P 2SA P 3SA P P P"
-  },
-  {
-   "n": "F0060",
-   "contrat": "1SA",
-   "decl": "E",
-   "seat": "S",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 2,
-   "robot": "♣6",
-   "bonnes": [
-    "♥2",
-    "♥6",
-    "♥V"
-   ],
-   "main": "862.J62.T7.KT764",
-   "mort": null,
-   "pli": [],
-   "encheres": "1SA P P P"
-  },
-  {
-   "n": "F0064",
-   "contrat": "3SA",
-   "decl": "O",
-   "seat": "N",
-   "levee": 2,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♣A",
-   "bonnes": [
-    "♠2",
-    "♠V"
-   ],
-   "main": "J2.T76.743.A962",
-   "mort": "AK8.K3.AJT85.J8",
-   "pli": [],
-   "encheres": "P 1♦ P 2SA P 3SA P P P"
-  },
-  {
-   "n": "F0065",
-   "contrat": "3♥",
-   "decl": "E",
-   "seat": "S",
-   "levee": 4,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♣2",
-   "bonnes": [
-    "♦2",
-    "♦3",
-    "♦8",
-    "♦D"
-   ],
-   "main": "-.JT.Q832.T732",
-   "mort": "A98.KQ8.7.854",
-   "pli": [],
-   "encheres": "1♥ P 2♥ P 3♥ P P P"
-  },
-  {
-   "n": "F0066",
-   "contrat": "1SA",
+   "n": "F0055",
+   "contrat": "4♦",
    "decl": "N",
-   "seat": "O",
-   "levee": 1,
-   "kind": "3e main",
-   "perte": 1,
-   "robot": "♣D",
-   "bonnes": [
-    "♣2",
-    "♣9"
-   ],
-   "main": "KQ932.32.732.Q92",
-   "mort": "J864.QJ96.95.J8",
-   "pli": [
-    "E:♣6",
-    "S:♣3"
-   ],
-   "encheres": "P P 1SA P P P"
-  },
-  {
-   "n": "F0066",
-   "contrat": "1SA",
-   "decl": "N",
-   "seat": "E",
-   "levee": 5,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦6",
-   "bonnes": [
-    "♣5",
-    "♣7",
-    "♣10"
-   ],
-   "main": "5.74.A86.T75",
-   "mort": "J864.QJ9.9.J",
-   "pli": [],
-   "encheres": "P P 1SA P P P"
-  },
-  {
-   "n": "F0069",
-   "contrat": "2SA",
-   "decl": "O",
-   "seat": "S",
-   "levee": 5,
-   "kind": "attaque (en main)",
-   "perte": 2,
-   "robot": "♠D",
-   "bonnes": [
-    "♣2",
-    "♣9",
-    "♦3",
-    "♦4",
-    "♦9"
-   ],
-   "main": "Q4.-.A943.Q92",
-   "mort": "-.K7.KT8.JT85",
-   "pli": [],
-   "encheres": "P 1♦ P 1♠ P 2♣ P 2SA P P P"
-  },
-  {
-   "n": "F0070",
-   "contrat": "3SA",
-   "decl": "E",
    "seat": "S",
    "levee": 10,
    "kind": "3e main",
    "perte": 1,
-   "robot": "♦5",
-   "bonnes": [
-    "♦R"
-   ],
-   "main": "T9.-.K5.-",
-   "mort": "-.-.T9.J9",
-   "pli": [
-    "N:♦A",
-    "E:♦8"
-   ],
-   "encheres": "P 1SA P 2SA P 3SA P P P"
-  },
-  {
-   "n": "F0071",
-   "contrat": "5♣",
-   "decl": "N",
-   "seat": "E",
-   "levee": 2,
-   "kind": "attaque (en main)",
-   "perte": 1,
    "robot": "♥7",
    "bonnes": [
-    "♦4",
-    "♦5",
-    "♦6",
-    "♦9"
+    "♥D"
    ],
-   "main": "T974.7.K9654.AJ",
-   "mort": "5.KQJ3.J73.T932",
-   "pli": [],
-   "encheres": "1♠ P P 2♣ P 3♣ 3♠ 5♣ P P P"
-  },
-  {
-   "n": "F0072",
-   "contrat": "4♥",
-   "decl": "S",
-   "seat": "O",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♣V",
-   "bonnes": [
-    "♦3",
-    "♦4",
-    "♦7",
-    "♦V"
-   ],
-   "main": "J76.Q42.J743.JT2",
-   "mort": null,
-   "pli": [],
-   "encheres": "1♥ P 3♥ P 4♥ P P P"
-  },
-  {
-   "n": "F0073",
-   "contrat": "3SA",
-   "decl": "E",
-   "seat": "S",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 2,
-   "robot": "♥4",
-   "bonnes": [
-    "♦3",
-    "♦5"
-   ],
-   "main": "J863.K6542.53.AT",
-   "mort": null,
-   "pli": [],
-   "encheres": "1♣ P 1♠ P 2♣ P 3SA P P P"
-  },
-  {
-   "n": "F0074",
-   "contrat": "5♦",
-   "decl": "O",
-   "seat": "N",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♥R",
-   "bonnes": [
-    "♣2",
-    "♣V"
-   ],
-   "main": "QJ2.KQ8764.K5.J2",
-   "mort": null,
-   "pli": [],
-   "encheres": "1♥ P 1♠ 2♦ P 3♦ 4♥ 5♦ P P P"
-  },
-  {
-   "n": "F0075",
-   "contrat": "2SA",
-   "decl": "O",
-   "seat": "N",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♥D",
-   "bonnes": [
-    "♥7",
-    "♥8"
-   ],
-   "main": "K74.QJT87.J72.J4",
-   "mort": null,
-   "pli": [],
-   "encheres": "P P 1SA P 2♣ P 2♦ P 2SA P P P"
-  },
-  {
-   "n": "F0075",
-   "contrat": "2SA",
-   "decl": "O",
-   "seat": "N",
-   "levee": 5,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦2",
-   "bonnes": [
-    "♥7",
-    "♥8",
-    "♥10",
-    "♥V",
-    "♣V"
-   ],
-   "main": "7.JT87.J72.J",
-   "mort": "QJ.964.84.QT",
-   "pli": [],
-   "encheres": "P P 1SA P 2♣ P 2♦ P 2SA P P P"
-  },
-  {
-   "n": "F0075",
-   "contrat": "2SA",
-   "decl": "O",
-   "seat": "S",
-   "levee": 7,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♣5",
-   "bonnes": [
-    "♥R"
-   ],
-   "main": "5.K.63.965",
-   "mort": "QJ.964.8.Q",
-   "pli": [],
-   "encheres": "P P 1SA P 2♣ P 2♦ P 2SA P P P"
-  },
-  {
-   "n": "F0076",
-   "contrat": "2SA",
-   "decl": "O",
-   "seat": "N",
-   "levee": 3,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♣4",
-   "bonnes": [
-    "♠D",
-    "♠R",
-    "♥2"
-   ],
-   "main": "KQ.J2.K4.QT754",
-   "mort": "8732.-.QJT983.K",
-   "pli": [],
-   "encheres": "P 1♣ X 1♠ P 1SA P 2♦ P 2SA P P P"
-  },
-  {
-   "n": "F0077",
-   "contrat": "2♥",
-   "decl": "S",
-   "seat": "E",
-   "levee": 1,
-   "kind": "3e main",
-   "perte": 2,
-   "robot": "♣10",
-   "bonnes": [
-    "♣A"
-   ],
-   "main": "AKJ.J75.A95.AT65",
-   "mort": "952.T8.Q84.QJ87",
+   "main": "7.Q7.-.T",
+   "mort": "7.Q7.-.T",
    "pli": [
-    "O:♣2",
-    "N:♣4"
+    "N:♥2",
+    "E:♥V"
    ],
-   "encheres": "P P 1SA 2♥ P P P"
+   "encheres": "1♦ P 2♦ P 4♦ P P P"
   },
   {
-   "n": "F0077",
-   "contrat": "2♥",
-   "decl": "S",
-   "seat": "E",
-   "levee": 6,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♣5",
-   "bonnes": [
-    "♠V",
-    "♠A",
-    "♦5",
-    "♦9",
-    "♦A"
-   ],
-   "main": "AJ.J.A95.65",
-   "mort": "95.-.Q84.QJ8",
-   "pli": [],
-   "encheres": "P P 1SA 2♥ P P P"
-  },
-  {
-   "n": "F0078",
+   "n": "F0057",
    "contrat": "3SA",
-   "decl": "S",
-   "seat": "E",
-   "levee": 2,
-   "kind": "attaque (en main)",
-   "perte": 3,
-   "robot": "♠9",
-   "bonnes": [
-    "♣A"
-   ],
-   "main": "QT963.J92.Q9.A6",
-   "mort": "752.AT.AJ863.QT",
-   "pli": [],
-   "encheres": "P P 1♦ P 3♦ P 3SA P P P"
-  },
-  {
-   "n": "F0079",
-   "contrat": "3SA",
-   "decl": "S",
-   "seat": "O",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♦2",
-   "bonnes": [
-    "♦D"
-   ],
-   "main": "A74.Q843.Q872.83",
-   "mort": null,
-   "pli": [],
-   "encheres": "P 1♥ P 2♣ P 2SA P 3SA P P P"
-  },
-  {
-   "n": "F0083",
-   "contrat": "1♥",
-   "decl": "S",
-   "seat": "E",
-   "levee": 4,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♥4",
-   "bonnes": [
-    "♣6",
-    "♣8"
-   ],
-   "main": "QT.T954.KT.86",
-   "mort": "A9652.Q.A652.-",
-   "pli": [],
-   "encheres": "1♣ 1♥ P P P"
-  },
-  {
-   "n": "F0088",
-   "contrat": "3SA",
-   "decl": "E",
-   "seat": "S",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♠3",
-   "bonnes": [
-    "♦2",
-    "♦8"
-   ],
-   "main": "J873.953.AQ82.42",
-   "mort": null,
-   "pli": [],
-   "encheres": "P 1♥ P 2♣ P 2♦ P 3SA P P P"
-  },
-  {
-   "n": "F0093",
-   "contrat": "2♠",
-   "decl": "E",
-   "seat": "S",
-   "levee": 5,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♠10",
-   "bonnes": [
-    "♣5",
-    "♣V"
-   ],
-   "main": "T.KT972.Q.J5",
-   "mort": "Q875.-.72.Q63",
-   "pli": [],
-   "encheres": "P P 1SA P 2♥ P 2♠ P P P"
-  },
-  {
-   "n": "F0100",
-   "contrat": "6♣",
-   "decl": "E",
-   "seat": "S",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♦D",
-   "bonnes": [
-    "♥3",
-    "♥4",
-    "♥8"
-   ],
-   "main": "QT.843.QJ9732.K6",
-   "mort": null,
-   "pli": [],
-   "encheres": "P 1♥ P 2♣ 3♦ 4SA P 5♣ P 6♣ P P P"
-  },
-  {
-   "n": "F0102",
-   "contrat": "1SA",
    "decl": "N",
-   "seat": "E",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♣A",
-   "bonnes": [
-    "♥5",
-    "♥9",
-    "♥10",
-    "♥R",
-    "♠10",
-    "♠V",
-    "♠7",
-    "♦2",
-    "♦3",
-    "♦V"
-   ],
-   "main": "JT7.KT95.J32.AK5",
-   "mort": null,
-   "pli": [],
-   "encheres": "1SA P P P"
-  },
-  {
-   "n": "F0102",
-   "contrat": "1SA",
-   "decl": "N",
-   "seat": "E",
-   "levee": 3,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♠7",
-   "bonnes": [
-    "♥5",
-    "♥9",
-    "♥10",
-    "♥R"
-   ],
-   "main": "JT7.KT95.J32.5",
-   "mort": "843.Q86.Q75.T8",
-   "pli": [],
-   "encheres": "1SA P P P"
-  },
-  {
-   "n": "F0103",
-   "contrat": "1♦",
-   "decl": "S",
-   "seat": "O",
-   "levee": 5,
-   "kind": "attaque (en main)",
-   "perte": 1,
-   "robot": "♦4",
-   "bonnes": [
-    "♣D",
-    "♣R",
-    "♣3"
-   ],
-   "main": "864.-.974.KQ3",
-   "mort": "T52.J.T3.A92",
-   "pli": [],
-   "encheres": "P 1♦ P P P"
-  },
-  {
-   "n": "F0104",
-   "contrat": "2♥",
-   "decl": "S",
-   "seat": "O",
-   "levee": 6,
-   "kind": "attaque (en main)",
-   "perte": 2,
-   "robot": "♥A",
-   "bonnes": [
-    "♠6",
-    "♠7",
-    "♠8"
-   ],
-   "main": "876.A2.-.A63",
-   "mort": "AQ54.9.QJ.7",
-   "pli": [],
-   "encheres": "2♥ P P P"
-  },
-  {
-   "n": "F0105",
-   "contrat": "4♥",
-   "decl": "E",
-   "seat": "S",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♠R",
-   "bonnes": [
-    "♦4",
-    "♦5"
-   ],
-   "main": "KQ9642.K.54.T842",
-   "mort": null,
-   "pli": [],
-   "encheres": "P P 1♥ 2♠ 3♠ P 4♥ P P P"
-  },
-  {
-   "n": "F0105",
-   "contrat": "4♥",
-   "decl": "E",
    "seat": "N",
-   "levee": 3,
+   "levee": 12,
    "kind": "2e main",
-   "perte": 2,
-   "robot": "♥D",
+   "perte": 1,
+   "robot": "♥A",
    "bonnes": [
     "♥10"
    ],
-   "main": "JT.QT.AQJT83.7",
-   "mort": "A87.976.K76.5",
+   "main": "-.AT.-.-",
+   "mort": "-.Q6.-.-",
    "pli": [
-    "O:♥3"
+    "O:♥V"
    ],
-   "encheres": "P P 1♥ 2♠ 3♠ P 4♥ P P P"
+   "encheres": "1♣ P 1♠ P 2♣ P 3SA P P P"
   },
   {
-   "n": "F0106",
-   "contrat": "3SA",
-   "decl": "N",
-   "seat": "E",
-   "levee": 3,
-   "kind": "attaque (en main)",
+   "n": "F0063",
+   "contrat": "2♦",
+   "decl": "S",
+   "seat": "S",
+   "levee": 5,
+   "kind": "3e main",
    "perte": 1,
-   "robot": "♦3",
+   "robot": "♦D",
    "bonnes": [
-    "♠4",
-    "♠5"
+    "♦A"
    ],
-   "main": "54.976.9743.65",
-   "mort": "97.T85.K8.AQJ3",
+   "main": "-.J.AQ753.K93",
+   "mort": "8.A.T964.J4",
+   "pli": [
+    "N:♦2",
+    "E:♦8"
+   ],
+   "encheres": "P 1♣ 1♦ X 2♦ P P P"
+  },
+  {
+   "n": "F0066",
+   "contrat": "1SA",
+   "decl": "N",
+   "seat": "N",
+   "levee": 12,
+   "kind": "défausse",
+   "perte": 1,
+   "robot": "♦R",
+   "bonnes": [
+    "♠A"
+   ],
+   "main": "A.-.K.-",
+   "mort": "J.-.-.-",
+   "pli": [
+    "E:♣R",
+    "S:♠8",
+    "O:♠D"
+   ],
+   "encheres": "P P 1SA P P P"
+  },
+  {
+   "n": "F0067",
+   "contrat": "3♣",
+   "decl": "E",
+   "seat": "O",
+   "levee": 6,
+   "kind": "2e main",
+   "perte": 1,
+   "robot": "♥7",
+   "bonnes": [
+    "♥R",
+    "♥A"
+   ],
+   "main": "54.AK97.8.Q",
+   "mort": "54.AK97.8.Q",
+   "pli": [
+    "S:♥4"
+   ],
+   "encheres": "P 1SA 2♠ 3♣ P P P"
+  },
+  {
+   "n": "F0089",
+   "contrat": "3♦",
+   "decl": "O",
+   "seat": "O",
+   "levee": 4,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♦A",
+   "bonnes": [
+    "♦V"
+   ],
+   "main": "95.J.AJ32.KJ8",
+   "mort": "K74.97.T.A72",
+   "pli": [
+    "E:♦8",
+    "S:♦5"
+   ],
+   "encheres": "1♦ 2♥ X P 3♦ P P P"
+  },
+  {
+   "n": "F0095",
+   "contrat": "3♦",
+   "decl": "O",
+   "seat": "O",
+   "levee": 5,
+   "kind": "attaque (en main)",
+   "perte": 2,
+   "robot": "♦9",
+   "bonnes": [
+    "♥2",
+    "♥6",
+    "♥10",
+    "♥D"
+   ],
+   "main": "-.QT62.QJ9.84",
+   "mort": "5.AK975.T.Q3",
    "pli": [],
-   "encheres": "1SA P 2♣ P 2♦ P 3SA P P P"
+   "encheres": "P P P 1♠ P P 3♦ P P P"
   },
   {
    "n": "F0108",
    "contrat": "4♥",
    "decl": "E",
-   "seat": "S",
-   "levee": 7,
+   "seat": "O",
+   "levee": 6,
    "kind": "attaque (en main)",
    "perte": 1,
-   "robot": "♦4",
+   "robot": "♠2",
    "bonnes": [
-    "♠9",
-    "♠V",
-    "♠R"
+    "♣A",
+    "♣5",
+    "♣D",
+    "♦3"
    ],
-   "main": "KJ9.-.AT74.-",
-   "mort": "A87.9.-.QJ5",
+   "main": "872.9.3.AQ5",
+   "mort": "872.9.3.AQ5",
    "pli": [],
    "encheres": "1♠ P 1SA 2♥ P 4♥ P P P"
   },
@@ -1246,122 +393,540 @@
    "n": "F0109",
    "contrat": "4♥",
    "decl": "O",
-   "seat": "N",
-   "levee": 1,
-   "kind": "entame",
+   "seat": "E",
+   "levee": 2,
+   "kind": "attaque (en main)",
    "perte": 1,
-   "robot": "♠A",
+   "robot": "♦3",
    "bonnes": [
-    "♣3",
-    "♣4",
-    "♣8"
+    "♣A",
+    "♥A",
+    "♥2",
+    "♦V",
+    "♦R",
+    "♥4",
+    "♥5",
+    "♥6",
+    "♥7",
+    "♣D"
    ],
-   "main": "AJ976.K83.A6.843",
-   "mort": null,
+   "main": "-.A76542.KJ53.AQ",
+   "mort": "-.A76542.KJ53.AQ",
    "pli": [],
    "encheres": "P 1♠ X 3♠ 4♥ P P P"
   },
   {
-   "n": "F0110",
+   "n": "F0117",
+   "contrat": "3♣",
+   "decl": "N",
+   "seat": "N",
+   "levee": 2,
+   "kind": "défausse",
+   "perte": 1,
+   "robot": "♥7",
+   "bonnes": [
+    "♣7",
+    "♣8",
+    "♣10"
+   ],
+   "main": "-.AJ7.AK87.KQT87",
+   "mort": "QJ82.Q43.JT42.-",
+   "pli": [
+    "S:♠10",
+    "O:♠3"
+   ],
+   "encheres": "P 1♣ P 1♠ P 3♣ P P P"
+  },
+  {
+   "n": "F0121",
+   "contrat": "4♥",
+   "decl": "E",
+   "seat": "E",
+   "levee": 6,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♥A",
+   "bonnes": [
+    "♥2",
+    "♥8",
+    "♥9"
+   ],
+   "main": "K.A982.QJ.6",
+   "mort": "-.JT.2.9853",
+   "pli": [
+    "O:♥6",
+    "N:♥5"
+   ],
+   "encheres": "1♣ P 1♥ P 2♥ P 4♥ P P P"
+  },
+  {
+   "n": "F0126",
+   "contrat": "4♥",
+   "decl": "O",
+   "seat": "O",
+   "levee": 6,
+   "kind": "attaque (en main)",
+   "perte": 1,
+   "robot": "♠4",
+   "bonnes": [
+    "♣4",
+    "♣5",
+    "♥8",
+    "♥9",
+    "♥V",
+    "♥5"
+   ],
+   "main": "74.J985.-.54",
+   "mort": "AT8.64.8.K8",
+   "pli": [],
+   "encheres": "1♦ X 3♦ 4♥ P P P"
+  },
+  {
+   "n": "F0127",
+   "contrat": "2♠",
+   "decl": "N",
+   "seat": "S",
+   "levee": 5,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♥R",
+   "bonnes": [
+    "♥8",
+    "♥9"
+   ],
+   "main": "QJT7.AK982.-.-",
+   "mort": "QJT7.AK982.-.-",
+   "pli": [
+    "N:♥4",
+    "E:♥7"
+   ],
+   "encheres": "1SA 2♣ 2♦ 2♠ P P P"
+  },
+  {
+   "n": "F0135",
+   "contrat": "1SA",
+   "decl": "N",
+   "seat": "N",
+   "levee": 5,
+   "kind": "attaque (en main)",
+   "perte": 3,
+   "robot": "♠D",
+   "bonnes": [
+    "♦A",
+    "♦7",
+    "♦10",
+    "♦V"
+   ],
+   "main": "QT.A9.AJT7.8",
+   "mort": "K852.J6.84.2",
+   "pli": [],
+   "encheres": "P P P 1♦ P 1♠ P 1SA P P P"
+  },
+  {
+   "n": "F0136",
    "contrat": "3♥",
    "decl": "N",
-   "seat": "O",
-   "levee": 3,
-   "kind": "attaque (en main)",
+   "seat": "N",
+   "levee": 5,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♥R",
+   "bonnes": [
+    "♥10"
+   ],
+   "main": "6.AKT753.KQ.-",
+   "mort": "-.84.A98.AT5",
+   "pli": [
+    "S:♥2",
+    "O:♥6"
+   ],
+   "encheres": "P P 1♥ 3♣ 3♥ P P P"
+  },
+  {
+   "n": "F0139",
+   "contrat": "3SA",
+   "decl": "N",
+   "seat": "S",
+   "levee": 6,
+   "kind": "3e main",
    "perte": 1,
    "robot": "♠R",
    "bonnes": [
-    "♦4",
-    "♣3",
-    "♣4",
-    "♣7",
-    "♣8"
+    "♠7",
+    "♠9"
    ],
-   "main": "KT654.3.4.8743",
-   "mort": "J.K84.JT7.KQ92",
-   "pli": [],
-   "encheres": "2♥ X XX 2♠ P P 3♥ P P P"
+   "main": "K97.-.54.AQJ",
+   "mort": "K97.-.54.AQJ",
+   "pli": [
+    "N:♠3",
+    "E:♠6"
+   ],
+   "encheres": "P P P 1SA P 3SA P P P"
   },
   {
-   "n": "F0114",
-   "contrat": "4♥",
-   "decl": "N",
-   "seat": "E",
-   "levee": 1,
-   "kind": "entame",
-   "perte": 1,
-   "robot": "♠9",
-   "bonnes": [
-    "♣8",
-    "♣10",
-    "♥8",
-    "♥9",
-    "♥10"
-   ],
-   "main": "976.T98.97652.T8",
-   "mort": null,
-   "pli": [],
-   "encheres": "1SA P 2♦ X 2♥ P 2SA P 4♥ P P P"
-  },
-  {
-   "n": "F0119",
-   "contrat": "2♥",
+   "n": "F0140",
+   "contrat": "4♠",
    "decl": "O",
-   "seat": "N",
-   "levee": 1,
-   "kind": "entame",
+   "seat": "O",
+   "levee": 3,
+   "kind": "3e main",
    "perte": 1,
-   "robot": "♠A",
+   "robot": "♠R",
+   "bonnes": [
+    "♠10"
+   ],
+   "main": "AKT.AQ.AT8532.-",
+   "mort": "987.K97.KJ94.-",
+   "pli": [
+    "E:♠5",
+    "S:♠3"
+   ],
+   "encheres": "P 1♦ 3♣ X P 4♠ P P P"
+  },
+  {
+   "n": "F0143",
+   "contrat": "1♠",
+   "decl": "N",
+   "seat": "N",
+   "levee": 6,
+   "kind": "coupe",
+   "perte": 1,
+   "robot": "♠V",
+   "bonnes": [
+    "♣2",
+    "♣5",
+    "♣6",
+    "♦7",
+    "♦V"
+   ],
+   "main": "AKJ.-.J7.652",
+   "mort": "965.9.-.AJ4",
+   "pli": [
+    "E:♥8",
+    "S:♥6",
+    "O:♥10"
+   ],
+   "encheres": "P P P 1♦ P 1♥ P 1♠ P P P"
+  },
+  {
+   "n": "F0144",
+   "contrat": "1♠",
+   "decl": "S",
+   "seat": "S",
+   "levee": 7,
+   "kind": "attaque (en main)",
+   "perte": 1,
+   "robot": "♣4",
+   "bonnes": [
+    "♠2",
+    "♠4",
+    "♠9"
+   ],
+   "main": "942.-.Q52.4",
+   "mort": "Q.T.84.Q65",
+   "pli": [],
+   "encheres": "1♠ P P P"
+  },
+  {
+   "n": "F0151",
+   "contrat": "1♥",
+   "decl": "S",
+   "seat": "S",
+   "levee": 2,
+   "kind": "3e main",
+   "perte": 2,
+   "robot": "♥V",
+   "bonnes": [
+    "♥A"
+   ],
+   "main": "KQJ.AJ765.84.QT",
+   "mort": "T5.Q83.JT6.865",
+   "pli": [
+    "N:♥2",
+    "E:♥4"
+   ],
+   "encheres": "1♦ P P 1♥ P P P"
+  },
+  {
+   "n": "F0153",
+   "contrat": "3SA",
+   "decl": "E",
+   "seat": "O",
+   "levee": 5,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♠5",
+   "bonnes": [
+    "♠D"
+   ],
+   "main": "Q765.AJ8.-.JT",
+   "mort": "Q765.AJ8.-.JT",
+   "pli": [
+    "E:♠2",
+    "S:♠8"
+   ],
+   "encheres": "1♦ P 1♥ P 2SA P 3SA P P P"
+  },
+  {
+   "n": "F0154",
+   "contrat": "4♥",
+   "decl": "E",
+   "seat": "E",
+   "levee": 7,
+   "kind": "attaque (en main)",
+   "perte": 1,
+   "robot": "♦A",
+   "bonnes": [
+    "♦9",
+    "♦V"
+   ],
+   "main": "K7.KJ.AJ9.-",
+   "mort": "T.T87.-.T76",
+   "pli": [],
+   "encheres": "1♦ P 1♠ 2♥ P 3♥ 3SA P P 4♥ P P P"
+  },
+  {
+   "n": "F0156",
+   "contrat": "1SA",
+   "decl": "S",
+   "seat": "N",
+   "levee": 3,
+   "kind": "3e main",
+   "perte": 2,
+   "robot": "♦A",
    "bonnes": [
     "♦10"
    ],
-   "main": "A76.KT53.AT4.AJ9",
-   "mort": null,
-   "pli": [],
-   "encheres": "P P 1♥ 1SA 2♥ P P P"
+   "main": "J932.8.AT.AT97",
+   "mort": "J932.8.AT.AT97",
+   "pli": [
+    "S:♦2",
+    "O:♦7"
+   ],
+   "encheres": "P P 1♦ P 1♠ P 1SA P P P"
   },
   {
-   "n": "F0119",
-   "contrat": "2♥",
-   "decl": "O",
+   "n": "F0158",
+   "contrat": "4♠",
+   "decl": "N",
    "seat": "N",
-   "levee": 3,
+   "levee": 11,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♦D",
+   "bonnes": [
+    "♦A"
+   ],
+   "main": "-.-.AQ8.-",
+   "mort": "-.8.7.-",
+   "pli": [
+    "S:♦5",
+    "O:♦V"
+   ],
+   "encheres": "2SA P 3♥ P 3♠ P 3SA P 4♠ P P P"
+  },
+  {
+   "n": "F0160",
+   "contrat": "4♠",
+   "decl": "S",
+   "seat": "N",
+   "levee": 6,
+   "kind": "3e main",
+   "perte": 2,
+   "robot": "♦10",
+   "bonnes": [
+    "♦A",
+    "♦2",
+    "♦4",
+    "♦5"
+   ],
+   "main": "-.96.AT542.A",
+   "mort": "-.96.AT542.A",
+   "pli": [
+    "S:♦3",
+    "O:♦6"
+   ],
+   "encheres": "1♠ P 2♦ 3♥ 4♠ P P P"
+  },
+  {
+   "n": "F0163",
+   "contrat": "2♦",
+   "decl": "S",
+   "seat": "S",
+   "levee": 4,
    "kind": "attaque (en main)",
    "perte": 1,
-   "robot": "♥3",
+   "robot": "♣V",
    "bonnes": [
-    "♠6",
-    "♠7",
-    "♦A",
-    "♣9",
-    "♣V"
+    "♣6",
+    "♦4",
+    "♦6",
+    "♦7",
+    "♥A",
+    "♥4",
+    "♥8",
+    "♥V"
    ],
-   "main": "76.KT53.AT4.J9",
-   "mort": "8.764.875.KQ43",
+   "main": "-.AJ84.K764.J6",
+   "mort": "A98.T63.3.A98",
    "pli": [],
-   "encheres": "P P 1♥ 1SA 2♥ P P P"
+   "encheres": "P 1♦ P 1♠ P 2♦ P P P"
   },
   {
-   "n": "F0120",
-   "contrat": "2♥",
-   "decl": "E",
+   "n": "F0163",
+   "contrat": "2♦",
+   "decl": "S",
+   "seat": "S",
+   "levee": 9,
+   "kind": "attaque (en main)",
+   "perte": 1,
+   "robot": "♥V",
+   "bonnes": [
+    "♦6",
+    "♦7",
+    "♦R"
+   ],
+   "main": "-.J8.K76.-",
+   "mort": "9.3.3.98",
+   "pli": [],
+   "encheres": "P 1♦ P 1♠ P 2♦ P P P"
+  },
+  {
+   "n": "F0169",
+   "contrat": "3SA",
+   "decl": "O",
+   "seat": "E",
+   "levee": 4,
+   "kind": "3e main",
+   "perte": 2,
+   "robot": "♦D",
+   "bonnes": [
+    "♦5",
+    "♦7",
+    "♦8"
+   ],
+   "main": "87.A.KQ875.76",
+   "mort": "87.A.KQ875.76",
+   "pli": [
+    "O:♦2",
+    "N:♦3"
+   ],
+   "encheres": "1SA P 3SA P P P"
+  },
+  {
+   "n": "F0175",
+   "contrat": "4♣",
+   "decl": "S",
    "seat": "N",
-   "levee": 2,
+   "levee": 8,
+   "kind": "attaque (en main)",
+   "perte": 1,
+   "robot": "♦A",
+   "bonnes": [
+    "♠A"
+   ],
+   "main": "A.-.A9542.-",
+   "mort": "A.-.A9542.-",
+   "pli": [],
+   "encheres": "2♥ P P X P 4♣ P P P"
+  },
+  {
+   "n": "F0177",
+   "contrat": "2SA",
+   "decl": "E",
+   "seat": "O",
+   "levee": 7,
+   "kind": "attaque (en main)",
+   "perte": 1,
+   "robot": "♠7",
+   "bonnes": [
+    "♦A",
+    "♣3",
+    "♣5"
+   ],
+   "main": "87.9.A2.53",
+   "mort": "87.9.A2.53",
+   "pli": [],
+   "encheres": "1♦ P 2SA P P P"
+  },
+  {
+   "n": "F0179",
+   "contrat": "3SA",
+   "decl": "O",
+   "seat": "O",
+   "levee": 7,
+   "kind": "attaque (en main)",
+   "perte": 1,
+   "robot": "♣7",
+   "bonnes": [
+    "♠3",
+    "♠D"
+   ],
+   "main": "Q3.Q87.-.T7",
+   "mort": "K52.4.9.A6",
+   "pli": [],
+   "encheres": "1♦ P 3SA P P P"
+  },
+  {
+   "n": "F0188",
+   "contrat": "2♥",
+   "decl": "O",
+   "seat": "E",
+   "levee": 8,
+   "kind": "3e main",
+   "perte": 2,
+   "robot": "♦A",
+   "bonnes": [
+    "♦7",
+    "♦9",
+    "♦V"
+   ],
+   "main": "9.-.AJ97.T",
+   "mort": "9.-.AJ97.T",
+   "pli": [
+    "O:♦10",
+    "N:♦8"
+   ],
+   "encheres": "P 1♥ P 1SA P 2♥ P P P"
+  },
+  {
+   "n": "F0190",
+   "contrat": "1SA",
+   "decl": "S",
+   "seat": "S",
+   "levee": 5,
    "kind": "attaque (en main)",
    "perte": 1,
    "robot": "♥5",
    "bonnes": [
-    "♠V",
-    "♠R",
-    "♣7",
-    "♣10",
-    "♣V",
-    "♣D"
+    "♣2",
+    "♣3",
+    "♣10"
    ],
-   "main": "KJ.85.8643.QJT7",
-   "mort": "3.AK94.KT2.K852",
+   "main": "Q.85.AQ8.T32",
+   "mort": "-.QJT.652.Q76",
    "pli": [],
-   "encheres": "1♠ X XX 2♥ P P P"
+   "encheres": "P P 1♣ P 1♥ P 1SA P P P"
+  },
+  {
+   "n": "F0194",
+   "contrat": "5♦",
+   "decl": "N",
+   "seat": "N",
+   "levee": 4,
+   "kind": "3e main",
+   "perte": 1,
+   "robot": "♦A",
+   "bonnes": [
+    "♦V"
+   ],
+   "main": "A4.Q.AJ975.J4",
+   "mort": "KJT8.-.8.A653",
+   "pli": [
+    "S:♦6",
+    "O:♦10"
+   ],
+   "encheres": "1♦ 2♥ X P 3♦ P 5♦ P P P"
   }
  ]
 }

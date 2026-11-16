@@ -350,7 +350,7 @@
     st.declSide = sideOf(st.me) === sideOf(st.decl);
     const left = st.counts[st.me];
     // défense : simulation DDS (WebAssembly) à chaque carte si le solveur est là (sauf l'entame, sauf réglage contraire)
-    if (!st.declSide && ddsw() && (st.played.length || st.trick.length || st.mcLead)) { const c = mcChoice(st, L, st.mcSamples || 24); if (c) return c; }
+    if (ddsw() && (st.declSide ? st.mcDecl !== false : (st.played.length || st.trick.length || st.mcLead))) { const c = mcChoice(st, L, st.mcSamples || 24); if (c) return c; }
     const ddFrom = st.declSide ? 7 : (st.ddFrom || 7);
     if (left <= ddFrom) { const c = ddChoice(st, L, budgetMs === undefined ? 900 : budgetMs); if (c) return c; }
     if (!st.trick.length) return st.played.length === 0 && !st.declSide ? openingLead(st, L) : lead(st, L);

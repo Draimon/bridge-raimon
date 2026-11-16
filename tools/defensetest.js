@@ -53,11 +53,12 @@ const ask = q => new Promise(res => { waiting.push(res); srv.stdin.write(JSON.st
       const best = Math.max(...Object.values(dd));
       if (k === 0) ddStart = best;                                         // levées de la défense en double mort
       let card;
-      if (sideOf(turn) === sideOf(c.decl)) {                                // déclarant parfait : meilleure carte, la plus petite
+      const DECL = !!process.env.DECL;                                    // DECL=1 : le robot joue le déclarant, la défense est parfaite
+      if (DECL ? sideOf(turn) !== sideOf(c.decl) : sideOf(turn) === sideOf(c.decl)) {   // camp parfait : meilleure carte, la plus petite
         const opts = Object.entries(dd).filter(([, v]) => v === best).map(([k2]) => ({ s: SL.indexOf(k2[0]), r: 12 - RCH.indexOf(k2[1]) }));
         card = opts.sort((a, b) => a.r - b.r || a.s - b.s)[0];
       } else {
-        const visible = played.length || trick.length ? [dummy] : [];
+        const visible = DECL ? [partner(turn)] : played.length || trick.length ? [dummy] : [];
         const known = {}; SEATS.forEach(s => { known[s] = s === turn || visible.includes(s) ? hands[s] : [[], [], [], []]; });
         const counts = {}; SEATS.forEach(s => { counts[s] = hands[s].reduce((a, x) => a + x.length, 0); });
         const st = { me: turn, hands: known, visible, trick: trick.slice(), played: played.slice(), trump, decl: c.decl, counts, voids, partnerSuit: named[partner(turn)], partnerLed: pLed[partner(turn)], myLed: pLed[turn], bids, dealer: d.d, mcSamples: +process.env.MC || 24, mcLead: !!process.env.MCLEAD, ...(process.env.NOCONS ? { accept: null } : {}) };
@@ -81,13 +82,14 @@ const ask = q => new Promise(res => { waiting.push(res); srv.stdin.write(JSON.st
       trick.push({ seat: turn, s: card.s, r: card.r });
       if (trick.length === 4) { const w = PL.winnerOf(trick, trump); tricks[sideOf(w.seat)]++; played.push(...trick); leader = w.seat; trick = []; }
     }
-    const got = tricks[sideOf(c.decl) === 'NS' ? 'EO' : 'NS'];
-    nDeals++; defDD += ddStart; defGot += got; lost += ddStart - got;
+    const DECLM = !!process.env.DECL;
+    const got = DECLM ? tricks[sideOf(c.decl)] : tricks[sideOf(c.decl) === 'NS' ? 'EO' : 'NS'], ddv = DECLM ? 13 - ddStart : ddStart;
+    nDeals++; defDD += ddv; defGot += got; lost += ddv - got;
     if (nDeals % 25 === 0) process.stderr.write(`${nDeals} donnes · ${((Date.now() - t0) / 1000).toFixed(0)} s\n`);
   }
   srv.stdin.end();
   const kinds = Object.entries(byKind).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(' · ');
-  console.log(`${nDeals} donnes (${SYS}) · défense : ${defGot} levées sur ${defDD} possibles en double mort · perdues ${lost} (${(lost / nDeals).toFixed(2)} par donne)`);
+  console.log(`${nDeals} donnes (${SYS}) · ${process.env.DECL ? 'DÉCLARANT' : 'défense'} : ${defGot} levées sur ${defDD} possibles en double mort · perdues ${lost} (${(lost / nDeals).toFixed(2)} par donne)`);
   console.log('Levées perdues par type : ' + kinds);
   if (process.env.CACHE_POS) fs.writeFileSync(path.join(__dirname, 'defense-positions.json'), JSON.stringify(positions));
   fs.writeFileSync(path.join(__dirname, 'defense-exercises.json'), JSON.stringify({ sys: SYS, deals: nDeals, lost, byKind, exercises }, null, 1));

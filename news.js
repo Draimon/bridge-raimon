@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-16-declarant-simulation', date: '16/11/2026', pour: 'tous',
+    titre: '🎯 Le robot déclarant joue (beaucoup) mieux',
+    texte: `<p>Quand un robot joue le contrat, il imagine maintenant à chaque carte les mains possibles des deux défenseurs et calcule chacune avec le solveur DDS, comme en défense.</p>
+      <p>Face à une défense parfaite, il perd <b>4 fois moins de levées</b> qu’avant (0,27 levée par donne au lieu de 1,20). Moins de contrats chutés bêtement quand votre partenaire robot joue !</p>`,
+  },
+  {
     id: '2026-11-16-flanc-simulation', date: '16/11/2026', pour: 'tous',
     titre: '🧠 Les robots imaginent les mains cachées',
     texte: `<p>En défense, à chaque carte, les robots imaginent maintenant une vingtaine de répartitions possibles des cartes cachées et calculent chacune avec le solveur de référence des champions (DDS), puis jouent la carte qui marche le plus souvent, comme les meilleurs robots.</p>
