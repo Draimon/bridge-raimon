@@ -74,6 +74,8 @@ function createCoach(h) {
     const bids = r.bids || [], sysName = mySys === 'raimon' ? 'Système Raimon' : 'SEF';
     const A = h.auction({ bids }, deal), c = A.contract, my = nsOf(deal, c), sideSign = sideOf(mySeat) === 'NS' ? 1 : -1;
     const ctr = x => (x ? `${x.l}${fmt(x.s)}${x.dbl === 2 ? 'XX' : x.dbl ? 'X' : ''} par ${NAMES[x.decl]}` : 'passe générale');
+    // au par (ou mieux) : pas de faute d'enchères à signaler
+    const par = parOf(deal), atPar = par && (my - par.ns) * sideSign >= 0;
     // chaque enchère différente du robot : où aurait mené la bonne enchère (suite jouée par les robots) ?
     let key = null; const diffs = [];
     bids.forEach((b, i) => {
@@ -83,7 +85,7 @@ function createCoach(h) {
       const alt = robotAuction(deal, r, mySeat, mySys, [...bids.slice(0, i), rb.bid]);
       const gain = (nsOf(deal, alt.c) - my) * sideSign;
       const d = { i, mine: b, rob: rb.bid, expl: rb.expl, alt, gain };
-      diffs.push(d); if (!key && gain > 0) key = d;
+      diffs.push(d); if (!key && gain >= 50 && !atPar) key = d;
     });
     const full = robotAuction(deal, r, mySeat, mySys), rob = nsOf(deal, full.c);
     let out = `<p>Contrat joué : <b>${ctr(c)}</b> (double mort : NS ${sgn(my)}) · les robots en ${sysName} : <b>${ctr(full.c)}</b> (NS ${sgn(rob)}).</p>`;
@@ -91,6 +93,9 @@ function createCoach(h) {
       const before = bids.slice(0, key.i).map(bidName).join(' – ') || 'tu ouvres';
       out += `<div class="coachkey">❌ <b>L'erreur</b> : après <i>${before}</i>, tu as dit <b>${bidName(key.mine)}</b>. En ${sysName}, il faut <b>${bidName(key.rob)}</b>${key.expl ? ` — ${esc(key.expl)}` : ''}. On serait arrivé à ${ctr(key.alt.c)}, soit ${key.gain} points de mieux.</div>`;
       out += `<details><summary>Voir la bonne séquence</summary>${seqHtml(deal, key.alt.bids, key.alt.expl, key.i)}</details>`;
+    } else if (atPar) {
+      out += `<p>✅ Vous êtes au par (ou mieux) : rien à reprocher aux enchères.</p>`;
+      if (diffs.length) out += `<details><summary>Voir la séquence des robots</summary>${seqHtml(deal, full.bids, full.expl, 0)}</details>`;
     } else if (diffs.length) {
       out += `<p>✅ Tes enchères diffèrent un peu du ${sysName}, mais ça ne t'a rien coûté.</p>`;
       out += `<details><summary>Voir la séquence des robots</summary>${seqHtml(deal, full.bids, full.expl, 0)}</details>`;
