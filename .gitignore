@@ -3,3 +3,5 @@
 tools/defense-positions.json
 tools/lead-cache-*.json
 tools/vugraph/
+tools/vugraph-boards.json
+tools/lead-cache-experts.json
