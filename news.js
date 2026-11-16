@@ -3,6 +3,15 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-16-onglet-prof', date: '16/11/2026', pour: 'tous',
+    titre: '🎓 Un nouvel onglet : le Prof',
+    texte: `<p>En bas de l’écran, l’onglet <b>🎓 Prof</b> vous fait progresser :</p>
+      <ul><li><b>📚 Revue de vos donnes</b> : le prof reprend une par une vos donnes en rouge, de la pire à la moins mauvaise, et ne vous repropose pas celles déjà expliquées.</li>
+      <li><b>🔎 Vos points faibles</b> : ouverture, réponses, compétition, entame, flanc ou jeu avec le mort, d’après vos donnes analysées.</li>
+      <li><b>🏋️ Cours</b> : des exercices tirés de vraies donnes de tournoi, sur votre point faible en priorité : quelle enchère (dans votre système), quelle entame, quelle carte en flanc ou avec le mort. Le prof corrige et explique.</li></ul>
+      <p>Dans « Mes donnes », les donnes en rouge ont aussi leur 🎓 pour aller directement à l’analyse (✔︎ quand c’est déjà vu).</p>`,
+  },
+  {
     id: '2026-11-16-prof', date: '16/11/2026', pour: 'tous',
     titre: '🎓 Le prof : « Mieux faire »',
     texte: `<p>En fin de donne, vous voyez maintenant le <b>contrat au par</b> (le meilleur contrat pour les deux camps, en double mort).</p>

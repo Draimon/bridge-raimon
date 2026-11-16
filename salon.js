@@ -31,7 +31,7 @@ function createSalon(env) {
   let ui = { sel: null, choice: null, msg: '' };
   let tab = 'main', since = null, histCache = null, autoKey = null, autoTimer = null;
   let coachInst = null;
-  const coach = () => (coachInst = coachInst || createCoach({ dealOf, auction, score, isVul: (d, sd) => isVul(d, sd), fmt, esc, me, isGuest, app, topbar, on, tabBar: () => tabBar(), wireTabs: () => wireTabs() }));
+  const coach = () => (coachInst = coachInst || createCoach({ dealOf, auction, score, isVul: (d, sd) => isVul(d, sd), fmt, esc, me, isGuest, app, topbar, on, tabBar: () => tabBar(), wireTabs: () => wireTabs(), history: loadHist, home: () => { tab = 'main'; render(); }, homeLabel: () => (curId ? 'Table' : 'Salon') }));
   function openCoach(r, back) { tab = 'coach'; coach().view(r, back); }
   const seenKey = () => 'raimon-chat-vu:' + me();
   const getSeen = () => { try { return +localStorage.getItem(seenKey()) || 0; } catch (e) { return 0; } };
@@ -1228,12 +1228,13 @@ function createSalon(env) {
   // ───── Onglets du bas (comme sur BBO) : salle ou table · mes donnes · chat
   function tabBar() {
     const main = curId ? ['🂠', 'Table'] : ['🏠', 'Salon'];
-    const b = (k, ico, txt) => `<button class="tab ${tab === k ? 'on' : ''}" id="tab${k}" data-tab="${k}"><span>${ico}</span>${txt}</button>`;
-    return `<nav class="tabbar">${b('main', main[0], main[1])}${b('hist', '📜', 'Mes donnes')}${b('chat', '💬', 'Chat')}${isBoss() ? b('valid', '📝', 'À valider <em>' + (pendingN ? '(' + pendingN + ')' : '') + '</em>') : ''}</nav>`;
+    const b = (k, ico, txt) => `<button class="tab ${tab === k || (k === 'prof' && tab === 'coach') ? 'on' : ''}" id="tab${k}" data-tab="${k}"><span>${ico}</span>${txt}</button>`;
+    return `<nav class="tabbar">${b('main', main[0], main[1])}${b('hist', '📜', 'Mes donnes')}${b('chat', '💬', 'Chat')}${b('prof', '🎓', 'Prof')}${isBoss() ? b('valid', '📝', 'À valider <em>' + (pendingN ? '(' + pendingN + ')' : '') + '</em>') : ''}</nav>`;
   }
   function wireTabs() { app.querySelectorAll('[data-tab]').forEach(x => x.addEventListener('click', () => { tab = x.dataset.tab; render(); })); markChatTab(); const v = document.getElementById('tabvalid'); if (v) v.classList.toggle('dotted', pendingN > 0); }
   function render() {
     if (tab === 'coach') return;                                   // la page du prof reste affichée
+    if (tab === 'prof') { tab = 'coach'; return coach().prof(); }
     window.scrollTo(0, 0);
     if (tab === 'hist') return histView();
     if (tab === 'chat') return chatView();
@@ -1256,28 +1257,33 @@ function createSalon(env) {
     on('back', () => { tab = 'main'; render(); });
     wireChat(); wireTabs(); markTableTab();
   }
-  async function histView() {
-    document.body.classList.remove('tablemode', 'inplay', 'land');
-    app.innerHTML = topbar('Mes donnes', curId ? 'Table' : 'Salon') + '<p class="center muted">Chargement…</p>' + tabBar();
-    on('back', () => { tab = 'main'; render(); }); wireTabs();
+  async function loadHist() {
     try {
       const q = await db.collection('resultats').where('uids', 'array-contains', me()).get();
       histCache = q.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.t - a.t);
     } catch (e) { histCache = histCache || []; }
+    return histCache;
+  }
+  async function histView() {
+    document.body.classList.remove('tablemode', 'inplay', 'land');
+    app.innerHTML = topbar('Mes donnes', curId ? 'Table' : 'Salon') + '<p class="center muted">Chargement…</p>' + tabBar();
+    on('back', () => { tab = 'main'; render(); }); wireTabs();
+    await loadHist();
     if (tab !== 'hist') return;
     const mySide = r => { const x = SEATS.find(k => r.places && r.places[k] === me()); return x ? sideOf(x) : 'NS'; };
     const myPct = r => (r.pct === null || r.pct === undefined ? null : mySide(r) === 'NS' ? r.pct : Math.round((100 - r.pct) * 10) / 10);
     const rows = histCache.map((r, i) => {
       const pct = myPct(r), pts = mySide(r) === 'NS' ? r.ns : -r.ns;
-      return `<button class="hrow" data-h="${i}"><span><b>${r.n}</b><small>${new Date(r.t).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · ${mySide(r)}</small></span><span>${fmt(r.contrat)}</span><span>${pts > 0 ? '+' : ''}${pts}</span><span class="${pct === null ? '' : pct >= 50 ? 'good' : 'bad'}">${pct === null ? '—' : pct + ' %'}</span></button>`;
+      return `<button class="hrow" data-h="${i}"><span><b>${r.n}</b><small>${new Date(r.t).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })} · ${mySide(r)}</small></span><span>${fmt(r.contrat)}</span><span>${pts > 0 ? '+' : ''}${pts}</span><span class="${pct === null ? '' : pct >= 50 ? 'good' : 'bad'}">${pct === null ? '—' : pct + ' %'}</span><span class="hcoach" ${pct !== null && pct < 50 ? `data-c="${i}"` : ''}>${pct !== null && pct < 50 ? (coach().seen(r.n) ? '<small>✔︎</small>' : '🎓') : ''}</span></button>`;
     }).join('');
     const vals = histCache.map(myPct).filter(x => x !== null);
     const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10 : null;
     app.innerHTML = topbar('Mes donnes', curId ? 'Table' : 'Salon') + (histCache.length
-      ? `<p class="muted" style="font-size:14px;margin:0 0 8px">${histCache.length} donne(s) jouée(s)${avg !== null ? ` · moyenne ${avg} %` : ''}. Touche une donne pour la revoir et la faire analyser par le prof 🎓.</p><div class="hlist">${rows}</div>`
+      ? `<p class="muted" style="font-size:14px;margin:0 0 8px">${histCache.length} donne(s) jouée(s)${avg !== null ? ` · moyenne ${avg} %` : ''}. Touche une donne pour la revoir, ou 🎓 pour l’analyse du prof.</p><div class="hlist">${rows}</div>`
       : '<p class="center muted">Tu n’as pas encore joué de donne au salon.</p>') + tabBar();
     on('back', () => { tab = 'main'; render(); }); wireTabs(); markTableTab();
     app.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => replayView(histCache[+b.dataset.h], 0, 'hist')));
+    app.querySelectorAll('.hcoach[data-c]').forEach(x => x.addEventListener('click', e => { e.stopPropagation(); openCoach(histCache[+x.dataset.c], { label: 'Mes donnes', go: () => { tab = 'hist'; histView(); } }); }));
   }
   // Relecture d'une donne : les 4 mains ouvertes, carte par carte
   function replayView(r, step, from) {
