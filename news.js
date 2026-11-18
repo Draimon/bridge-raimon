@@ -3,6 +3,13 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-18-retours-martine', date: '18/11/2026', pour: 'tous',
+    titre: '🙏 Merci pour vos retours',
+    texte: `<ul><li><b>Sur ordinateur</b>, la table s’agrandit pour remplir l’écran : les cartes sont nettement plus grandes, et la boîte d’enchères ne passe plus sous le nom du joueur en face.</li>
+      <li><b>Plus de temps pour réfléchir</b> : un joueur n’est signalé « ne répond plus » qu’après 3 minutes (au lieu d’1).</li>
+      <li><b>Le temps de lire le prof</b> : la donne suivante part après 30 secondes, et <b>n’importe quel joueur</b> peut la mettre en pause (⏸). Ouvrir « 🎓 Mieux faire » en fin de donne la met en pause automatiquement ; on reprend quand tout le monde a lu.</li></ul>`,
+  },
+  {
     id: '2026-11-18-ordinateur', date: '18/11/2026', pour: 'tous',
     titre: '💻 Jouer sur ordinateur',
     texte: `<p>Sur un ordinateur, la table s’ajuste maintenant à la hauteur de la fenêtre : votre main reste toujours entièrement visible en bas, même sur un petit écran.</p>`,

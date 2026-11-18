@@ -275,6 +275,14 @@ function createSalon(env) {
       return { sieges: { ...t.sieges, [seat]: { robot: true, sys: final } } };
     });
   }
+  // Donne suivante automatique : en pause dès qu'un joueur le demande (ou lit l'analyse du prof)
+  function pauseTxt(t) {
+    if (ui.noAuto || t.pauseAuto) {
+      const who = t.pauseAuto && SEATS.map(x => t.sieges[x]).find(x => x && x.uid === t.pauseAuto);
+      return `⏸ Donne suivante en pause${who && t.pauseAuto !== me() ? ` (${esc(who.nom)} lit l’analyse)` : ''} · <button class="link" data-act="autoon">reprendre</button>`;
+    }
+    return 'Donne suivante automatique dans 30 secondes · <button class="link" data-act="autooff">⏸ pause</button>';
+  }
   function freeSeat(seat) { tx(t => (!isMaster(t) ? null : { sieges: { ...t.sieges, [seat]: null } })); }
   function leaveTable() {
     const id = curId;
@@ -298,7 +306,7 @@ function createSalon(env) {
     const pool = FFB_DEALS.filter(d => !seen.has(d.n));
     if (!pool.length) { ui.msg = 'Plus aucune donne neuve pour cette table : préviens Damien.'; renderTable(); return; }
     const pick = pool[Math.floor(Math.random() * pool.length)];
-    tx(x => (!isMaster(x) || x.etat === 'encheres' || x.etat === 'jeu' ? null : { n: pick.n, bids: [], notes: [], plays: [], moves: 0, etat: 'encheres', fin: null, claim: null }));
+    tx(x => (!isMaster(x) || x.etat === 'encheres' || x.etat === 'jeu' ? null : { n: pick.n, bids: [], notes: [], plays: [], moves: 0, etat: 'encheres', fin: null, claim: null, pauseAuto: null }));
   }
 
   // ───── Règles du jeu (tout est recalculé à partir des enchères et des cartes jouées)
@@ -399,7 +407,7 @@ function createSalon(env) {
     const sw = swapOf(t, A.contract);
     return sw && (ps.turn === A.contract.decl || ps.turn === ps.dummy) ? sw.human : ps.turn === ps.dummy ? A.contract.decl : ps.turn;
   }
-  const SLOW = 60000;                                                    // au-delà (1 min sans jouer) : « ne répond plus »
+  const SLOW = 180000;                                                   // au-delà (3 min sans jouer) : « ne répond plus »
   // Un joueur ne répond plus (absent, ou rien joué depuis 1 min) : le maître peut le remplacer par un robot
   function stuckSeat(t) {
     const seat = actingSeat(t), st = seat && t.sieges[seat];
@@ -429,9 +437,9 @@ function createSalon(env) {
       ui.reloading = true; ui.msg = '🔄 Mise à jour de l’appli…';
       setTimeout(() => location.reload(), 2500);
     }
-    if (t.etat === 'fin' && t.fin && isMaster(t) && SEATS.every(k => t.sieges[k]) && !ui.noAuto) {
+    if (t.etat === 'fin' && t.fin && isMaster(t) && SEATS.every(k => t.sieges[k]) && !ui.noAuto && !t.pauseAuto) {
       const key = curId + ':' + (t.historique || []).length;
-      if (autoKey !== key) { autoKey = key; clearTimeout(autoTimer); autoTimer = setTimeout(() => { if (current && current.etat === 'fin' && !ui.noAuto) nextDeal(); }, 9000); }
+      if (autoKey !== key) { autoKey = key; clearTimeout(autoTimer); autoTimer = setTimeout(() => { if (current && current.etat === 'fin' && !ui.noAuto && !current.pauseAuto) nextDeal(); }, 30000); }
     }
     if (t.etat === 'fin' && t.fin) {
       if ((t.fin.uids || []).includes(me())) markPlayed(t.fin.n);      // seulement ceux qui l'ont jouée
@@ -572,6 +580,7 @@ function createSalon(env) {
   // Sur ordinateur (souris), la fenêtre peut être peu haute : on resserre la table, puis on la rétrécit (zoom),
   // pour que la main reste entièrement visible au-dessus des onglets. Les téléphones gardent leur mise en page.
   const DESKQ = typeof matchMedia !== 'undefined' ? matchMedia('(hover: hover) and (pointer: fine)') : null;
+  if (DESKQ && DESKQ.matches) document.body.classList.add('desk');
   function fitPlay() {
     const a = app; a.style.zoom = ''; a.style.height = ''; a.style.paddingBottom = '';
     if (!DESKQ || !DESKQ.matches || !document.body.classList.contains('inplay')) return;
@@ -581,10 +590,12 @@ function createSalon(env) {
       const cards = [...a.querySelectorAll('.pcard')].map(c => c.getBoundingClientRect().bottom);
       return { over: Math.max(0, ...cards) - limit + 4, limit };
     };
+    // grand écran : on agrandit tout (cartes comprises), la mise en page est prévue pour ~760 px de haut
+    let z = Math.max(1, Math.min(1.7, innerHeight / 760, innerWidth / (document.body.classList.contains('land') ? 1000 : 620)));
+    if (z > 1.02) { a.style.zoom = z; a.style.height = (innerHeight / z) + 'px'; } else z = 1;
     let o = over(); if (o.over <= 0) return;
     const pb = parseFloat(getComputedStyle(a).paddingBottom) || 0;
-    a.style.paddingBottom = (pb + o.over) + 'px';               // 1) la table (extensible) cède de la place
-    let z = 1;
+    a.style.paddingBottom = (pb + o.over / z) + 'px';           // 1) la table (extensible) cède de la place
     for (let i = 0; i < 4; i++) {                                // 2) sinon on rétrécit le tout
       o = over(); if (o.over <= 0) break;
       z = Math.max(0.5, z * o.limit / (o.limit + o.over));
@@ -682,8 +693,8 @@ function createSalon(env) {
     app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => { if (b.dataset.human && !confirm('Sortir ce joueur de la table ?')) return; freeSeat(b.dataset.free); }));
     on('deal', () => { clearTimeout(autoTimer); nextDeal(); });
     app.querySelectorAll('[data-act="replacebot"]').forEach(b => b.addEventListener('click', () => { if (confirm('Remplacer ce joueur par un robot ? Il pourra revenir à une place libre.')) replaceByRobot(b.dataset.seat); }));
-    on('autooff', () => { ui.noAuto = true; clearTimeout(autoTimer); renderTable(); });
-    on('autoon', () => { ui.noAuto = false; autoKey = null; afterUpdate(); renderTable(); });
+    on('autooff', () => { if (isMaster(t)) ui.noAuto = true; clearTimeout(autoTimer); tx(() => ({ pauseAuto: me() })); });
+    on('autoon', () => { ui.noAuto = false; autoKey = null; tx(() => ({ pauseAuto: null })); });
     on('fixbot', () => openFix(t.fin));
     app.querySelectorAll('[data-invite]').forEach(x => x.addEventListener('change', () => { if (x.value) invite(x.dataset.invite, x.value); }));
     app.querySelectorAll('[data-move]').forEach(x => x.addEventListener('change', () => { if (x.value) moveSeat(x.dataset.move, x.value); }));
@@ -708,7 +719,7 @@ function createSalon(env) {
     on('lasttrick', () => { ui.lastAt = ui.lastAt === t.moves ? null : t.moves; renderTable(); });
     on('cleartrick', () => { ui.clearedAt = t.moves; renderTable(); });
     on('showauction', () => { ui.showAuction = true; renderTable(); });
-    on('coachfin', () => { if (t.fin) openCoach({ ...t.fin }, { label: 'Table', go: () => { tab = 'main'; render(); } }); });
+    on('coachfin', () => { if (t.etat === 'fin' && !t.pauseAuto) { clearTimeout(autoTimer); tx(() => ({ pauseAuto: me() })); } if (t.fin) openCoach({ ...t.fin }, { label: 'Table', go: () => { tab = 'main'; render(); } }); });
     on('showseats', () => { ui.showSeats = true; renderTable(); });
     app.querySelectorAll('[data-act="hideseats"]').forEach(x => x.addEventListener('click', e => { if (e.target === x) { ui.showSeats = false; renderTable(); } }));
     on('showscores', () => { ui.showAuction = false; ui.showScores = true; ui.openRow = null; renderTable(); loadSalonResults(t); });
@@ -762,8 +773,8 @@ function createSalon(env) {
     const pts = hist.reduce((s, h) => s + h.ns, 0);
     return `${fin}
       <div class="tseats">${seatsHtml}</div>
-      ${master ? (full ? `<button class="btn primary center" data-act="deal">${t.etat === 'fin' ? 'Donne suivante' : 'Distribuer la première donne'}</button>${t.etat === 'fin' ? `<p class="center feltnote" style="font-size:13px">${ui.noAuto ? 'Donne suivante automatique en pause · <button class="link" data-act="autoon">reprendre</button>' : 'Donne suivante automatique dans quelques secondes · <button class="link" data-act="autooff">⏸ pause</button>'}</p>` : ''}` : '<p class="center feltnote">Il faut 4 joueurs (ou robots) pour distribuer.</p>')
-        : `<p class="center feltnote">${full ? 'Le maître de table 👑 va distribuer.' : 'En attente de joueurs…'}</p>`}
+      ${master ? (full ? `<button class="btn primary center" data-act="deal">${t.etat === 'fin' ? 'Donne suivante' : 'Distribuer la première donne'}</button>${t.etat === 'fin' ? `<p class="center feltnote" style="font-size:13px">${pauseTxt(t)}</p>` : ''}` : '<p class="center feltnote">Il faut 4 joueurs (ou robots) pour distribuer.</p>')
+        : `<p class="center feltnote">${full ? 'Le maître de table 👑 va distribuer.' : 'En attente de joueurs…'}${full && t.etat === 'fin' ? `<br><small>${pauseTxt(t)}</small>` : ''}</p>`}
       ${hist.length ? `<div class="card"><b>Score de la table : ${hist.length} donne(s)</b>
         <div class="tscore"><div><small>NS</small><b>${mean ?? '—'} %</b></div><div><small>EO</small><b>${mean === null ? '—' : Math.round((100 - mean) * 10) / 10} %</b></div></div>
         <div class="hist">${hist.map(h => `<div><span>${h.n}</span><span>${fmt(h.contrat)}</span><span>${h.ns > 0 ? '+' : ''}${h.ns}</span><span>${h.pct === null ? '—' : h.pct + ' %'}</span></div>`).join('')}</div>
