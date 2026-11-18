@@ -569,6 +569,32 @@ function createSalon(env) {
   // ═════ Mode paysage (téléphone couché), comme sur BBO : à gauche le chat ou les enchères, au centre le tapis
   // et ma main, à droite la boîte d'enchères (pendant les enchères) ou le mort et les boutons (pendant le jeu).
   const LANDQ = typeof matchMedia !== 'undefined' ? matchMedia('(orientation: landscape) and (max-height: 600px) and (min-width: 560px)') : null;
+  // Sur ordinateur (souris), la fenêtre peut être peu haute : on resserre la table, puis on la rétrécit (zoom),
+  // pour que la main reste entièrement visible au-dessus des onglets. Les téléphones gardent leur mise en page.
+  const DESKQ = typeof matchMedia !== 'undefined' ? matchMedia('(hover: hover) and (pointer: fine)') : null;
+  function fitPlay() {
+    const a = app; a.style.zoom = ''; a.style.height = ''; a.style.paddingBottom = '';
+    if (!DESKQ || !DESKQ.matches || !document.body.classList.contains('inplay')) return;
+    const over = () => {
+      const tb = document.querySelector('.tabbar'), r = tb && tb.getBoundingClientRect();
+      const limit = r && r.height && getComputedStyle(tb).display !== 'none' ? r.top : innerHeight;
+      const cards = [...a.querySelectorAll('.pcard')].map(c => c.getBoundingClientRect().bottom);
+      return { over: Math.max(0, ...cards) - limit + 4, limit };
+    };
+    let o = over(); if (o.over <= 0) return;
+    const pb = parseFloat(getComputedStyle(a).paddingBottom) || 0;
+    a.style.paddingBottom = (pb + o.over) + 'px';               // 1) la table (extensible) cède de la place
+    let z = 1;
+    for (let i = 0; i < 4; i++) {                                // 2) sinon on rétrécit le tout
+      o = over(); if (o.over <= 0) break;
+      z = Math.max(0.5, z * o.limit / (o.limit + o.over));
+      a.style.zoom = z; a.style.height = (innerHeight / z) + 'px';
+    }
+  }
+  if (typeof MutationObserver !== 'undefined') new MutationObserver(() => { if (!document.body.classList.contains('inplay') && (app.style.zoom || app.style.paddingBottom)) { app.style.zoom = ''; app.style.height = ''; app.style.paddingBottom = ''; } }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  let fitRaf = 0;
+  const fitSoon = () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitPlay); };
+  if (typeof addEventListener !== 'undefined') addEventListener('resize', () => { if (curId && tab === 'main') fitSoon(); });
   if (LANDQ) { const onTurn = () => { if (curId && tab === 'main') renderTable(); }; if (LANDQ.addEventListener) LANDQ.addEventListener('change', onTurn); else if (LANDQ.addListener) LANDQ.addListener(onTurn); }
   function landLayout(t, deal, my) {
     const kids = [...app.children], head = app.querySelector('header.top');
@@ -644,6 +670,7 @@ function createSalon(env) {
     const land = !!(LANDQ && LANDQ.matches) && (t.etat === 'encheres' || t.etat === 'jeu') && !!deal;
     document.body.classList.toggle('land', land);
     if (land) landLayout(t, deal, my);
+    fitSoon();
     on('back', () => {
       if (t.etat === 'jeu' || t.etat === 'encheres') { stopAll(); curId = null; current = null; open('main'); return; }   // la place reste à toi : « Revenir à la table » depuis le salon
       leaveTable();

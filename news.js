@@ -3,6 +3,11 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-18-ordinateur', date: '18/11/2026', pour: 'tous',
+    titre: '💻 Jouer sur ordinateur',
+    texte: `<p>Sur un ordinateur, la table s’ajuste maintenant à la hauteur de la fenêtre : votre main reste toujours entièrement visible en bas, même sur un petit écran.</p>`,
+  },
+  {
     id: '2026-11-16-fermer-table', date: '16/11/2026', pour: 'tous',
     titre: '✖ Fermer une table',
     texte: `<p>Dans le salon, sous votre table, un bouton <b>✖ Fermer la table</b> (ou <b>🚪 Quitter la table</b> s’il reste d’autres joueurs).</p>
