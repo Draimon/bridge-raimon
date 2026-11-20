@@ -3,6 +3,12 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-21-prof-fautes-signaux', date: '21/11/2026', pour: 'tous',
+    titre: '🔁 Le prof : vos fautes à rejouer, et vos signaux',
+    texte: `<ul><li><b>🔁 Mes fautes à rejouer</b> (onglet 🎓 Prof) : les positions de <b>vos propres donnes</b> où vous avez joué une carte qui coûtait une levée, alors que la bonne se trouvait sans voir les mains. Vous rejouez la position ; réussie, elle sort de la liste.</li>
+      <li><b>📣 Vos signaux</b> (dans « Mieux défendre ») : pour chaque défausse et chaque carte fournie sur l’entame du partenaire, ce qu’elle voulait dire dans votre système (Raimon : pair/impair, italien, préférentielle… ; SEF : appel/refus). Vérifiez que c’était bien le message voulu !</li></ul>`,
+  },
+  {
     id: '2026-11-21-profil-vocal', date: '21/11/2026', pour: 'tous',
     titre: '👤 Votre profil, et le vocal à la table',
     texte: `<p>Touchez votre <b>pastille en haut à droite du salon</b> pour ouvrir <b>👤 Mon profil</b> :</p>

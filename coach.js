@@ -22,7 +22,7 @@ function createCoach(h) {
   // ── Le carnet du prof (par joueur, sur ce téléphone) : donnes expliquées, fautes relevées, exercices réussis
   const CATS = { ouv: '🗣️ Ouverture', dev: '🗣️ Réponses et redemandes', comp: '🗣️ Compétition', entame: '🛡️ Entame', def: '🛡️ Flanc', decl: '🃏 Jeu avec le mort' };
   const storeKey = () => 'raimon-prof:' + h.me();
-  function store() { try { const x = JSON.parse(localStorage.getItem(storeKey()) || '{}'); return { vu: x.vu || {}, an: x.an || {}, ex: x.ex || {} }; } catch (e) { return { vu: {}, an: {}, ex: {} }; } }
+  function store() { try { const x = JSON.parse(localStorage.getItem(storeKey()) || '{}'); return { vu: x.vu || {}, an: x.an || {}, ex: x.ex || {}, f: x.f || [], fok: x.fok || {} }; } catch (e) { return { vu: {}, an: {}, ex: {}, f: [], fok: {} }; } }
   function saveStore(x) { try { localStorage.setItem(storeKey(), JSON.stringify(x)); } catch (e) { /* stockage indisponible */ } }
   // type d'enchère : ouverture, réponses/redemandes (adversaires muets), compétition
   function bidCat(deal, bids, i, seat) {
@@ -157,6 +157,23 @@ function createCoach(h) {
     const higher = e.goods.filter(x => x.s === e.card.s).every(x => x.r > e.card.r);
     return higher ? 'il fallait monter plus haut dans la couleur (prendre ou forcer un honneur).' : 'il fallait jouer plus petit dans la couleur (garder ton honneur / laisser passer).';
   }
+  // Signaux du flanc (fiche Raimon : défausse pair/impair à tendance négative ; à la couleur sur As : pair = préférentielle,
+  // impair = italien ; sur Roi : pair/impair ; à SA sur As ou Dame : petit = appel ; sur Roi : pair/impair ou déblocage).
+  // SEF (invités) : appel/refus classique (grosse = appel, petite = refus).
+  function signalTxt(sg, sys, trump) {
+    const v = sg.r + 2, odd = v % 2 === 1, card = cardTxt(sg.s, sg.r), par = `(${odd ? 'impair' : 'pair'})`, col = SYM[sg.s];
+    const low = sg.lowest, sz = low ? '(ta plus petite)' : '(pas ta plus petite)';
+    if (sys === 'raimon') {
+      if (sg.type === 'def') return odd ? `tu as défaussé ${card} ${par} : <b>appel</b> à ${col}.` : `tu as défaussé ${card} ${par} : <b>refus</b> de ${col}, avec préférence (petit pair = la couleur la moins chère des deux autres, gros pair = la plus chère).`;
+      const lead = sg.leadR === 12 ? 'As' : sg.leadR === 11 ? 'Roi' : sg.leadR === 10 ? 'Dame' : null;
+      if (trump !== null && lead === 'As') return `sur l’As ${col} de ton partenaire, tu as fourni ${card} ${par} : ${odd ? '<b>italien</b>, tu encourages la couleur.' : '<b>préférentielle</b> (petit pair = la couleur la moins chère, gros pair = la plus chère).'}`;
+      if (lead === 'Roi') return `sur le Roi ${col} de ton partenaire, tu as fourni ${card} ${par} : ${odd ? '<b>appel</b>' : '<b>refus</b>'}${trump === null ? ' (ou déblocage)' : ''}.`;
+      if (trump === null && (lead === 'As' || lead === 'Dame')) return `sur ${lead === 'As' ? 'l’As' : 'la Dame'} ${col} de ton partenaire, tu as fourni ${card} ${sz} : ${low ? '<b>appel</b> (petit = appel).' : '<b>refus</b> (petit = appel, donc une carte plus haute refuse).'}`;
+      return null;
+    }
+    if (sg.type === 'def') return `tu as défaussé ${card} ${sz} : ${low ? '<b>refus</b> de ' + col : '<b>appel</b> à ' + col} (grosse = appel, petite = refus).`;
+    return `sur l’entame ${col} de ton partenaire, tu as fourni ${card} ${sz} : ${low ? '<b>refus</b>' : '<b>appel</b>'} (grosse = appel, petite = refus).`;
+  }
   async function playSection(deal, r, mySeat, rec) {
     const A = h.auction({ bids: r.bids || [] }, deal), c = A.contract, plays = r.plays || [];
     if (!c || !plays.length) return '';
@@ -167,7 +184,7 @@ function createCoach(h) {
     const mine = role === 'decl' ? [c.decl, dummy] : [mySeat];
     const hands = {}; SEATS.forEach(s => { hands[s] = parse(deal[s]); });
     let leader = next(c.decl), trick = [], start = null; const played = [], voids = { N: [], E: [], S: [], O: [] }, errs = [];
-    let ddFirst = null;
+    let ddFirst = null; const signals = [], ledSeen = new Set();
     for (let k = 0; k < plays.length; k++) {
       if (!trick.length) start = Object.fromEntries(SEATS.map(s => [s, hands[s].map(x => x.slice())]));
       const turn = trick.length ? SEATS[(SEATS.indexOf(leader) + trick.length) % 4] : leader;
@@ -192,20 +209,30 @@ function createCoach(h) {
           }
         }
       }
+      // mes signaux (flanc) : défausse, ou première carte fournie sur l'entame d'une couleur par le partenaire, petites cartes seulement
+      if (role === 'def' && turn === mySeat && trick.length && rk <= 8) {
+        const led = trick[0], lowest = Math.min(...hands[turn][s]) === rk;
+        if (s !== led.s && s !== trump) signals.push({ type: 'def', s, r: rk, k, lowest });
+        else if (s === led.s && led.seat === partner(mySeat) && !ledSeen.has(led.s) && trick.length === 2) signals.push({ type: 'suit', s, r: rk, k, lowest, leadR: led.r });
+      }
       if (trick.length && s !== trick[0].s && !voids[turn].includes(trick[0].s)) voids[turn].push(trick[0].s);
       hands[turn][s] = hands[turn][s].filter(x => x !== rk);
       trick.push({ seat: turn, s, r: rk });
-      if (trick.length === 4) { played.push(...trick); leader = winnerOf(trick, trump).seat; trick = []; }
+      if (trick.length === 4) { ledSeen.add(trick[0].s); played.push(...trick); leader = winnerOf(trick, trump).seat; trick = []; }
       if (k % 8 === 7) await new Promise(res => setTimeout(res, 0));     // laisse respirer l'écran
     }
     const title = role === 'decl' ? '🃏 Mieux jouer avec le mort' : '🛡️ Mieux défendre';
     const bestLine = e => bestLineFrom(deal, c, plays, e.k), why = e => whyTxt(e, trump, role);
     const lost = errs.reduce((a, e) => a + e.loss, 0);
+    if (rec) rec.fautes = errs.filter(e => e.robotFinds).map(e => ({ id: r.n + ':' + e.k, n: r.n, k: e.k, bids: r.bids || [], plays: plays.slice(0, e.k), role, kind: e.k === 0 ? 'entame' : role, joue: [e.card.s, e.card.r] }));
     if (rec) rec.play = { role, lead: mySeat === next(c.decl), entame: errs.some(e => e.k === 0 && e.robotFinds !== false) ? 1 : 0, fautes: errs.filter(e => e.k > 0 && e.robotFinds !== false).reduce((a2, e) => a2 + e.loss, 0) };
     const head = role === 'decl'
       ? `<p>Tu as fait <b>${r.levees}</b> levée(s) ; en double mort (toutes les cartes visibles) le contrat en fait <b>${ddFirst ?? '?'}</b>.</p>`
       : `<p>En double mort, la défense pouvait faire <b>${ddFirst === null ? '?' : 13 - ddFirst}</b> levée(s) ; vous en avez fait <b>${13 - r.levees}</b>.</p>`;
-    if (!errs.length) return `<div class="card coach"><h3>${title}</h3>${head}<p>✅ Aucune carte n’a coûté de levée : jeu parfait, même en double mort !</p></div>`;
+    const sys = h.isGuest() ? 'sef' : 'raimon';
+    const sigItems = signals.map(sg => { const t = signalTxt(sg, sys, trump); return t ? `<div class="coachitem"><b>Levée ${Math.floor(sg.k / 4) + 1}</b> : ${t}</div>` : ''; }).filter(Boolean).slice(0, 5);
+    const sigHtml = sigItems.length ? `<details><summary>📣 Tes signaux (${sigItems.length}) : ce qu’ils disaient en ${sys === 'raimon' ? 'Système Raimon' : 'SEF'}</summary>${sigItems.join('')}<p class="muted" style="font-size:12px">Vérifie que c’était bien le message que tu voulais envoyer avec ta main : ton partenaire l’a lu ainsi.</p></details>` : '';
+    if (!errs.length) return `<div class="card coach"><h3>${title}</h3>${head}<p>✅ Aucune carte n’a coûté de levée : jeu parfait, même en double mort !</p>${sigHtml}</div>`;
     const key = errs.find(e => e.robotFinds) || errs.slice().sort((a2, b2) => b2.loss - a2.loss)[0];
     const keyHtml = `<div class="coachkey">❌ <b>L'erreur</b> (levée ${key.levee}) : tu as joué ${cardTxt(key.card.s, key.card.r)}${role === 'decl' && key.seat !== mySeat ? ' du mort' : ''} ; ${why(key)} Avec ${key.goods.slice(0, 2).map(x => cardTxt(x.s, x.r)).join(' ou ')}, ${role === 'decl' ? 'tu faisais' : 'la défense faisait'} ${key.loss} levée${key.loss > 1 ? 's' : ''} de plus.${key.robotFinds ? ' <b>C’était trouvable</b> sans voir les mains.' : key.robotFinds === false ? ' (Difficile : il fallait deviner la répartition.)' : ''}</div>
       <details><summary>Voir la bonne suite et les explications</summary>${bestLine(key)}<p class="muted" style="font-size:12px">Suite jouée au mieux par les quatre joueurs, cartes visibles, à partir de la levée ${key.levee}.</p></details>`;
@@ -216,7 +243,7 @@ function createCoach(h) {
       return `<div class="coachitem"><b>Levée ${e.levee}</b> : tu as joué ${cardTxt(e.card.s, e.card.r)}${who} — mieux : ${g} (${e.loss} levée${e.loss > 1 ? 's' : ''} de plus).<br><small>${verdict}</small></div>`;
     }).join('');
     const findable = errs.filter(e => e.robotFinds).reduce((a, e) => a + e.loss, 0);
-    return `<div class="card coach"><h3>${title}</h3>${head}${keyHtml}${items ? `<details><summary>Les autres cartes à revoir (${errs.length - 1})</summary>${items}</details>` : ''}<p class="muted" style="font-size:12px">${errs.length} carte(s) ont coûté ${lost} levée(s) en double mort${findable ? `, dont ${findable} trouvable(s) sans voir les mains` : ''}.</p></div>`;
+    return `<div class="card coach"><h3>${title}</h3>${head}${keyHtml}${sigHtml}${items ? `<details><summary>Les autres cartes à revoir (${errs.length - 1})</summary>${items}</details>` : ''}<p class="muted" style="font-size:12px">${errs.length} carte(s) ont coûté ${lost} levée(s) en double mort${findable ? `, dont ${findable} trouvable(s) sans voir les mains` : ''}.</p></div>`;
   }
 
   // ── La page « Mieux faire »
@@ -235,7 +262,11 @@ function createCoach(h) {
   async function analyze(r, deal, mySeat) {
     const rec = { t: Date.now() };
     const parts = [bidSection(deal, r, mySeat, sysOfMe(), rec), await playSection(deal, r, mySeat, rec)];
-    if (window.RaimonDDSW) { const S = store(); S.an[r.n] = rec; saveStore(S); }
+    if (window.RaimonDDSW) {
+      const S = store(), fl = rec.fautes || []; delete rec.fautes; S.an[r.n] = rec;
+      fl.forEach(x => { if (!S.fok[x.id] && !S.f.some(y => y.id === x.id)) S.f.push(x); });
+      S.f = S.f.slice(-40); saveStore(S);
+    }
     return parts;
   }
   async function view(r, back, opts) {
@@ -296,6 +327,7 @@ function createCoach(h) {
       <div class="card coach"><h3>🔎 Tes points faibles</h3>
         ${bars ? `${bars}<p class="muted" style="font-size:12px">D’après ${W.n} donne(s) analysée(s) et tes exercices : fautes qu’on pouvait éviter sans voir les mains.</p>` : '<p class="muted">Le prof n’a pas encore analysé de donne.</p>'}
         ${todo.length ? `<button class="btn center" data-act="profan">🔎 Analyser mes ${todo.length} dernière(s) donne(s)</button><p id="profprog" class="center muted" style="font-size:13px"></p>` : ''}</div>
+      ${S.f.length ? `<div class="card coach"><h3>🔁 Mes fautes à rejouer</h3><p><b>${S.f.length}</b> position(s) de tes donnes où tu as joué une carte qui coûtait une levée alors qu’on pouvait trouver la bonne sans voir les mains. Rejoue-les : une position réussie sort de la liste.</p><button class="btn primary center" data-act="proff">▶ Rejouer mes fautes</button></div>` : ''}
       <div class="card coach"><h3>🏋️ Cours : exercices</h3>
         <p>Des positions tirées de vraies donnes de tournoi, en <b>${sysLabel(sysOfMe())}</b>.${W.weakest ? ' Le prof commence par ton point faible.' : ''}</p>
         <button class="btn primary center" data-act="profex">🎯 Exercice : ${CATS[weak]}</button>
@@ -303,6 +335,7 @@ function createCoach(h) {
     h.on('profrev', () => reviewNext(review, 0));
     h.on('profex', () => exercise(weak));
     h.on('profan', () => analyzeAll(todo, tok));
+    h.on('proff', () => replayFault(0));
     h.app.querySelectorAll('[data-ex]').forEach(b => b.addEventListener('click', () => exercise(b.dataset.ex)));
   }
   function reviewNext(list, idx) {
@@ -423,6 +456,30 @@ function createCoach(h) {
     SEATS.forEach(x => { known[x] = x === turn || (x === vis && k > 0) ? S.hands[x].map(y => y.slice()) : [[], [], [], []]; counts[x] = S.hands[x].reduce((a, y) => a + y.length, 0); });
     return RaimonPlay.choose({ me: turn, hands: known, visible: k > 0 ? [vis] : [], trick: S.trick.slice(), played: S.played.slice(), trump: S.trump, decl: c.decl, counts, voids: JSON.parse(JSON.stringify(S.voids)), bids, dealer: deal.d, mcSamples: 30 }, 0);
   }
+  function exFromFault(x) {
+    const deal = h.dealOf(x.n); if (!deal) return null;
+    const c = h.auction({ bids: x.bids }, deal).contract; if (!c) return null;
+    const S = stateAt(deal, c, x.plays, x.k), m = ddMap(S.start, S.trump, S.leader, S.trick); if (!m) return null;
+    const L = legalOf(S.hands[S.turn], S.trick), val = o => m.get(o.s * 13 + o.r);
+    const best = Math.max(...L.map(val)), goods = L.filter(o => val(o) === best);
+    if (goods.length === L.length) return null;
+    const student = x.role === 'decl' ? c.decl : S.turn;
+    return { deal, c, bids: x.bids, plays: x.plays, k: x.k, S, student, role: x.role === 'decl' ? 'decl' : 'def', goods, val, best, note: `Donne ${x.n} · levée ${Math.floor(x.k / 4) + 1} : à la table, tu avais joué ${cardTxt(x.joue[0], x.joue[1])}.` };
+  }
+  function replayFault(i) {
+    const tok = ++viewTok, S0 = store(), list = S0.f;
+    document.body.classList.remove('tablemode', 'inplay', 'land'); window.scrollTo(0, 0);
+    const go = body => page(tok, '🔁 Mes fautes à rejouer', 'Prof', prof, body);
+    if (!window.RaimonDDSW) return go('<p class="center muted">Le solveur se charge : réessaie dans quelques secondes.</p>');
+    while (i < list.length && !exFromFault(list[i])) i++;
+    if (i >= list.length) return go('<div class="card coach"><p>✅ Plus de faute à rejouer pour l’instant. Bravo !</p></div><button class="btn primary center" data-act="exnext">Retour au prof</button>') || h.on('exnext', prof);
+    const x = list[i], ex = exFromFault(x);
+    showCardEx(ex, x.kind, go, {
+      progress: `Position ${i + 1} sur ${list.length}`,
+      onResult: ok => { const S = store(); if (ok) { S.fok[x.id] = 1; S.f = S.f.filter(y => y.id !== x.id); } saveStore(S); },
+      next: () => replayFault(store().f.some(y => y.id === x.id) ? i + 1 : i),
+    });
+  }
   async function makeCardEx(kind, tok) {
     const mySys = sysOfMe(), role = kind === 'decl' ? 'decl' : 'def';
     for (let t = 0; t < 30; t++) {
@@ -450,7 +507,8 @@ function createCoach(h) {
     }
     return null;
   }
-  function showCardEx(ex, kind, go) {
+  function showCardEx(ex, kind, go, opts) {
+    opts = opts || {};
     const { deal, c, S, student, role } = ex, dummy = partner(c.decl), k = ex.k, defSide = sideOf(c.decl) === 'NS' ? 'EO' : 'NS';
     const turn = S.turn, other = role === 'decl' ? (turn === dummy ? c.decl : dummy) : dummy;
     const order = hand => (window.suitOrder ? window.suitOrder([0, 1, 2, 3].map(s => hand[s].length), S.trump) : [0, 1, 3, 2]);
@@ -462,8 +520,8 @@ function createCoach(h) {
       : kind === 'entame' ? `Tu es <b>${NAMES[student]}</b> et tu entames contre <b>${ctrTxt(c)}</b>.` : `Tu es <b>${NAMES[student]}</b> en flanc contre <b>${ctrTxt(c)}</b>.`;
     const doneTxt = S.done.map((d, i) => `<li>Levée ${i + 1} : ${d.cards.map(x => `${NAMES[x.seat][0]} ${cardTxt(x.s, x.r)}`).join(', ')} → ${NAMES[d.w]}</li>`).join('');
     const trickTxt = S.trick.length ? 'Sur la table : ' + S.trick.map(x => `${NAMES[x.seat]} ${cardTxt(x.s, x.r)}`).join(', ') : 'C’est à toi de commencer la levée.';
-    go(`<div class="card coach">
-        <p>${intro}</p>
+    go(`${opts.progress ? `<p class="muted center" style="margin:0 0 6px">${opts.progress}</p>` : ''}<div class="card coach">
+        ${ex.note ? `<p class="muted" style="margin:0 0 6px">${ex.note}</p>` : ''}<p>${intro}</p>
         <details ${k === 0 ? 'open' : ''}><summary>Les enchères</summary>${aucTable(deal, ex.bids, false, student)}</details>
         ${k ? `<p>Levées : déclarant <b>${S.tricks[sideOf(c.decl)]}</b> · défense <b>${S.tricks[defSide]}</b> · il en faut ${6 + c.l} au déclarant.</p>` : ''}
         ${doneTxt ? `<details><summary>Les levées déjà jouées (${S.done.length})</summary><ol class="coachseq plain">${doneTxt}</ol></details>` : ''}
@@ -477,14 +535,14 @@ function createCoach(h) {
       const s = Math.floor(+el.dataset.c / 13), r = +el.dataset.c % 13, ok = ex.goods.some(g => g.s === s && g.r === r), loss = ex.best - ex.val({ s, r });
       el.classList.add(ok ? 'exok' : 'exko');
       h.app.querySelectorAll('.excards [data-c]').forEach(x => { if (ex.goods.some(g => g.s * 13 + g.r === +x.dataset.c)) x.classList.add('exgood'); });
-      addEx(kind, ok);
+      addEx(kind, ok); if (opts.onResult) opts.onResult(ok);
       const gl = ex.goods.slice(0, 3).map(x => cardTxt(x.s, x.r)).join(' ou ');
       h.app.querySelector('#exres').innerHTML = (ok
         ? `<div class="coachgood">✅ <b>Bien joué !</b> ${cardTxt(s, r)} est la bonne carte${ex.goods.length > 1 ? ` (${gl} se valent)` : ''}.</div>`
         : `<div class="coachkey">❌ ${cardTxt(s, r)} coûte ${loss} levée${loss > 1 ? 's' : ''} : ${whyTxt({ card: { s, r }, goods: ex.goods }, S.trump, role)} La bonne carte : ${gl}.</div>`)
         + `<details><summary>Voir les 4 mains et la bonne suite</summary><div class="exall">${SEATS.map(x => `<div><b>${NAMES[x]}</b>${handTxtNow(x)}</div>`).join('')}</div>${bestLineFrom(deal, c, ex.plays, k)}<p class="muted" style="font-size:12px">Suite jouée au mieux par les quatre joueurs, cartes visibles.</p></details>`
         + '<button class="btn primary center" data-act="exnext">Exercice suivant ▶</button>';
-      h.on('exnext', () => exercise(kind));
+      h.on('exnext', () => (opts.next ? opts.next() : exercise(kind)));
     }));
   }
   return { view, parLine, parOf, prof, seen: n => !!store().vu[n], _ex: exercise };
