@@ -7,6 +7,11 @@ function createSalon(env) {
   'use strict';
   const { app, topbar, on, fmt, esc, bidCard, home, getPlayer, isGuest } = env;
   const db = firebase.firestore();
+  const PROF = createProfil({ db, me: () => (firebase.auth().currentUser || {}).uid, esc, getPlayer, isGuest, reserved: AUTH.reserved, isFamilyName: AUTH.isFamily, changePassword: AUTH.changePassword, errorText: AUTH.errorText, refit: () => { try { fitSoon(); } catch (e) { /* pas encore prêt */ } }, onRename: () => heartbeat() });
+  const myName = () => PROF.myName();
+  const av = (uid, nom, cls) => `<span class="avw" data-vu="${uid}">${PROF.avatar(uid, nom, cls)}</span>`;
+  const VOIX = createVoix({ db, me: () => (firebase.auth().currentUser || {}).uid, onState: () => { if (current && curId) VOIX.sync(current, curId); if (curId && tab === 'main') renderTable(); } });
+  if (typeof document !== 'undefined') document.addEventListener('click', () => VOIX.unlock(), true);
   const MAX = 16;                                    // joueurs connectés en même temps (quota gratuit Firebase)
   const FRESH = 300000;                              // présence : vu il y a moins de 5 min (absence tolérée avant de perdre la main)
   const SEATS = ['N', 'E', 'S', 'O'];
@@ -53,7 +58,7 @@ function createSalon(env) {
   // ───── Présence (battement toutes les 60 s tant que l'appli est ouverte)
   async function heartbeat() {
     const uid = me(); if (!uid || !where) return;
-    try { await db.collection('presence').doc(uid).set({ nom: getPlayer(), invite: isGuest(), ou: where, t: now(), depuis: since }); } catch (e) { /* hors ligne */ }
+    try { await db.collection('presence').doc(uid).set({ nom: myName(), invite: isGuest(), ou: where, t: now(), depuis: since }); } catch (e) { /* hors ligne */ }
   }
   function startBeat(w) {
     where = w; if (!since) since = now(); heartbeat();
@@ -90,6 +95,7 @@ function createSalon(env) {
     const mine = presence.find(p => p.id === me());
     if (mine && mine.kick) { kicked(); return true; }
     autoClose();
+    PROF.ensure(presence.map(p => p.id));
     return false;
   }
   function kicked() {
@@ -128,7 +134,7 @@ function createSalon(env) {
       const victim = fresh().filter(p => p.invite).sort((a, b) => (b.depuis || b.t) - (a.depuis || a.t))[0];
       if (victim) await db.collection('presence').doc(victim.id).update({ kick: true }).catch(() => {});
     } else if (!isFresh(me()) && fresh().length >= MAX) {
-      app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil') + `<div class="card center"><h3>Salon complet</h3><p>${MAX} joueurs sont déjà connectés (maximum pour rester dans l’offre gratuite). Réessaie un peu plus tard.</p></div>`;
+      app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil', meBtn()) + `<div class="card center"><h3>Salon complet</h3><p>${MAX} joueurs sont déjà connectés (maximum pour rester dans l’offre gratuite). Réessaie un peu plus tard.</p></div>`;
       on('back', leave); return;
     }
     startBeat('salon');
@@ -155,12 +161,13 @@ function createSalon(env) {
   }
   const seatLabel = st => (!st ? '<i class="muted">libre</i>' : st.robot ? '🤖 Robot ' + (st.sys === 'raimon' ? 'Raimon' : 'SEF') : esc(st.nom) + (isFresh(st.uid) ? '' : ' <span class="muted">(absent)</span>'));
   function renderSalon() {
+    if (VOIX.state().on && !curId) VOIX.leave();
     if (curId || tab !== 'main') return;
     const ps = fresh().sort((a, b) => a.nom.localeCompare(b.nom));
     const live = tables.filter(t => t.etat !== 'fermee');
-    app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil') + `
+    app.innerHTML = topbar('Salon de bridge', isGuest() ? 'Quitter' : 'Accueil', meBtn()) + `
       <div class="section-title">Connectés (${ps.length}/${MAX})</div>
-      <div class="card" style="padding:10px 14px">${ps.map(p => `<div class="sl-who"><span class="dot"></span>${esc(p.nom)}${p.invite ? ' <small class="muted">invité</small>' : ''}<small class="muted"> · ${p.ou === 'salon' ? 'au salon' : 'à une table'}</small></div>`).join('') || '<span class="muted">Personne</span>'}</div>
+      <div class="card" style="padding:10px 14px">${ps.map(p => `<div class="sl-who">${av(p.id, p.nom, 'sm')}<span class="dot"></span>${esc(p.nom)}${p.invite ? ' <small class="muted">invité</small>' : ''}<small class="muted"> · ${p.ou === 'salon' ? 'au salon' : 'à une table'}</small></div>`).join('') || '<span class="muted">Personne</span>'}</div>
       <div class="section-title">Tables</div>
       ${live.map(t => {
         const free = SEATS.filter(s => !t.sieges[s]).length;
@@ -173,6 +180,7 @@ function createSalon(env) {
       <p class="center"><button class="link" data-act="news">✨ Quoi de neuf ?</button></p>${tabBar()}`;
     on('back', leave);
     on('create', createTable);
+    on('profil', () => PROF.open());
     on('news', () => showNews(getPlayer(), isGuest(), true));
     app.querySelectorAll('[data-join]').forEach(b => b.addEventListener('click', () => enterTable(b.dataset.join)));
     app.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => { if (confirm(b.textContent.includes('Fermer') ? 'Fermer cette table ? La donne en cours sera abandonnée.' : 'Quitter cette table ? Ta place sera libérée.')) quitFromSalon(b.dataset.close); }));
@@ -207,7 +215,7 @@ function createSalon(env) {
     });
   }
   function chatLog() {
-    return chat.map(m => `<div class="chatmsg ${m.uid === me() ? 'mine' : ''}"><b>${esc(m.nom)}</b> ${esc(m.texte)}<small>${new Date(m.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</small></div>`).join('') || '<p class="muted center" style="font-size:13px">Pas encore de message cette semaine.</p>';
+    return chat.map(m => `<div class="chatmsg ${m.uid === me() ? 'mine' : ''}">${av(m.uid, m.nom, 'xs')}<b>${esc(m.nom)}</b> ${esc(m.texte)}<small>${new Date(m.t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</small></div>`).join('') || '<p class="muted center" style="font-size:13px">Pas encore de message cette semaine.</p>';
   }
   const chatHtml = draft => `<div class="chatbox"><div id="chatlog" class="chatlog">${chatLog()}</div>
     <form id="chatform" class="chatform"><input id="chatin" maxlength="400" placeholder="Écrire à tout le salon…" value="${esc(draft || '')}" autocomplete="off"><button class="btn primary">Envoyer</button></form></div>`;
@@ -218,7 +226,7 @@ function createSalon(env) {
       ev.preventDefault();
       const inp = document.getElementById('chatin'), texte = inp.value.trim(); if (!texte) return;
       inp.value = '';
-      db.collection('chat').add({ uid: me(), nom: getPlayer(), texte: texte.slice(0, 400), t: now(), sem: weekStart() }).catch(() => { inp.value = texte; });
+      db.collection('chat').add({ uid: me(), nom: myName(), texte: texte.slice(0, 400), t: now(), sem: weekStart() }).catch(() => { inp.value = texte; });
     });
   }
 
@@ -226,8 +234,8 @@ function createSalon(env) {
   async function createTable() {
     const ref = db.collection('tables').doc();
     await ref.set({
-      nom: 'Table de ' + getPlayer(), maitre: me(), cree: now(), maj: now(), etat: 'attente',
-      sieges: { N: null, E: null, S: { uid: me(), nom: getPlayer() }, O: null },
+      nom: 'Table de ' + myName(), maitre: me(), cree: now(), maj: now(), etat: 'attente',
+      sieges: { N: null, E: null, S: { uid: me(), nom: myName() }, O: null },
       n: null, bids: [], plays: [], moves: 0, historique: [], robot: 'simple',
     });
     enterTable(ref.id);
@@ -240,6 +248,8 @@ function createSalon(env) {
     unsubs.push(db.collection('tables').doc(id).onSnapshot(d => {
       if (!d.exists || d.data().etat === 'fermee') { rememberTable(null); curId = null; open(); return; }
       current = { id: d.id, ...d.data() };
+      PROF.ensure(['N', 'E', 'S', 'O'].map(s => current.sieges && current.sieges[s] && current.sieges[s].uid));
+      VOIX.sync(current, curId);
       afterUpdate();
       if (tab === 'main') renderTable(); else markTableTab();
     }));
@@ -261,7 +271,7 @@ function createSalon(env) {
     tx(t => {
       if (t.sieges[seat]) return null;
       const s = { ...t.sieges }; SEATS.forEach(x => { if (s[x] && s[x].uid === me()) s[x] = null; });
-      s[seat] = { uid: me(), nom: getPlayer() };
+      s[seat] = { uid: me(), nom: myName() };
       return { sieges: s };
     });
   }
@@ -282,6 +292,15 @@ function createSalon(env) {
       return `⏸ Donne suivante en pause${who && t.pauseAuto !== me() ? ` (${esc(who.nom)} lit l’analyse)` : ''} · <button class="link" data-act="autoon">reprendre</button>`;
     }
     return 'Donne suivante automatique dans 30 secondes · <button class="link" data-act="autooff">⏸ pause</button>';
+  }
+  const meBtn = () => `<button class="mebtn" data-act="profil" title="Mon profil">${PROF.avatar(me(), myName(), 'sm')}</button>`;
+  // 🎙️ Vocal : réservé aux humains assis à la table
+  function voxHtml(t, my) {
+    if (!my || !VOIX.supported()) return '';
+    const st = VOIX.state(), others = Object.entries(t.voix || {}).filter(([u, v]) => u !== me() && v && v.on).length;
+    if (!st.on) return `<button class="seatsbtn voxfab" data-act="voxon">🎙️ Vocal${others ? ` · ${others} en ligne` : ''}</button>`;
+    const bad = Object.values(st.peers).some(x => x === 'failed');
+    return `<div class="voxbar"><button class="seatsbtn voxfab on ${st.muted ? 'muted' : ''}" data-act="voxmute">${st.muted ? '🔇 Micro coupé' : '🎤 Micro ouvert'}</button><button class="seatsbtn voxfab off" data-act="voxoff" title="Quitter le vocal">✖</button>${bad ? '<span class="voxwarn">⚠️ liaison difficile, nouvel essai…</span>' : !others ? '<span class="voxwarn">en attente des autres joueurs…</span>' : ''}</div>`;
   }
   function freeSeat(seat) { tx(t => (!isMaster(t) ? null : { sieges: { ...t.sieges, [seat]: null } })); }
   function leaveTable() {
@@ -583,7 +602,8 @@ function createSalon(env) {
   if (DESKQ && DESKQ.matches) document.body.classList.add('desk');
   function fitPlay() {
     const a = app; a.style.zoom = ''; a.style.height = ''; a.style.paddingBottom = '';
-    if (!DESKQ || !DESKQ.matches || !document.body.classList.contains('inplay')) return;
+    if (!document.body.classList.contains('inplay')) { const pz = pageZoom(); if (pz > 1) a.style.zoom = pz; return; }
+    if ((!DESKQ || !DESKQ.matches) && (+document.body.dataset.uiscale || 1) === 1) return;
     const over = () => {
       const tb = document.querySelector('.tabbar'), r = tb && tb.getBoundingClientRect();
       const limit = r && r.height && getComputedStyle(tb).display !== 'none' ? r.top : innerHeight;
@@ -591,7 +611,8 @@ function createSalon(env) {
       return { over: Math.max(0, ...cards) - limit + 4, limit };
     };
     // grand écran : on agrandit tout (cartes comprises), la mise en page est prévue pour ~760 px de haut
-    let z = Math.max(1, Math.min(1.7, innerHeight / 760, innerWidth / (document.body.classList.contains('land') ? 1000 : 620)));
+    const f = +document.body.dataset.uiscale || 1;
+    let z = Math.max(1, Math.min(1.7 * f, Math.max(1, innerHeight / 760) * f, innerWidth / (document.body.classList.contains('land') ? 1000 : 620)));
     if (z > 1.02) { a.style.zoom = z; a.style.height = (innerHeight / z) + 'px'; } else z = 1;
     let o = over(); if (o.over <= 0) return;
     const pb = parseFloat(getComputedStyle(a).paddingBottom) || 0;
@@ -602,8 +623,11 @@ function createSalon(env) {
       a.style.zoom = z; a.style.height = (innerHeight / z) + 'px';
     }
   }
-  if (typeof MutationObserver !== 'undefined') new MutationObserver(() => { if (!document.body.classList.contains('inplay') && (app.style.zoom || app.style.paddingBottom)) { app.style.zoom = ''; app.style.height = ''; app.style.paddingBottom = ''; } }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  // hors du jeu : la taille choisie s'applique aux autres écrans (salon, donnes, chat) si la largeur le permet
+  const pageZoom = () => { const f = +document.body.dataset.uiscale || 1; return f > 1 ? Math.max(1, Math.min(f, innerWidth / 600)) : 1; };
+  if (typeof MutationObserver !== 'undefined') new MutationObserver(() => { if (!document.body.classList.contains('inplay') && (app.style.height || app.style.paddingBottom || (app.style.zoom || 1) != pageZoom())) { app.style.height = ''; app.style.paddingBottom = ''; app.style.zoom = pageZoom() > 1 ? pageZoom() : ''; } }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   let fitRaf = 0;
+  PROF.setOnChange(() => { if (tab === 'main') { if (curId) renderTable(); else renderSalon(); } else if (tab === 'chat') chatView(); });
   const fitSoon = () => { cancelAnimationFrame(fitRaf); fitRaf = requestAnimationFrame(fitPlay); };
   if (typeof addEventListener !== 'undefined') addEventListener('resize', () => { if (curId && tab === 'main') fitSoon(); });
   if (LANDQ) { const onTurn = () => { if (curId && tab === 'main') renderTable(); }; if (LANDQ.addEventListener) LANDQ.addEventListener('change', onTurn); else if (LANDQ.addListener) LANDQ.addListener(onTurn); }
@@ -670,7 +694,7 @@ function createSalon(env) {
       <p class="muted" style="font-size:13px;margin:4px 0">Donneur : ${NAMES[deal.d]} · ${{ none: 'personne vulnérable', NS: 'vulnérables N/S', EO: 'vulnérables E/O', all: 'tous vulnérables' }[deal.v || 'none']}</p>
       <div id="notebox"></div>${hist.length ? '<button class="btn center" data-act="showscores">📊 Scores de la table et des autres tables</button>' : ''}
       <button class="btn primary center" data-act="hideauction">Fermer</button></div></div>` : '';
-    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head) + body + pop + spop + seatsPop
+    app.innerHTML = topbar(t.n ? t.n : esc(t.nom), 'Salon', head + (t.etat === 'jeu' || t.etat === 'encheres' ? '' : meBtn())) + body + pop + spop + seatsPop + voxHtml(t, my)
       + (isMaster(t) && (t.etat === 'jeu' || t.etat === 'encheres') ? '<button class="seatsbtn" data-act="showseats">👥 Places</button>' : '')
       + (!isGuest() ? '<button class="seatsbtn sysfab" data-sys>📖 Système</button>' : '')
       + ((t.etat === 'jeu' || t.etat === 'encheres') ? SEATS.filter(k => !t.sieges[k]).map(k => `<div class="notice">Place ${NAMES[k]} libre. ${!my ? `<button class="btn primary center sm" data-sit="${k}">M’asseoir en ${NAMES[k]}</button>` : ''}${isMaster(t) ? `<button class="btn center sm" data-robot="${k}:${(t.sieges[partner(k)] && t.sieges[partner(k)].sys) || 'sef'}">🤖 Mettre un robot</button>` : ''}</div>`).join('') : '')
@@ -692,6 +716,10 @@ function createSalon(env) {
     app.querySelectorAll('[data-robot]').forEach(b => b.addEventListener('click', () => { const [seat, sys] = b.dataset.robot.split(':'); setRobot(seat, sys || 'sef'); }));
     app.querySelectorAll('[data-free]').forEach(b => b.addEventListener('click', () => { if (b.dataset.human && !confirm('Sortir ce joueur de la table ?')) return; freeSeat(b.dataset.free); }));
     on('deal', () => { clearTimeout(autoTimer); nextDeal(); });
+    on('profil', () => PROF.open());
+    on('voxon', async () => { try { await VOIX.join(curId); } catch (e) { ui.msg = '🎙️ Vocal impossible : ' + e.message + (e.message === 'micro refusé' ? ' (autorise le micro dans les réglages du navigateur).' : '.'); renderTable(); } });
+    on('voxmute', () => { VOIX.setMute(!VOIX.state().muted); renderTable(); });
+    on('voxoff', () => { VOIX.leave(); renderTable(); });
     app.querySelectorAll('[data-act="replacebot"]').forEach(b => b.addEventListener('click', () => { if (confirm('Remplacer ce joueur par un robot ? Il pourra revenir à une place libre.')) replaceByRobot(b.dataset.seat); }));
     on('autooff', () => { if (isMaster(t)) ui.noAuto = true; clearTimeout(autoTimer); tx(() => ({ pauseAuto: me() })); });
     on('autoon', () => { ui.noAuto = false; autoKey = null; tx(() => ({ pauseAuto: null })); });
@@ -702,7 +730,7 @@ function createSalon(env) {
     wireNotes(t.notes || [], t.bids);
     const announce = v => {
       const txtEl = document.getElementById('alerttxt');
-      const note = ui.alert ? { e: ((txtEl && txtEl.value) || ui.alertTxt || '').trim() || 'Enchère alertée (sans explication)', a: true, h: getPlayer() } : null;
+      const note = ui.alert ? { e: ((txtEl && txtEl.value) || ui.alertTxt || '').trim() || 'Enchère alertée (sans explication)', a: true, h: myName() } : null;
       ui.choice = null; ui.alert = false; ui.alertTxt = '';
       move('bid', v, t.moves, note);
     };
@@ -806,7 +834,7 @@ function createSalon(env) {
   function plate(t, deal, s, pos, extra, turn) {
     const st = t.sieges[s], vul = isVul(deal, sideOf(s));
     if (st && st.uid === me()) extra = ` <span class="hcp">${hcpOf(deal[s])}H</span>` + (extra || '');
-    return `<div class="plate ${pos} ${turn === s ? 'turn' : ''}"><span class="seat ${vul ? '' : 'nv'}">${s}</span>${st ? (st.robot ? '🤖' : esc(st.nom)) : '—'}${deal.d === s ? '<span class="dealer">D</span>' : ''}${extra || ''}</div>`;
+    return `<div class="plate ${pos} ${turn === s ? 'turn' : ''}"><span class="seat ${vul ? '' : 'nv'}">${s}</span>${st ? (st.robot ? '🤖' : av(st.uid, st.nom, 'xs') + esc(st.nom) + voxMark(t, st.uid)) : '—'}${deal.d === s ? '<span class="dealer">D</span>' : ''}${extra || ''}</div>`;
   }
   function auctionTable(t, deal) {
     const order = ['O', 'N', 'E', 'S'], start = order.indexOf(deal.d), cells = [];
@@ -859,7 +887,8 @@ function createSalon(env) {
       ${big}</div>
       <p class="gridhint">${ui.choice ? 'Touche l’enchère au centre pour l’annoncer' : 'À toi : touche ton enchère'}</p>`;
   }
-  const nameOf = (t, s) => { const st = t.sieges[s]; return st ? (st.robot ? '🤖 ' + (st.sys === 'raimon' ? 'Raimon' : 'SEF') : esc(st.nom)) : '—'; };
+  const voxMark = (t, uid) => { const v = t.voix && t.voix[uid]; return v && v.on ? `<span class="voxm">${v.mute ? '🔇' : '🔊'}</span>` : ''; };
+  const nameOf = (t, s) => { const st = t.sieges[s]; return st ? (st.robot ? '🤖 ' + (st.sys === 'raimon' ? 'Raimon' : 'SEF') : av(st.uid, st.nom, 'xs') + esc(st.nom) + voxMark(t, st.uid)) : '—'; };
   function plateB(t, deal, s, pos, turn, extra) {
     const st = t.sieges[s];
     const mine = st && st.uid === me();
@@ -988,7 +1017,7 @@ function createSalon(env) {
       if (x.undo || x.claim) return null;
       const my = mySeat(x), u = lastMine(x, my); if (!u) return null;
       if (!humanOpps(x, my).length) return applyUndo(x, u);
-      return { undo: { kind: u.kind, idx: u.idx, what: u.what, by: me(), nom: getPlayer(), seat: my, moves: x.moves } };
+      return { undo: { kind: u.kind, idx: u.idx, what: u.what, by: me(), nom: myName(), seat: my, moves: x.moves } };
     });
   }
   function answerUndo(yes) {
@@ -1052,7 +1081,7 @@ function createSalon(env) {
     veil.querySelector('[data-x]').addEventListener('click', () => veil.remove());
     veil.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => {
       veil.remove();
-      tx(x => (x.etat !== 'jeu' || x.claim ? null : { claim: { side: mySide, k: +b.dataset.k, r, by: me(), nom: getPlayer(), moves: x.moves, ok: {} } }));
+      tx(x => (x.etat !== 'jeu' || x.claim ? null : { claim: { side: mySide, k: +b.dataset.k, r, by: me(), nom: myName(), moves: x.moves, ok: {} } }));
     }));
   }
   // Une réponse humaine ; si tout le monde a accepté (et le robot aussi), la donne se termine
@@ -1255,7 +1284,7 @@ function createSalon(env) {
   // ═════ Invitations et déplacements (maître de table)
   function invite(seat, uid) {
     const p = fresh().find(x => x.id === uid); if (!p) return;
-    tx(t => (!isMaster(t) || t.sieges[seat] ? null : { ['invits.' + uid]: { seat, nom: p.nom, de: getPlayer(), t: now() } }));
+    tx(t => (!isMaster(t) || t.sieges[seat] ? null : { ['invits.' + uid]: { seat, nom: p.nom, de: myName(), t: now() } }));
   }
   function moveSeat(from, to) {
     tx(t => {
@@ -1284,7 +1313,7 @@ function createSalon(env) {
           const d = await T.get(ref); const x = d.data(); if (!x) return;
           const upd = { ['invits.' + me()]: firebase.firestore.FieldValue.delete(), maj: now() };
           if (!x.sieges[inv.seat] || x.sieges[inv.seat].robot) {
-            const s = { ...x.sieges }; SEATS.forEach(k => { if (s[k] && s[k].uid === me()) s[k] = null; }); s[inv.seat] = { uid: me(), nom: getPlayer() }; upd.sieges = s;
+            const s = { ...x.sieges }; SEATS.forEach(k => { if (s[k] && s[k].uid === me()) s[k] = null; }); s[inv.seat] = { uid: me(), nom: myName() }; upd.sieges = s;
           }
           T.update(ref, upd);
         });

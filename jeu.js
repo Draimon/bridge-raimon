@@ -23,7 +23,7 @@ function suitOrder(lens, trump) {
 }
 if (typeof window !== 'undefined') window.suitOrder = suitOrder;
 function cardHtml(s, label, cls, attrs) {
-  return `<div class="pcard ${s === 1 || s === 2 ? 'red' : ''} ${cls || ''}" ${attrs || ''}><span class="rk">${label}</span><span class="st">${CARD_SYM[s]}</span><span class="big">${CARD_SYM[s]}</span></div>`;
+  return `<div class="pcard s${s} ${s === 1 || s === 2 ? 'red' : ''} ${cls || ''}" ${attrs || ''}><span class="rk">${label}</span><span class="st">${CARD_SYM[s]}</span><span class="big">${CARD_SYM[s]}</span></div>`;
 }
 // Main en arc de cercle (comme sur une vraie table) : cards = [{ s, label, cls, attrs }]
 function arcHtml(cards) {

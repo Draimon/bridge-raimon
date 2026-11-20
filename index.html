@@ -521,6 +521,33 @@
   .exother { margin: 6px 0; } .extrick { font-weight: 600; }
   .excards { display: flex; flex-wrap: nowrap; padding: 10px 0 4px; overflow-x: auto; } .excards .pcard + .pcard { margin-left: -24px; }
   .excards .pcard.exgood { box-shadow: 0 0 0 3px #1f8a4c; } .excards .pcard.exko { box-shadow: 0 0 0 3px #c0392b; }
+  /* ── 👤 Profil, avatars, affichage, vocal */
+  .av { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; vertical-align: middle; flex: 0 0 auto; font-size: 16px; color: #fff; font-weight: 700; background: #e9e4d6; }
+  .av img { width: 100%; height: 100%; object-fit: cover; display: block; } .av.emo { background: #f4efe2; }
+  .av.xs { width: 20px; height: 20px; font-size: 12px; margin-right: 4px; } .av.sm { width: 30px; height: 30px; font-size: 17px; } .av.xl { width: 72px; height: 72px; font-size: 40px; }
+  .avw { display: inline-flex; border-radius: 50%; transition: box-shadow .1s; } .avw.talk { box-shadow: 0 0 0 3px #3ddc84, 0 0 10px #3ddc84; }
+  .sl-who { display: flex; align-items: center; gap: 6px; } .sl-who .dot { margin-right: 0; }
+  .chatmsg .avw { margin-right: 2px; }
+  .mebtn { margin-left: auto; border: 0; background: none; padding: 0 2px; cursor: pointer; display: inline-flex; }
+  .plate .avw { vertical-align: middle; } .voxm { font-size: 11px; margin-left: 3px; }
+  .pme { display: flex; align-items: center; gap: 14px; }
+  .emogrid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; } .emogrid .emo { font-size: 24px; border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 4px 0; cursor: pointer; } .emogrid .emo.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .prow { display: flex; gap: 8px; } .prow .btn { width: auto; flex: 0 0 auto; padding: 8px 18px; } .prow input, .pcol input { flex: 1; min-width: 0; font-size: 16px; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); } .prow .btn { margin: 0; }
+  .pcol { display: flex; flex-direction: column; gap: 8px; }
+  .pmsg { font-size: 14px; margin: 6px 0 0; min-height: 1px; } .pmsg.ok { color: #1f8a4c; } .pmsg.ko { color: #c0392b; }
+  .pset { display: block; margin: 8px 0; } .pset input[type=range] { width: 100%; } .pset.chk { display: flex; gap: 10px; align-items: flex-start; } .pset.chk input { width: 22px; height: 22px; flex: 0 0 auto; }
+  .pdemo { display: flex; gap: 6px; justify-content: center; padding: 8px; background: #1f5f3c; border-radius: 10px; }
+  .tuto { padding-left: 20px; margin: 6px 0; } .tuto li { margin: 4px 0; }
+  .seatsbtn.voxfab { bottom: calc(84px + env(safe-area-inset-bottom) * .25); } .seatsbtn.voxfab.on { background: #1f8a4c; } .seatsbtn.voxfab.on.muted { background: #8a1f1f; }
+  .voxbar .seatsbtn.voxfab.off { left: auto; position: fixed; left: 150px; }
+  .voxwarn { position: fixed; left: 12px; bottom: calc(118px + env(safe-area-inset-bottom) * .25); z-index: 35; font-size: 12px; color: #fff; background: rgba(0,0,0,.45); border-radius: 8px; padding: 2px 8px; }
+  .seatsbtn.voxfab.inland, .voxbar .seatsbtn.inland { position: static; }
+  /* grosses cartes / 4 couleurs */
+  body.bigc .pcard .rk { font-size: 22px; letter-spacing: -1.5px; } body.bigc .pcard .st { font-size: 20px; top: 22px; }
+  body.bigc .pcard.lg .rk { font-size: 32px; } body.bigc .pcard.lg .st { font-size: 28px; top: 34px; } body.bigc .pcard.lg .big { font-size: 34px; }
+  body.bigc .pcard.md .rk { font-size: 25px; } body.bigc .pcard.md .st { font-size: 22px; top: 26px; }
+  body.bigc .gb { font-size: 120%; font-weight: 800; } body.bigc .plate { font-size: 115%; }
+  body.c4 .pcard.s2, body.c4 .dia { color: #e46f00; } body.c4 .pcard.s3, body.c4 .clb { color: #16803a; }
   .seatsbtn.sysfab { left: auto; right: 10px; }
   .seatspop { max-width: 420px; } .seatspop .tseat { background: #1f5f3c; }
   /* barre d'état de l'iPhone : bande verte nette (l'appli passe dessous en mode black-translucent) */
@@ -535,30 +562,33 @@
 </head>
 <body>
 <div class="wrap" id="app"></div>
-<script src="questions.js?v=202611182224"></script>
-<script src="fiche.js?v=202611182224"></script>
-<script src="deals.js?v=202611182224"></script>
-<script src="deals-duo.js?v=202611182224"></script>
-<script src="dds.js?v=202611182224"></script>
-<script src="jeu.js?v=202611182224"></script>
-<script src="adeux.js?v=202611182224"></script>
+<script src="questions.js?v=202611210011"></script>
+<script src="fiche.js?v=202611210011"></script>
+<script src="deals.js?v=202611210011"></script>
+<script src="deals-duo.js?v=202611210011"></script>
+<script src="dds.js?v=202611210011"></script>
+<script src="jeu.js?v=202611210011"></script>
+<script src="adeux.js?v=202611210011"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="nosleep-media.js?v=202611182224"></script>
-<script src="auth.js?v=202611182224"></script>
-<script src="ffb-01.js?v=202611182224"></script>
-<script src="ffb-02.js?v=202611182224"></script>
-<script src="robot.js?v=202611182224"></script>
-<script src="bidder.js?v=202611182224"></script>
-<script src="player.js?v=202611182224"></script>
+<script src="nosleep-media.js?v=202611210011"></script>
+<script>addEventListener('beforeinstallprompt', e => { e.preventDefault(); window.__bip = e; });</script>
+<script src="auth.js?v=202611210011"></script>
+<script src="ffb-01.js?v=202611210011"></script>
+<script src="ffb-02.js?v=202611210011"></script>
+<script src="robot.js?v=202611210011"></script>
+<script src="bidder.js?v=202611210011"></script>
+<script src="player.js?v=202611210011"></script>
 <script type="module">
   // Solveur double mort DDS (WebAssembly, vendor/bridge-dds, Apache-2.0) : les robots de défense simulent les mains cachées.
   import("./vendor/bridge-dds/dds-api.js?v=1").then(async ({ loadDds, Dds }) => { window.RaimonDDSW = new Dds(await loadDds()); }).catch(() => { /* pas de WebAssembly : règles classiques */ });
 </script>
-<script src="news.js?v=202611182224"></script>
-<script src="coach.js?v=202611182224"></script>
-<script src="salon.js?v=202611182224"></script>
+<script src="news.js?v=202611210011"></script>
+<script src="profil.js?v=202611210011"></script>
+<script src="voix.js?v=202611210011"></script>
+<script src="coach.js?v=202611210011"></script>
+<script src="salon.js?v=202611210011"></script>
 <script>
 (() => {
   'use strict';
@@ -767,7 +797,7 @@
 
   // ───── Outils
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const suits = html => html.replace(/[♥♦]/g, m => `<span class="red">${m}</span>`);
+  const suits = html => html.replace(/[♥♦♣]/g, m => (m === '♣' ? '<span class="clb">♣</span>' : `<span class="red${m === '♦' ? ' dia' : ''}">${m}</span>`));
   const fmt = s => suits(esc(s));
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const bidLabel = b => b === 'P' ? 'Passe' : b;

@@ -22,7 +22,13 @@ const AUTH = (() => {
   const FIRST_CODE = '0000';                                             // code de première connexion des invités
   // Prénom d'invité : pas celui d'un membre de la famille (même sans accent ni majuscule)
   const reserved = name => FAMILY.some(f => slug(f) === slug(name));
-  async function changePassword(newCode) { await auth.currentUser.updatePassword(pwdOf(newCode)); }
+  // Changement de code : on revérifie l'ancien d'abord (Firebase l'exige si la connexion date un peu)
+  async function changePassword(oldCode, newCode) {
+    const u = auth.currentUser; if (!u) throw Object.assign(new Error('non connecté'), { code: 'auth/requires-recent-login' });
+    if (newCode === undefined) { newCode = oldCode; oldCode = null; }
+    if (oldCode !== null) await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email, pwdOf(oldCode)));
+    await u.updatePassword(pwdOf(newCode));
+  }
   // Premier état connu (connecté ou non) : l'appli attend cette réponse avant de s'afficher.
   const ready = new Promise(res => { const off = auth.onAuthStateChanged(u => { off(); res(u); }); });
 

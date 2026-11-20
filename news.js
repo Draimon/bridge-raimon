@@ -3,6 +3,17 @@
 // pour : 'tous' (famille et invités), 'famille' (Michèle, Damien, Hélène) ou 'invites'.
 const NEWS = [
   {
+    id: '2026-11-21-profil-vocal', date: '21/11/2026', pour: 'tous',
+    titre: '👤 Votre profil, et le vocal à la table',
+    texte: `<p>Touchez votre <b>pastille en haut à droite du salon</b> pour ouvrir <b>👤 Mon profil</b> :</p>
+      <ul><li><b>🖼️ Avatar</b> : une photo ou un émoji, visible au salon, à la table et dans le chat.</li>
+      <li><b>✏️ Pseudo</b> : le nom affiché (pour vous connecter, gardez votre prénom habituel).</li>
+      <li><b>🔑 Mot de passe</b> : changez votre code quand vous voulez.</li>
+      <li><b>🔎 Affichage</b> : taille de la table jusqu’à 200 %, <b>grosses cartes</b>, et <b>4 couleurs</b> (♦ orange, ♣ vert). Réglé pour cet appareil seulement.</li>
+      <li><b>📲 Icône sur le bureau</b> : crée l’icône ♠♥♦♣ en un clic, ou explique comment faire selon votre appareil.</li></ul>
+      <p><b>🎙️ Vocal à la table</b> : touchez « 🎙️ Vocal » en bas à gauche et autorisez le micro. Les joueurs qui l’activent se parlent directement ; « 🎤 / 🔇 » coupe votre micro, ✖ quitte le vocal. Une pastille verte s’allume autour de l’avatar de celui qui parle. Conseil : un casque ou des écouteurs évitent l’écho.</p>`,
+  },
+  {
     id: '2026-11-18-retours-martine', date: '18/11/2026', pour: 'tous',
     titre: '🙏 Merci pour vos retours',
     texte: `<ul><li><b>Sur ordinateur</b>, la table s’agrandit pour remplir l’écran : les cartes sont nettement plus grandes, et la boîte d’enchères ne passe plus sous le nom du joueur en face.</li>
